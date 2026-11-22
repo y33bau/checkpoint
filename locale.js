@@ -1,4 +1,18 @@
 const english = {
+  "Źródło": "Source", "Przypnij": "Pin", "Przypięto": "Pinned",
+  "Otwórz mapę": "Open map", "Utknąłem": "I’m stuck", "Wklej link": "Paste link",
+  "Mapa": "Map", "Poradnik": "Guide", "Poradniki": "Guides", "Mapy i poradniki": "Maps and guides",
+  "Cele i poradniki": "Goals and guides", "Rodzaj linku": "Link type", "Adres linku": "Link URL",
+  "Nazwa linku": "Link name", "Powiąż z celem (opcjonalnie)": "Link to goal (optional)",
+  "Czego szukasz?": "What are you looking for?", "Pełna solucja (spoilery)": "Full walkthrough (spoilers)",
+  "pełna solucja": "full guide", "Szukaj pełnej solucji": "Find a full walkthrough",
+  "Szukaj na YouTube": "Search YouTube", "Szukaj poradnika w sieci": "Search the web for a guide",
+  "Przypnij poradnik": "Pin guide", "Nie ma zapisanych poradników.": "No saved guides.",
+  "Mapy z Wand": "Wand maps", "Przeglądaj katalog Wand": "Browse Wand catalogue",
+  "Szukam map w Wand…": "Searching Wand maps…", "Wszystkie mapy gry": "All maps for this game",
+  "Brak pasujących map. Wyszukaj inny tytuł lub wklej link.": "No matching maps. Search for another title or paste a link.",
+  "Katalog Wand jest chwilowo niedostępny.": "The Wand catalogue is currently unavailable.",
+
   "Gatunek": "Genre", "Wszystkie gatunki": "All genres", "Bez gatunku": "Unclassified", "Automatyczny": "Automatic",
   "Strzelanki": "Shooters", "Bijatyki": "Fighting", "Platformówki": "Platformers", "Wyścigi": "Racing",
   "Sportowe": "Sports", "Strategie": "Strategy", "Logiczne": "Puzzle", "Symulacje": "Simulation",

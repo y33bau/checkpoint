@@ -61,7 +61,7 @@ function featuredPanel(game) {
   return '<section class="featured-carousel" data-swipe="'+(playing.length>1)+'">'+banner(game,
     '<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>'+
     (lastNote?'<p class="featured-note">'+esc(lastNote)+'</p>':'')+
-    '<p>'+esc(run.goal||t('Następny cel czeka na zapisanie.'))+'</p>'+
+    '<p>'+esc(run.goal||t('Następny cel czeka na zapisanie.'))+'</p>'+quickResources(game)+
     '<div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
     '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div>'+
     '<div id="featured-voice"></div><p id="media-status" role="status"></p>',true)+pager+'</section>'+
@@ -246,6 +246,14 @@ const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persi
 function action(act){
  const game=active();
  if(deviceBusy)return;
+ if(['wand-maps','stuck','resource-paste'].includes(act)){
+   const resourceGame=game||featuredGame();
+   if(!resourceGame)return;
+   if(act==='wand-maps')openWandMaps(resourceGame);
+   else if(act==='stuck')openStuck(resourceGame);
+   else openResourcePaste(resourceGame);
+   return;
+ }
  if(act==='featured-prev'||act==='featured-next'){stepFeatured(act==='featured-next'?1:-1,act);return}
  const [sourceAction,providerId]=act.split(':');
  if(providerId==='steam'||Object.hasOwn(librarySources,providerId)){
@@ -342,7 +350,7 @@ function action(act){
  if(!g)return;const r=g.runs[g.system];
  if(['session','quick'].includes(act))openSessionForm(g,act==='quick');
  if(act==='rate')openGameScores(g);
- if(act==='map')openForm(t('Przypnij mapę'),input(t('Nazwa mapy'),'name',t('Mapa Wand'),'required')+input(t('Link do mapy Wand lub innej strony'),'url','','type="url" required'),d=>{const url=web(d.get('url'));if(!url)throw Error(t('Wpisz adres https lub http.'));g.maps.push({name:d.get('name'),url})});
+ if(act==='map')openResourcePaste(g,'map');
  if(act==='task')openForm(t('Nowy cel'),input(t('Co chcesz zrobić?'),'name','','required'),d=>g.tasks.push({name:d.get('name'),done:false}))}
 function openGameForm(existing,suggestion) {
   let selectedGame;

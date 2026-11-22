@@ -661,3 +661,11 @@ summary{cursor:pointer}
 
 .evening-durations{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .evening-durations button{flex:1 0 auto;min-height:44px;padding-inline:9px;white-space:nowrap}
+
+.game-resource-actions{margin-block:8px 12px}
+.game-resource-actions .button,.game-resource-actions button{min-height:42px}
+.wand-match{padding:12px 0;border-top:1px solid var(--line)}
+.wand-result{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}
+.wand-result button{min-height:40px}
+.saved-guide{display:grid;gap:4px}
+.saved-guide small{color:var(--muted)}

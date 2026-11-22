@@ -188,6 +188,8 @@ function validateBackup(data) {
        !systems.includes(game.system)||!statuses.includes(game.status)||!plain(game.runs)||!Object.hasOwn(game.runs,game.system)||
        !Array.isArray(game.scores)||!Array.isArray(game.maps)||!Array.isArray(game.tasks)||
        !game.scores.every(value=>value===null||within(value,1,10))||
+       (game.guides!==undefined&&(!Array.isArray(game.guides)||
+         !game.guides.every(item=>string(item?.name)&&web(item.url)&&(item.goal===undefined||string(item.goal)))))||
        !game.maps.every(item=>string(item?.name)&&web(item.url))||!game.tasks.every(item=>string(item?.name)&&typeof item.done==='boolean'))throw Error('Game');
     for(const [platform,run] of Object.entries(game.runs)){
       if(!systems.includes(platform)||!plain(run)||!within(run.progress,0,100)||!string(run.goal)||!Array.isArray(run.sessions)||

@@ -22,14 +22,18 @@ function sessionLog(run) {
 }
 
 function mapsAndGoals(game) {
-  const maps=game.maps.map(map=>'<a class="entry" href="'+esc(web(map.url))+'" rel="noopener noreferrer" target="_blank">'+esc(map.name)+'</a>').join('');
+  const maps=game.maps.map(map=>resourceLink(map.name,map.url,'entry')).join('');
+  const guides=(game.guides||[]).map(item=>'<div class="entry saved-guide">'+
+    resourceLink(item.name,item.url,'text-link')+
+    (item.goal?'<small>'+esc(item.goal)+'</small>':'')+'</div>').join('');
   const goals=game.tasks.map((task,index)=>goalRow(task,index)).join('');
   return '<div class="game-section-grid"><section class="panel feature-panel"><div class="row"><h2>'+t('Cele')+'</h2>'+
     btn(t('＋ Dodaj cel'),'task','primary')+'</div>'+
     (goals||'<p class="muted">'+t('Dodaj pierwszy cel dla tej gry.')+'</p>')+'</section>'+
-    '<section class="panel feature-panel"><div class="row"><h2>'+t('Mapy')+'</h2>'+
-    btn(t('＋ Dodaj mapę'),'map')+'</div>'+
-    (maps||'<p class="muted">'+t('Przypnij link do mapy gry.')+'</p>')+'</section></div>';
+    '<section class="panel feature-panel"><h2>'+t('Mapy i poradniki')+'</h2><div class="actions">'+
+    btn(t('Mapy z Wand'),'wand-maps')+btn(t('Utknąłem'),'stuck')+btn(t('Wklej link'),'resource-paste')+'</div>'+
+    '<h3>'+t('Mapy')+'</h3>'+(maps||'<p class="muted">'+t('Przypnij link do mapy gry.')+'</p>')+
+    '<h3>'+t('Poradniki')+'</h3>'+(guides||'<p class="muted">'+t('Nie ma zapisanych poradników.')+'</p>')+'</section></div>';
 }
 
 function gameRatings(game) {
@@ -41,7 +45,7 @@ function gameRatings(game) {
     '<div>'+chroniclePanel(game)+'</div></div>';
 }
 
-const gameTabs={overview:'Przegląd',goals:'Mapy i cele',ratings:'Oceny i kronika'};
+const gameTabs={overview:'Przegląd',goals:'Cele i poradniki',ratings:'Oceny i kronika'};
 let currentGameTab='overview';
 let displayedGameId;
 function renderGameCard(game) {
