@@ -1,0 +1,13 @@
+{
+  "name": "Checkpoint Afterglow",
+  "short_name": "Checkpoint",
+  "start_url": "./#now",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e0d18",
+  "theme_color": "#0e0d18",
+  "icons": [
+    {"src": "assets/checkpoint-icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "assets/checkpoint-icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
