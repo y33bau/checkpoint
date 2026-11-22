@@ -253,6 +253,8 @@ const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persi
 function action(act){
  const game=active();
  if(deviceBusy)return;
+ if(act==='refresh-cover'&&game){openCoverRefresh([game]);return}
+ if(act==='refresh-all-covers'){openCoverRefresh([...games],true);return}
  if(['wand-maps','stuck','resource-paste'].includes(act)){
    const resourceGame=game||featuredGame();
    if(!resourceGame)return;

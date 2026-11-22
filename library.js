@@ -95,7 +95,7 @@ function renderLibrary() {
         '</option>'+Object.entries({steam:{name:'Steam'},...librarySources}).map(([id,provider])=>'<option value="'+id+'" '+(librarySource===id?'selected':'')+'>'+provider.name+'</option>').join('')+'</select>'+
         '<select id="library-genre" aria-label="'+t('Gatunek')+'">'+genreFilterOptions()+'</select>'+
         '<select id="library-sort" aria-label="'+t('Sortowanie')+'">'+sortOptions+'</select>'+
-        btn(t('Import Steam JSON'),'import')+
+        btn(t('Import Steam JSON'),'import')+(games.length?btn(t('Odśwież wszystkie okładki'),'refresh-all-covers'):'')+
       '</div>'+
     '</details></div><div id="results"></div>';
 }

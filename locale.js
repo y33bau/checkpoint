@@ -1,4 +1,10 @@
 const english = {
+  "Odśwież okładkę": "Refresh cover",
+  "Odśwież wszystkie okładki": "Refresh all covers",
+  "Sprawdź okładki w całej bibliotece.": "Check covers across your library.",
+  "Szukam okładek…": "Looking for covers…",
+  "Nie udało się zapisać okładek.": "Could not save the covers.",
+  "Zmienione okładki": "Covers changed",
   "Dodaj 9 gier na start": "Add 9 starter games",
   "Zacznij od zera": "Start from scratch",
   "W co grasz teraz?": "What are you playing?",
