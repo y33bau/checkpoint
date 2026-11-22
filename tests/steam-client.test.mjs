@@ -42,7 +42,7 @@ function browser({ href = appUrl + '#connections', configured = server, env } = 
       return worker.fetch(new Request(input, { ...init, headers, signal: undefined }), env, { waitUntil() {} });
     },
   });
-  vm.runInContext(source('steam-config.js').replace("checkpointSteamServer = ''", 'checkpointSteamServer = ' + JSON.stringify(configured)), context);
+  vm.runInContext(source('steam-config.js').replace(/checkpointSteamServer = '[^']*'/, 'checkpointSteamServer = ' + JSON.stringify(configured)), context);
   vm.runInContext(source('steam-login.js'), context);
   vm.runInContext(source('import-review.js'), context);
   vm.runInContext('var t = label => label;', context);
