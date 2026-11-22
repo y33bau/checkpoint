@@ -1,4 +1,11 @@
 const english = {
+  'Przegląd': 'Overview',
+  'Mapy': 'Maps',
+  'Cele': 'Goals',
+  'Dodaj pierwszy cel dla tej gry.': 'Add the first goal for this game.',
+  'Przypnij link do mapy gry.': 'Pin a link to a game map.',
+  'Oceny i kronika': 'Ratings and journal',
+  'Sekcje karty gry': 'Game card sections',
   'Wyczyść ocenę': 'Clear rating',
   "Dokładnie tego szukam": "Exactly what I want",
   "Daje mi coś konkretnego": "Offers something I value",

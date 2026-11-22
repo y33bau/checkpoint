@@ -212,7 +212,7 @@ async function prepareChronicle(game) {
     drawLines(ctx,game.chronicle?.review||'',60,472,cover?650:920,34,6);
     const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
     if(!blob)throw Error('Image unavailable');
-    if(active()?.id!==game.id)return;
+    if(active()?.id!==game.id || !document.querySelector('#chronicle-card'))return;
     preparedCard=new File([blob],'checkpoint-kronika.png',{type:'image/png'});
     const container=document.querySelector('#chronicle-card');
     const url=URL.createObjectURL(blob);mediaUrls.push(url);
