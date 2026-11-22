@@ -1,6 +1,6 @@
 const starterGames = [
   {title:'Forza Horizon 5',genre:'Wyścigi',artId:1551360},
-  {title:'Forza Horizon 6',genre:'Wyścigi',artId:2483190},
+  {title:'Forza Horizon 6',genre:'Wyścigi',cover:'https://cdn.cloudflare.steamstatic.com/steam/apps/2483190/library_hero.jpg'},
   {title:'Grand Theft Auto VI',genre:'Akcja',cover:'https://store-images.s-microsoft.com/image/apps.38523.14542422611289128.3b031337-27f7-4c9c-b048-a91f557bda40.67ebe180-f05d-4351-b574-d94b366e0d02'},
   {title:'Grand Theft Auto V',genre:'Akcja',artId:3240220},
   {title:'Minecraft',genre:'Sandbox',cover:'https://store-images.s-microsoft.com/image/apps.58378.13850085746326678.826cc014-d610-46af-bdb3-c5c96be4d22c.64287a91-c69e-4723-bb61-03fecd348c2a'},
