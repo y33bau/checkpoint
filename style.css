@@ -256,3 +256,25 @@ button.danger{color:#ffb3b5;border-color:#81515b}
   }
 }
 .shelf-track:has(.shelf-empty){grid-template-columns:minmax(0,1fr)}
+
+.youtube-guide {
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  border-color:#b86881;
+  background:#271a2bd9;
+}
+.youtube-play {
+  display:grid;
+  place-items:center;
+  width:23px;
+  height:17px;
+  flex:none;
+  border-radius:5px;
+  background:#ed283e;
+}
+.youtube-play::after {
+  content:"";
+  border-block:4px solid transparent;
+  border-inline-start:6px solid #fff;
+}

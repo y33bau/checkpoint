@@ -1,4 +1,6 @@
 const english = {
+  'poradnik': 'walkthrough',
+  'Znajdź solucję na YouTube': 'Find a walkthrough on YouTube',
   'Dodaj kolejną grę, aby uzupełnić półkę.': 'Add another game to fill your shelf.',
   'Zacznij wpisywać tytuł…': 'Start typing a title…',
   'Podpowiedzi gier': 'Game suggestions',
