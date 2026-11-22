@@ -1,5 +1,6 @@
 import argparse
 import json
+import re
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
@@ -10,6 +11,10 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
 FEEDS = {
+    "ppe": "https://www.ppe.pl/rss.html",
+    "gram": "https://www.gram.pl/rss/content.xml",
+    "planetagracza": "https://planetagracza.pl/feed/",
+    "ignpl": "https://pl.ign.com/feed.xml",
     "gryonline": "https://www.gry-online.pl/rss/news.xml",
     "eurogamerpl": "https://www.eurogamer.pl/feed/news",
     "cdaction": "https://cdaction.pl/feed",
@@ -17,6 +22,27 @@ FEEDS = {
     "pcgamer": "https://www.pcgamer.com/rss/",
     "rps": "https://www.rockpapershotgun.com/feed/news",
 }
+
+
+# Gram.pl publishes RFC-style dates with Polish weekday and month names.
+POLISH_MONTHS = dict(zip(
+    ("sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"),
+    ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+))
+
+
+def article_date(value, source):
+    if source == "gram":
+        value = re.sub(r"^.*?,\s*", "", value)
+        value = re.sub(r"(?<=\d )([^\W\d_]{3})(?= \d{4})",
+                       lambda match: POLISH_MONTHS.get(match[1].lower(), match[1]), value)
+    try:
+        published = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    if published.tzinfo is None:
+        published = published.replace(tzinfo=timezone.utc)
+    return published.astimezone(timezone.utc).isoformat()
 
 
 def read_feed(source, feed):
@@ -31,13 +57,7 @@ def read_feed(source, feed):
             url = urlsplit(url)._replace(scheme="https").geturl()
         if not title or urlsplit(url).scheme != "https":
             continue
-        try:
-            published = parsedate_to_datetime(item.findtext("pubDate", ""))
-            if published.tzinfo is None:
-                published = published.replace(tzinfo=timezone.utc)
-            published = published.astimezone(timezone.utc).isoformat()
-        except (TypeError, ValueError):
-            published = None
+        published = article_date(item.findtext("pubDate", ""), source)
         articles.append({"source": source, "title": title, "url": url, "publishedAt": published})
     if not articles:
         raise ValueError(f"{source} returned no articles")

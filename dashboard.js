@@ -168,7 +168,7 @@ async function forceUpdate() {
 }
 
 const newsSources = {
-  pl: {gryonline:'GRYOnline.pl', eurogamerpl:'Eurogamer Polska', cdaction:'CD-Action'},
+  pl: {gryonline:'GRYOnline.pl', eurogamerpl:'Eurogamer Polska', cdaction:'CD-Action', ppe:'PPE', gram:'Gram.pl', planetagracza:'PlanetaGracza', ignpl:'IGN Polska'},
   en: {eurogamer:'Eurogamer', pcgamer:'PC Gamer', rps:'Rock Paper Shotgun'},
 };
 let newsSource = 'all';
@@ -210,7 +210,7 @@ function renderNews() {
 async function loadNews(force=false) {
   if (newsLoading || (newsData && !force)) return;
   newsLoading = true;
-  const urls = ['https://raw.githubusercontent.com/y33bau/checkpoint/news-data/news.json','assets/news.json?v=afterglow3'];
+  const urls = ['https://raw.githubusercontent.com/y33bau/checkpoint/news-data/news.json','assets/news.json?v=afterglow7'];
   try {
     const results = await Promise.allSettled(urls.map(async url=>{
       const response = await fetch(url,{cache:force?'reload':'default',signal:AbortSignal.timeout(6000)});
