@@ -362,13 +362,17 @@ button.danger { color:#ffb3b5;border-color:#81515b; }
 .library-count {padding:16px 0 10px}
 .library-list {display:grid;gap:8px}
 .library-item {position:relative;min-width:0}
-.library-row {display:flex;align-items:center;width:100%;min-height:62px;text-align:left;padding:6px 54px 6px 8px;gap:12px}
+.library-row {display:flex;align-items:center;width:100%;min-height:62px;text-align:left;padding:6px 104px 6px 8px;gap:12px}
 .library-row .cover {width:36px;min-width:36px;aspect-ratio:3/4;border-radius:5px}
 .library-row .cover b {display:none}
 .library-row .info {padding:0;min-width:0;overflow-wrap:anywhere}
 .library-covers .tile {width:100%;height:100%}
-.queue-icon {position:absolute;inset:50% 5px auto auto;transform:translateY(-50%);min-width:44px;padding:0;font-size:22px;line-height:1}
-.library-covers .queue-icon {inset:5px 5px auto auto;transform:none;background:#22172bea}
+.library-actions {position:absolute;inset:50% 5px auto auto;transform:translateY(-50%);display:flex;gap:4px}
+.library-icon,.queue-icon {min-width:44px;width:44px;padding:0;font-size:22px;line-height:1}
+.library-covers .library-actions {inset:5px 5px auto auto;transform:none;flex-direction:column}
+.library-covers .library-icon,.library-covers .queue-icon {background:#22172bea}
+.play-glyph {display:inline-block;width:0;height:0;border-style:solid;border-width:8px 0 8px 13px;border-color:transparent transparent transparent currentColor;vertical-align:middle;margin-left:3px}
+.playing-toggle[aria-pressed=true] {color:#9ef0de;border-color:#5f9e93;background:#24403f}
 .queue-toggle[aria-pressed=true] {color:#ffd29d;border-color:#ab748e;background:#483047}
 .library-more {margin:18px 0;text-align:center}
 
