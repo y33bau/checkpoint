@@ -14,7 +14,7 @@ const btn=(label,act,cls='')=>'<button class="'+cls+'" data-act="'+act+'">'+labe
 const options=(arr,v,label=s=>s)=>arr.map(s=>'<option value="'+esc(s)+'" '+(s===v?'selected':'')+'>'+esc(label(s))+'</option>').join('');
 const bar=p=>'<div class="bar"><i style="width:'+Number(p)+'%"></i></div>';
 function coverImage(game) {
-  const main = web(game.cover || '');
+  const main = gameCoverSource(game);
   const fallback = web(game.coverFallback || (game.steamAppId ? steamHeader(game.steamAppId) : ''));
   if (!main && !fallback) return '';
   return '<img loading="lazy" alt="" src="'+esc(main || fallback)+'" data-cover-fallback="'+esc(main!==fallback ? fallback : '')+'">';
@@ -82,12 +82,12 @@ function stepFeatured(direction, focusAction) {
 }
 
 function featureArtwork(game) {
-  const cover=web(game.cover||'');
+  const cover=gameCoverSource(game);
   const fallback=web(game.coverFallback||'');
   const legacySteamId=/steamstatic\.com\/steam\/apps\/(\d+)\//.exec(cover)?.[1];
   const steamId=game.steamAppId||legacySteamId;
   const sources=[
-    ...(/^\d+$/.test(steamId)?[{mode:'wide',url:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+steamId+'/library_hero.jpg'}]:[]),
+    ...(!validCustomCover(game.customCover)&&/^\d+$/.test(steamId)?[{mode:'wide',url:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+steamId+'/library_hero.jpg'}]:[]),
     ...[cover,fallback].filter((url,index,list)=>url&&list.indexOf(url)===index).map(url=>({mode:'poster',url})),
   ];
   if(!sources.length)return '';
@@ -96,7 +96,7 @@ function featureArtwork(game) {
     esc(JSON.stringify(rest))+'"></div>';
 }
 
-const banner=(g,inner)=>'<article class="hero">'+((g.cover||g.coverFallback)?'<div class="game-art">'+coverImage(g)+'</div>':'')+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
+const banner=(g,inner)=>'<article class="hero">'+((gameCoverSource(g)||g.coverFallback)?'<div class="game-art">'+coverImage(g)+'</div>':'')+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
@@ -253,6 +253,7 @@ const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persi
 function action(act){
  const game=active();
  if(deviceBusy)return;
+ if(act==='upload-cover'&&game){openCoverUpload(game);return}
  if(act==='refresh-cover'&&game){openCoverRefresh([game]);return}
  if(act==='refresh-all-covers'){openCoverRefresh([...games],true);return}
  if(['wand-maps','stuck','resource-paste'].includes(act)){

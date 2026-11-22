@@ -221,7 +221,7 @@ async function prepareChronicle(game) {
   try {
     const media=await gameMedia(game.id).catch(()=>[]);
     const shot=media.find(row=>row.gameId===game.id&&row.kind==='screenshot');
-    const art=web(game.cover || '');
+    const art=gameCoverSource(game);
     const [cover,screenshot,brandMark]=await Promise.all([
       art?fetch(art,{signal:AbortSignal.timeout(6000)}).then(response=>response.blob()).then(cardBitmap).catch(()=>null):null,
       cardBitmap(shot?.blob),

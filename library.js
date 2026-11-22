@@ -80,7 +80,8 @@ function renderLibrary() {
   const filters = [['','Wszystkie'],['Gram','W trakcie'],['W kolejce','Do ogrania'],['Ukończona','Ukończone'],['queue','Moja kolejka']];
   const sortOptions = Object.entries(librarySorts).map(([id,label])=>
     '<option value="'+id+'" '+(sort===id?'selected':'')+'>'+t(label)+'</option>').join('');
-  return pageHeading(t('Biblioteka'),btn(t('＋ Dodaj grę'),'add','primary')) +
+  const refresh=games.length?btn(t('Odśwież wszystkie okładki'),'refresh-all-covers'):'';
+  return pageHeading(t('Biblioteka'),'<div class="actions">'+refresh+btn(t('＋ Dodaj grę'),'add','primary')+'</div>') +
     '<div class="library-controls">'+
       '<input id="search" type="search" aria-label="'+t('Szukaj gry')+'" placeholder="'+t('Szukaj gry…')+'" value="'+esc(filter)+'">'+
       '<div class="library-view" role="group" aria-label="'+t('Widok biblioteki')+'">'+
@@ -95,7 +96,7 @@ function renderLibrary() {
         '</option>'+Object.entries({steam:{name:'Steam'},...librarySources}).map(([id,provider])=>'<option value="'+id+'" '+(librarySource===id?'selected':'')+'>'+provider.name+'</option>').join('')+'</select>'+
         '<select id="library-genre" aria-label="'+t('Gatunek')+'">'+genreFilterOptions()+'</select>'+
         '<select id="library-sort" aria-label="'+t('Sortowanie')+'">'+sortOptions+'</select>'+
-        btn(t('Import Steam JSON'),'import')+(games.length?btn(t('Odśwież wszystkie okładki'),'refresh-all-covers'):'')+
+        btn(t('Import Steam JSON'),'import')+
       '</div>'+
     '</details></div><div id="results"></div>';
 }

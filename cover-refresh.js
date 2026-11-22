@@ -104,7 +104,7 @@ function openCoverRefresh(entries,allGames=false) {
       while(!signal.aborted&&dialog.open&&status.isConnected&&index<entries.length){
         const entry=entries[index++];
         const title=entry.title;
-        const artwork=await resolveGameCover(entry,signal,validate);
+        const artwork=validCustomCover(entry.customCover)?null:await resolveGameCover(entry,signal,validate);
         if(artwork)results.push({entry,title,artwork});
         progress.value++;
       }
@@ -130,5 +130,92 @@ function openCoverRefresh(entries,allGames=false) {
     }
     status.textContent=t('Zmienione okładki')+' · '+changes.length+' / '+entries.length;
     button.hidden=true;
+  };
+}
+
+const customCoverLimit=220000;
+
+function validCustomCover(value) {
+  return typeof value==='string' && value.length<=customCoverLimit &&
+    /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value);
+}
+
+function gameCoverSource(game) {
+  return validCustomCover(game.customCover)?game.customCover:web(game.cover||'');
+}
+
+async function compressCover(file) {
+  const url=URL.createObjectURL(file);
+  try {
+    const image=new Image();
+    image.src=url;
+    await image.decode();
+    const canvas=document.createElement('canvas');
+    const context=canvas.getContext('2d');
+    for(const size of [900,640,440]){
+      const scale=Math.min(1,size/Math.max(image.naturalWidth,image.naturalHeight));
+      canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
+      canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+      context.fillStyle='#161120';
+      context.fillRect(0,0,canvas.width,canvas.height);
+      context.drawImage(image,0,0,canvas.width,canvas.height);
+      const cover=canvas.toDataURL('image/jpeg',.83);
+      if(validCustomCover(cover))return cover;
+    }
+    throw Error('Cover too large after compression');
+  }finally{
+    URL.revokeObjectURL(url);
+  }
+}
+
+function openCoverUpload(game) {
+  openForm(t('Wgraj okładkę'),
+    '<p>'+esc(game.title)+'</p><label>'+t('Plik graficzny')+
+    '<input name="cover-file" type="file" accept="image/jpeg,image/png,image/webp"></label>'+
+    '<p class="muted">JPG, PNG, WebP · 15 MB</p>'+
+    (validCustomCover(game.customCover)?'<button type="button" id="remove-custom-cover">'+t('Przywróć okładkę z katalogu')+'</button>':'')+
+    '<p id="cover-upload-status" role="status"></p>',()=>{});
+
+  const status=fields.querySelector('#cover-upload-status');
+  const save=document.querySelector('#save');
+  const remove=fields.querySelector('#remove-custom-cover');
+  function commitCover(cover) {
+    const previous=game.customCover;
+    if(cover)game.customCover=cover;
+    else delete game.customCover;
+    try{persist()}
+    catch{
+      if(previous===undefined)delete game.customCover;
+      else game.customCover=previous;
+      status.textContent=t('Nie udało się zapisać okładki. Sprawdź wolne miejsce w przeglądarce.');
+      return;
+    }
+    dialog.close();
+    render();
+    app.querySelector('[data-act="upload-cover"]')?.focus({preventScroll:true});
+  }
+
+  if(remove)remove.onclick=()=>commitCover(null);
+  form.onsubmit=async event=>{
+    event.preventDefault();
+    if(save.disabled)return;
+    const file=form.elements['cover-file'].files[0];
+    if(!file||file.size>15*1024*1024||!/^image\/(jpeg|png|webp)$/.test(file.type)){
+      status.textContent=t('Wybierz obraz JPG, PNG lub WebP do 15 MB.');
+      return;
+    }
+    save.disabled=true;
+    if(remove)remove.disabled=true;
+    try{
+      const cover=await compressCover(file);
+      if(dialog.open&&status.isConnected&&games.includes(game))commitCover(cover);
+    }catch{
+      status.textContent=t('Nie udało się odczytać obrazu.');
+    }finally{
+      if(status.isConnected){
+        save.disabled=false;
+        if(remove)remove.disabled=false;
+      }
+    }
   };
 }

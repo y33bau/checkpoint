@@ -12,7 +12,7 @@ function pickerEligible(target, game) {
 }
 
 function pickerThumb(cover, fallback='') {
-  const main=web(cover||''), backup=web(fallback||'');
+  const main=validCustomCover(cover)?cover:web(cover||''), backup=web(fallback||'');
   if(!main && !backup)return '<span class="picker-thumb" aria-hidden="true"></span>';
   return '<span class="picker-thumb" aria-hidden="true"><img loading="lazy" alt="" src="'+esc(main||backup)+'" data-cover-fallback="'+esc(main&&backup!==main?backup:'')+'"></span>';
 }
@@ -117,7 +117,7 @@ function wireGamePicker(target, eligible, startExternal) {
     const shown=matches.slice(0,pickerListLimit);
     libraryList.innerHTML=shown.map(entry=>
       '<button type="button" class="picker-option" data-pick-library="'+esc(entry.id)+'">'+
-        pickerThumb(entry.cover,entry.coverFallback||(entry.steamAppId?steamHeader(entry.steamAppId):''))+
+        pickerThumb(gameCoverSource(entry),entry.coverFallback||(entry.steamAppId?steamHeader(entry.steamAppId):''))+
         '<span><strong>'+esc(entry.title)+'</strong><small>'+esc(Object.keys(entry.runs).join(' · '))+' · '+esc(t(entry.status))+'</small></span>'+
       '</button>').join('');
     if(!eligible.length) libraryStatus.textContent=t(target==='queue'?'Wszystkie gry z biblioteki są już w kolejce.':'Wszystkie gry z biblioteki są już ogrywane.');

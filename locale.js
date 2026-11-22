@@ -1,4 +1,11 @@
 const english = {
+  "Wgraj okładkę": "Upload cover",
+  "Plik graficzny": "Image file",
+  "Przywróć okładkę z katalogu": "Restore catalogue cover",
+  "Wybierz obraz JPG, PNG lub WebP do 15 MB.": "Choose a JPG, PNG or WebP image up to 15 MB.",
+  "Nie udało się odczytać obrazu.": "Could not read the image.",
+  "Nie udało się zapisać okładki. Sprawdź wolne miejsce w przeglądarce.": "Could not save the cover. Check your browser storage.",
+
   "Odśwież okładkę": "Refresh cover",
   "Odśwież wszystkie okładki": "Refresh all covers",
   "Sprawdź okładki w całej bibliotece.": "Check covers across your library.",

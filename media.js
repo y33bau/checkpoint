@@ -186,6 +186,7 @@ function validateBackup(data) {
   for(const game of data.games){
     if(!plain(game)||!validId(game.id)||ids.has(game.id)||!string(game.title)||!string(game.catalog)||
        !systems.includes(game.system)||!statuses.includes(game.status)||!plain(game.runs)||!Object.hasOwn(game.runs,game.system)||
+       (game.customCover!==undefined&&!validCustomCover(game.customCover))||
        !Array.isArray(game.scores)||!Array.isArray(game.maps)||!Array.isArray(game.tasks)||
        !game.scores.every(value=>value===null||within(value,1,10))||
        (game.guides!==undefined&&(!Array.isArray(game.guides)||
