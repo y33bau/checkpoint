@@ -1,4 +1,8 @@
 const english = {
+  "Dostępna nowa wersja": "A new version is available",
+  "AKTUALIZUJ": "UPDATE",
+  "Poczekaj na zakończenie operacji.": "Wait for the current operation to finish.",
+
   "＋ Do ogrywanych": "+ Now playing",
   "Źródło": "Source", "Przypnij": "Pin", "Przypięto": "Pinned",
   "Otwórz mapę": "Open map", "Utknąłem": "I’m stuck", "Wklej link": "Paste link",

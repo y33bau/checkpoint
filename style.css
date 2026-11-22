@@ -692,3 +692,14 @@ body[data-view="now"] .top button{flex:none;padding-inline:9px}
   .evening-durations button{grid-column:span 2}
   .evening-durations button:nth-last-child(-n+2){grid-column:span 3}
 }
+
+.update-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex:none;width:min(var(--frame),100% - 2 * var(--gutter));margin:10px auto 0;
+  padding:8px 10px 8px 13px;border:1px solid #a26e8e;border-radius:var(--control-radius);
+  background:#38243c;line-height:1.25;
+}
+.update-banner strong{font-size:.95rem}
+.update-banner p{margin-top:4px;color:var(--soft);font-size:.85rem}
+.update-banner p:empty{display:none}
+.update-banner button{flex:none;font-size:.85rem}

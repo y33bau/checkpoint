@@ -61,31 +61,71 @@ function editAccount() {
     });
 }
 
-async function forceUpdate() {
-  const status = document.querySelector('#update-status');
-  const button = document.querySelector('[data-act="force-update"]');
-  button.disabled = true;
-  status.textContent = t('Szukam aktualnej wersji…');
+function appAssets(page,url) {
+  return [...page.querySelectorAll('script[src],link[rel="stylesheet"]')]
+    .map(asset=>new URL(asset.getAttribute(asset.tagName==='SCRIPT'?'src':'href'),url))
+    .filter(source=>source.origin===url.origin);
+}
+
+let updateCheck;
+let appUpdating=false;
+
+async function fetchAppRelease() {
+  const url=new URL(location.href);
+  url.searchParams.set('update',Date.now());
+  const response=await fetch(url,{cache:'reload',signal:AbortSignal.timeout(10000)});
+  if(!response.ok)throw Error('Release unavailable');
+  const page=new DOMParser().parseFromString(await response.text(),'text/html');
+  const assets=appAssets(page,url);
+  if(!page.querySelector('#app')||!assets.length)throw Error('Invalid release');
+  return {url,assets};
+}
+
+function checkForAppUpdate() {
+  if(document.readyState==='loading'||appUpdating||updateCheck)return;
+  const loadedAppAssets=appAssets(document,new URL(location.href)).map(source=>source.href).join('\n');
+  updateCheck=fetchAppRelease().then(({assets})=>{
+    if(appUpdating)return;
+    document.querySelector('#update-banner').hidden=assets.map(source=>source.href).join('\n')===loadedAppAssets;
+  }).catch(()=>{}).finally(()=>{updateCheck=undefined});
+}
+
+async function forceUpdate(fromBanner=false) {
+  if(appUpdating)return;
+  const status=document.querySelector(fromBanner?'#banner-update-status':'#update-status');
+  if(recording||deviceBusy){
+    status.textContent=t(recording?'Najpierw zakończ nagrywanie.':'Poczekaj na zakończenie operacji.');
+    return;
+  }
+  const buttons=[...document.querySelectorAll('#banner-update,[data-act="force-update"]')];
+  appUpdating=true;
+  buttons.forEach(button=>{button.disabled=true});
+  status.textContent=t('Szukam aktualnej wersji…');
   try {
-    const url = new URL(location.href);
-    url.searchParams.set('update',Date.now());
-    const response = await fetch(url,{cache:'reload',signal:AbortSignal.timeout(10000)});
-    if (!response.ok) throw Error();
-    const next = new DOMParser().parseFromString(await response.text(),'text/html');
-    const assets = [...next.querySelectorAll('script[src],link[rel="stylesheet"]')];
-    await Promise.all(assets.map(async asset => {
-      const source = new URL(asset.getAttribute(asset.tagName==='SCRIPT'?'src':'href'),url);
-      if (source.origin !== url.origin) return;
-      const fresh = await fetch(source,{cache:'reload',signal:AbortSignal.timeout(10000)});
-      if (!fresh.ok) throw Error();
+    const {url,assets}=await fetchAppRelease();
+    await Promise.all(assets.map(async source=>{
+      const fresh=await fetch(source,{cache:'reload',signal:AbortSignal.timeout(10000)});
+      if(!fresh.ok)throw Error('Asset unavailable');
       await fresh.arrayBuffer();
     }));
-    location.replace(url);
+    if(recording||deviceBusy){
+      status.textContent=t(recording?'Najpierw zakończ nagrywanie.':'Poczekaj na zakończenie operacji.');
+    }else{
+      location.replace(url);
+      return;
+    }
   } catch {
-    button.disabled = false;
-    status.textContent = t('Aktualizacja chwilowo niedostępna. Spróbuj ponownie.');
+    status.textContent=t('Aktualizacja chwilowo niedostępna. Spróbuj ponownie.');
   }
+  appUpdating=false;
+  buttons.forEach(button=>{button.disabled=false});
 }
+
+document.querySelector('#banner-update').onclick=()=>forceUpdate(true);
+window.addEventListener('pageshow',checkForAppUpdate);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible')checkForAppUpdate();
+});
 
 const newsSources = {
   pl: {gryonline:'GRYOnline.pl', eurogamerpl:'Eurogamer Polska', cdaction:'CD-Action', ppe:'PPE', gram:'Gram.pl', planetagracza:'PlanetaGracza', ignpl:'IGN Polska'},
