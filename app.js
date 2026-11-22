@@ -389,6 +389,7 @@ app.addEventListener('load',event=>{
 app.onclick=event=>{
   const button=event.target.closest('button');
   if(button?.dataset.queue) toggleQueue(button.dataset.queue);
+  else if(button?.dataset.playing) togglePlaying(button.dataset.playing);
   else if(button?.dataset.game) location.hash='game-'+button.dataset.game;
   else if(button?.dataset.act) action(button.dataset.act);
 };

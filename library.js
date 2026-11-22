@@ -100,11 +100,18 @@ function queueToggle(game, compact=false) {
     (compact?(game.pinnedAt?'★':'☆'):label)+'</button>';
 }
 
+function playingToggle(game, compact=false) {
+  const playing = game.status==='Gram';
+  const label = t(playing?'Usuń z ogrywanych':'Dodaj do ogrywanych');
+  return '<button type="button" class="playing-toggle'+(compact?' library-icon':'')+'" data-playing="'+esc(game.id)+'" aria-pressed="'+playing+'" aria-label="'+esc(label+' · '+game.title)+'"'+(compact?' title="'+esc(label)+'"':'')+'>'+
+    (compact?'<span class="play-glyph" aria-hidden="true"></span>':label)+'</button>';
+}
+
 function libraryRow(game, covers) {
   const title = esc(game.title);
   const cover = '<span class="cover"><b>'+title+'</b>'+coverImage(game)+'</span>';
   const metadata = '<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
-  return '<div class="library-item"><button type="button" class="'+(covers?'tile':'library-row')+'" data-game="'+esc(game.id)+'">'+cover+metadata+'</button>'+queueToggle(game,true)+'</div>';
+  return '<div class="library-item"><button type="button" class="'+(covers?'tile':'library-row')+'" data-game="'+esc(game.id)+'">'+cover+metadata+'</button><span class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</span></div>';
 }
 
 function renderLibraryResults() {
@@ -129,6 +136,27 @@ function toggleQueue(id) {
   if (location.hash==='#library') renderLibraryResults();
   else render();
   const button = [...app.querySelectorAll('[data-queue]')].find(item=>item.dataset.queue===id);
+  (button || app.querySelector('.library-chips [aria-pressed="true"]'))?.focus({preventScroll:true});
+}
+
+function togglePlaying(id) {
+  const game = games.find(item=>item.id===id);
+  if (!game) return;
+  if (game.status==='Gram') {
+    game.status = 'W kolejce';
+    if (preferences.featuredGameId===id) {
+      delete preferences.featuredGameId;
+      savePreferences();
+    }
+  } else {
+    game.status = 'Gram';
+    preferences.featuredGameId = id;
+    savePreferences();
+  }
+  persist();
+  if (location.hash==='#library') renderLibraryResults();
+  else render();
+  const button = [...app.querySelectorAll('[data-playing]')].find(item=>item.dataset.playing===id);
   (button || app.querySelector('.library-chips [aria-pressed="true"]'))?.focus({preventScroll:true});
 }
 
