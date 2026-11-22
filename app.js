@@ -17,7 +17,7 @@ const grid=a=>'<div class="grid">'+a.map(g=>'<button class="tile" data-game="'+g
 const pageHeading=(title,action='')=>'<div class="top"><h1>'+esc(title)+'</h1>'+action+'</div>';
 const section=s=>'<div class="section"><h2>'+s+'</h2></div>';
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
-const banner=(g,inner)=>'<article class="hero"><canvas aria-hidden="true"></canvas><div><span class="eyebrow">'+esc(g.system)+'　/　'+esc(g.status)+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
+const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-feature':'')+'"><div><span class="eyebrow">'+esc(g.system)+'　/　'+esc(g.status)+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
@@ -41,10 +41,10 @@ function renderConnections() {
     const steamStatus = isSteam && saved?.syncedAt
       ? '<small>Ostatnia synchronizacja: ' + esc(new Date(saved.syncedAt).toLocaleString('pl-PL')) + '</small>'
       : '';
-    return '<article class="panel platform-card"><h2>' + provider.name + '</h2>' +
+    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading"><span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span><div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+(saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
       '<p class="muted">' + provider.description + '</p>' +
-      '<p class="connection-state">' + (saved ? esc(saved.profile || 'Skrót zapisany') : 'Brak zapisanego profilu') + '</p>' +
-      '<div class="actions">' + btn(saved ? 'Ustawienia' : 'Zapisz profil', 'profile-' + provider.id) +
+      (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
+      '<div class="actions">' + btn(saved ? 'Edytuj profil' : 'Dodaj profil', 'profile-' + provider.id, 'provider-action') +
       '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">Otwórz ' + provider.name + '</a>' +
       (isSteam && saved?.server ? '<button class="primary" data-act="steam-sync"' + (steamBusy ? ' disabled' : '') + '>Odśwież bibliotekę</button>' : '') +
       '</div>' + (isSteam && !saved?.server ? '<small>Import online wymaga adresu serwera Steam.</small>' : '') +
@@ -122,14 +122,14 @@ function importSteamGames(data) {
 
 function catalogGrid(){const a=games.filter(g=>g.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())&&(!collection||collection===g.catalog)&&(!platform||g.runs[platform]));document.querySelector('#results').innerHTML=a.length?grid(a):'<p>Brak gier dla tego wyboru.</p>'}
 function render(){const g=active(),view=location.hash.slice(1)||'now';document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
- if(view==='connections'){app.innerHTML=renderConnections()}
+ if(view==='settings'){app.innerHTML=renderSettings()}
+ else if(view==='news'){app.innerHTML=renderNews();loadNews()}
+ else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){const r=g.runs[g.system];app.innerHTML=pageHeading('Karta gry',btn('Edytuj','edit'))+banner(g,'<p>'+esc(g.catalog)+'</p>'+btn('Zapisz sesję','session','primary'))+'<div class="panel"><div class="row"><h2>Przejście</h2><select aria-label="Platforma przejścia" id="system">'+options(Object.keys(g.runs),g.system)+'</select></div>'+bar(r.progress)+'<strong>'+r.progress+'%</strong> · '+r.sessions.reduce((n,s)=>n+s.minutes,0)+' min zapisanych'+(Number.isFinite(r.importedMinutes)?' · '+r.importedMinutes+' min w Steam':'')+'<p>'+esc(r.goal||'Zapisz kolejny cel po sesji.')+'</p></div>'+section('Mapy i cele')+'<div class="actions">'+btn('＋ Dodaj mapę','map')+btn('＋ Dodaj cel','task')+'</div>'+g.maps.map(m=>'<a class="entry" href="'+esc(web(m.url))+'" rel="noopener noreferrer" target="_blank">'+esc(m.name)+'</a>').join('')+g.tasks.map((t,i)=>'<label class="entry"><input type="checkbox" data-task="'+i+'" '+(t.done?'checked':'')+'>'+esc(t.name)+'</label>').join('')+section('Twoja ocena')+'<div class="panel row"><span class="number">'+(score(g)?.toFixed(1)??'—')+' / 10</span>'+btn('Oceń grę','rate')+'</div>'+section('Dziennik sesji')+(r.sessions.length?r.sessions.slice().reverse().map(s=>'<div class="panel"><strong>'+esc(s.date)+' · '+s.minutes+' min</strong><p>'+esc(s.note)+'</p></div>').join(''):'<p class="muted">Tutaj pojawi się pierwsza zapisana sesja.</p>')}
  else if(view==='library'){app.innerHTML=pageHeading('Biblioteka',btn('＋ Dodaj grę','add','primary'))+'<div class="filters"><input id="search" aria-label="Szukaj gry" placeholder="Szukaj gry…" value="'+esc(filter)+'"><select id="catalog" aria-label="Katalog"><option value="">Wszystkie katalogi</option>'+options([...new Set(games.map(g=>g.catalog))],collection)+'</select><select id="platform" aria-label="Filtr platformy"><option value="">Wszystkie platformy</option>'+options(systems,platform)+'</select>'+btn('Import Steam JSON','import')+'</div><div id="results"></div>';catalogGrid()}
  else if(view==='rank'){let ranked=games.filter(g=>score(g)!==null).sort((a,b)=>score(b)-score(a));app.innerHTML=pageHeading('Ranking')+(ranked.map((g,i)=>'<button class="entry" data-game="'+g.id+'"><span class="number">'+(i+1)+'</span><strong>'+esc(g.title)+'</strong>'+score(g).toFixed(1)+' / 10</button>').join('')||'<div class="panel"><h2>Jaką grę oceniasz najwyżej?</h2><p>Wybierz grę z biblioteki i oceń ją, aby rozpocząć ranking.</p><a href="#library" class="button" style="display:inline-block;margin-top:12px">Wybierz grę</a></div>')}
- else{const current=games.find(g=>g.status==='Gram');app.innerHTML=pageHeading('Gram teraz',btn('＋ Dodaj grę','add'))+(current?banner(current,'<p>'+esc(current.runs[current.system].goal||'Następny cel czeka na zapisanie.')+'</p><div class="actions">'+btn('＋ Zapisz sesję','quick','primary')+'<button data-game="'+current.id+'">Karta gry</button></div>'):'<div class="panel">Wybierz w karcie gry status „Gram”.</div>')+'<div class="section"><h2>Na półce</h2><a class="button" href="#library">Biblioteka</a></div>'+grid(games.filter(x=>x!==current).slice(0,5))}
- document.querySelector('.account-link').setAttribute('aria-current',view==='connections'?'page':'false');
- const canvas=app.querySelector('canvas');
- if(canvas)drawCity(canvas);
+ else{const current=games.find(g=>g.status==='Gram');app.innerHTML=pageHeading('Gram teraz',btn('＋ Dodaj grę','add'))+(current?banner(current,'<p>'+esc(current.runs[current.system].goal||'Następny cel czeka na zapisanie.')+'</p><div class="actions">'+btn('＋ Zapisz sesję','quick','primary')+'<button data-game="'+current.id+'">Karta gry</button></div>',true):'<div class="panel">Wybierz w karcie gry status „Gram”.</div>')+'<div class="section"><h2>Na półce</h2><a class="button" href="#library">Biblioteka</a></div>'+grid(games.filter(x=>x!==current).slice(0,5))}
+ document.querySelector('.account-link').setAttribute('aria-current',view==='settings'?'page':'false');
  for(const link of document.querySelectorAll('nav a')) {
    if(link.classList.contains('active')) link.setAttribute('aria-current','page');
    else link.removeAttribute('aria-current');
@@ -138,10 +138,15 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.q
 const input=(label,name,val='',attr='')=>'<label>'+label+'<input name="'+name+'" value="'+esc(val)+'" '+attr+'></label>';
 const select=(label,name,arr,val)=>'<label>'+label+'<select name="'+name+'">'+options(arr,val)+'</select></label>';
 let saveAction;
-function openForm(title,body,action){fields.innerHTML='<h2 id="dialog-title">'+title+'</h2>'+body;saveAction=action;dialog.showModal()}
+function openForm(title,body,action){fields.innerHTML='<h2 id="dialog-title">'+title+'</h2>'+body;saveAction=action;form.onsubmit=submitForm;dialog.showModal()}
 document.querySelector('#close').onclick=()=>dialog.close();
-form.onsubmit=e=>{e.preventDefault();try{saveAction(new FormData(form));persist();dialog.close();render()}catch(err){alert(err.message)}};
+const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persist();dialog.close();render()}catch(err){alert(err.message)}};
 function action(act){
+ if(act==='edit-account'){editAccount();return}
+ if(act==='edit-weather'){editWeather();return}
+ if(act==='force-update'){forceUpdate();return}
+ if(act==='refresh-news'){loadNews(true);return}
+ if(act.startsWith('news-source-')){selectNewsSource(act.slice(12));return}
  const provider=providers.find(p=>act==='profile-'+p.id);
  if(provider){editConnection(provider);return}
  if(act==='steam-sync'){syncSteam();return}
@@ -156,7 +161,7 @@ function action(act){
 app.onclick=e=>{const b=e.target.closest('button');if(b?.dataset.game)location.hash='game-'+b.dataset.game;else if(b?.dataset.act)action(b.dataset.act)};
 app.oninput=e=>{if(e.target.id==='search'){filter=e.target.value;catalogGrid()}};
 app.onchange=e=>{const t=e.target;if(t.id==='catalog'){collection=t.value;catalogGrid()}if(t.id==='platform'){platform=t.value;catalogGrid()}if(t.id==='system'){active().system=t.value;persist();render()}if(t.dataset.task!==undefined){active().tasks[Number(t.dataset.task)].done=t.checked;persist()}};
-window.onhashchange=()=>{render();window.scrollTo(0,0)};render();
+window.onhashchange=()=>{render();window.scrollTo(0,0)};render();loadWeather();
 
 const steamRefreshInterval = 24 * 60 * 60 * 1000;
 if (connections.steam?.server && Date.now() - (Date.parse(connections.steam.syncedAt) || 0) >= steamRefreshInterval) {
