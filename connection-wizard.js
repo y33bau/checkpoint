@@ -55,6 +55,64 @@ async function resumeSteamLogin() {
   await syncSteam();
 }
 
+function unlinkXbox() {
+  delete connections.xbox;
+  sourceKeys.delete('xbox');
+  sourceMessages.delete('xbox');
+  forgetXboxSession();
+  localStorage.setItem(connectionKey,JSON.stringify(connections));
+  render();
+}
+
+// Uses the Xbox import token while it is valid, otherwise signs in with Microsoft again.
+async function syncXbox() {
+  if(xboxBusy)return;
+  if(!xboxSessionValid()){
+    try{await beginXboxLogin()}
+    catch(error){setSourceStatus('xbox',t(xboxErrorMessage(error.code)));render()}
+    return;
+  }
+  xboxBusy=true;
+  setSourceStatus('xbox',t('Pobieram bibliotekę…'));
+  render();
+  try{
+    const data=await loadXboxLibrary();
+    setSourceStatus('xbox','');
+    previewConsole(data,'xbox','sync');
+  }catch(error){
+    setSourceStatus('xbox',t(error.code?xboxErrorMessage(error.code):'Nie udało się wczytać listy. Sprawdź format danych.'));
+  }finally{
+    xboxBusy=false;
+    render();
+  }
+}
+
+async function resumeXboxLogin() {
+  const result=takeXboxReturn();
+  if(!result||needsOnboarding(preferences))return;
+  if(location.hash!=='#connections')location.hash='connections';
+  if(result.error){
+    setSourceStatus('xbox',t(xboxErrorMessage(result.error)));
+    render();
+    return;
+  }
+  xboxBusy=true;
+  setSourceStatus('xbox',t('Łączę konto Xbox…'));
+  render();
+  try{
+    const session=await redeemXboxCode(result.code,result.pending);
+    connections.xbox={...connections.xbox,profile:session.gamertag||connections.xbox?.profile||'Xbox'};
+    localStorage.setItem(connectionKey,JSON.stringify(connections));
+  }catch(error){
+    setSourceStatus('xbox',t(xboxErrorMessage(error.code)));
+    return;
+  }finally{
+    xboxBusy=false;
+    render();
+  }
+  await syncXbox();
+}
+
 function consoleConnectionStep(provider,connectAfter) {
   const source=librarySources[provider];
   const existing=connections[provider];
