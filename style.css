@@ -471,3 +471,43 @@ button.danger { color:#ffb3b5;border-color:#81515b; }
 #first-run fieldset{min-width:0;border:1px solid var(--line);border-radius:var(--control-radius);padding:12px;margin:0}
 .onboarding-location{display:grid;gap:10px}
 #first-run [data-onboarding-status]:empty,#first-run [data-city-choices]:empty{display:none}
+
+/* Afterglow exterior */
+body {
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  flex-direction:column;
+  min-height:100dvh;
+}
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,#100e183d,#100e186e 70%,#100e18a3),
+    url("assets/afterglow-ambient.jpg") center / cover no-repeat;
+}
+main {flex:1 0 auto;padding-bottom:0}
+.brand-mark {width:48px;height:48px;border-color:#87526c;border-radius:12px}
+.app-credit {
+  display:grid;
+  justify-items:center;
+  gap:2px;
+  margin-top:clamp(26px,6vw,56px);
+  padding:10px 14px calc(84px + env(safe-area-inset-bottom));
+  color:var(--soft);
+  font-size:.75rem;
+  line-height:1.2;
+}
+.app-credit strong {color:#e7c6dc;font-weight:700;letter-spacing:.055em}
+@media(max-width:620px){
+  body::before {
+    background:
+      linear-gradient(180deg,#100e183d,#100e186e 70%,#100e18a3),
+      url("assets/afterglow-ambient-mobile.jpg") center / cover no-repeat;
+  }
+  .brand-mark{width:40px;height:40px;border-radius:10px}
+}

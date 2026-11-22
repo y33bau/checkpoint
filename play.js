@@ -218,9 +218,10 @@ async function prepareChronicle(game) {
     const media=await gameMedia(game.id).catch(()=>[]);
     const shot=media.find(row=>row.gameId===game.id&&row.kind==='screenshot');
     const art=web(game.cover || '');
-    const [cover,screenshot]=await Promise.all([
+    const [cover,screenshot,brandMark]=await Promise.all([
       art?fetch(art,{signal:AbortSignal.timeout(6000)}).then(response=>response.blob()).then(cardBitmap).catch(()=>null):null,
       cardBitmap(shot?.blob),
+      fetch('assets/checkpoint-icon-192.png',{signal:AbortSignal.timeout(3500)}).then(response=>response.ok?response.blob():null).then(cardBitmap).catch(()=>null),
     ]);
     const canvas=document.createElement('canvas');
     canvas.width=1080;canvas.height=720;
@@ -230,7 +231,8 @@ async function prepareChronicle(game) {
     ctx.fillStyle=bg;ctx.fillRect(0,0,1080,720);
     if(screenshot){drawCardImage(ctx,screenshot,0,0,1080,720);ctx.fillStyle='#0e0a19dc';ctx.fillRect(0,0,1080,720)}
     if(cover)drawCardImage(ctx,cover,770,105,264,396);
-    ctx.fillStyle='#ffb1b8';ctx.font='700 26px system-ui';ctx.fillText('CHECKPOINT',60,74);
+    if(brandMark) drawCardImage(ctx,brandMark,60,30,60,60);
+    ctx.fillStyle='#ffb1b8';ctx.font='700 26px system-ui';ctx.fillText('CHECKPOINT',brandMark?134:60,70);
     ctx.fillStyle='#fff1f6';ctx.font='800 58px system-ui';
     drawLines(ctx,game.title,60,172,cover?650:920,68,3);
     const rating=score(game);
