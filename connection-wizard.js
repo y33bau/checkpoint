@@ -35,7 +35,7 @@ async function resumeSteamLogin() {
   if(!result||needsOnboarding(preferences))return;
   if(location.hash!=='#connections')location.hash='connections';
   if(result.error){
-    steamMessage=t(steamErrorMessage(result.error));
+    steamMessage=steamFailure(result.error);
     render();
     return;
   }
@@ -46,7 +46,7 @@ async function resumeSteamLogin() {
     const session=await redeemSteamCode(result.code,result.pending);
     saveSteamProfile(session.steamId);
   }catch(error){
-    steamMessage=t(steamErrorMessage(error.code));
+    steamMessage=steamFailure(error.code);
     return;
   }finally{
     steamBusy=false;
