@@ -198,8 +198,18 @@ async function library(request, env, reply, origin) {
     format: 'json',
   });
   try {
-    const upstream = await fetch(upstreamUrl, { signal: AbortSignal.timeout(10000) });
-    if (!upstream.ok) return reply({ error: 'steam_unavailable' }, 502);
+    const upstream = await fetch(upstreamUrl, {
+      headers: { Accept: 'application/json', 'User-Agent': 'Checkpoint-Steam/2 (+https://y33bau.github.io/checkpoint/)' },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (upstream.status === 401 || upstream.status === 403) {
+      console.error('GetOwnedGames rejected the API key', upstream.status);
+      return reply({ error: 'steam_key_rejected' }, 502);
+    }
+    if (!upstream.ok) {
+      console.error('GetOwnedGames failed', upstream.status);
+      return reply({ error: 'steam_unavailable' }, 502);
+    }
     const { response } = await upstream.json();
     const games = Array.isArray(response?.games) ? response.games : response?.game_count === 0 ? [] : null;
     if (!games) return reply({ error: 'library_private', steamId: stored.steam_id }, 403);
@@ -212,7 +222,8 @@ async function library(request, env, reply, origin) {
         ...(Number.isFinite(game.rtime_last_played) ? { rtime_last_played: game.rtime_last_played } : {}),
       })),
     });
-  } catch {
+  } catch (error) {
+    console.error('GetOwnedGames request error', error?.name || 'unknown');
     return reply({ error: 'steam_unavailable' }, 502);
   }
 }

@@ -13,8 +13,14 @@ const server = 'https://steam.example.workers.dev';
 const appUrl = 'https://y33bau.github.io/checkpoint/';
 
 // Loads the browser scripts into a small fake window whose fetch goes straight to the Worker.
-function browser({ href = appUrl + '#connections', configured = server, env } = {}) {
-  const storage = new Map();
+const memoryStorage = map => ({
+  getItem: key => map.get(key) ?? null,
+  setItem: (key, value) => map.set(key, String(value)),
+  removeItem: key => map.delete(key),
+});
+
+// `storage` is localStorage, shared by every tab of the same origin; each page gets its own sessionStorage.
+function browser({ href = appUrl + '#connections', configured = server, env, storage = new Map() } = {}) {
   const assigned = [];
   const location = {
     get href() { return this.current.href; },
@@ -31,11 +37,8 @@ function browser({ href = appUrl + '#connections', configured = server, env } = 
     btoa, crypto: globalThis.crypto, console,
     location,
     history: { replaceState(_state, _title, value) { location.href = value; } },
-    sessionStorage: {
-      getItem: key => storage.get(key) ?? null,
-      setItem: (key, value) => storage.set(key, String(value)),
-      removeItem: key => storage.delete(key),
-    },
+    localStorage: memoryStorage(storage),
+    sessionStorage: memoryStorage(new Map()),
     fetch: async (input, init = {}) => {
       const headers = new Headers(init.headers);
       headers.set('Origin', location.origin);
@@ -94,6 +97,37 @@ describe('Steam sign-in in the app', () => {
     assert.equal(JSON.stringify(rows.map(row => row.name)), JSON.stringify(games.map(game => game.name)));
 
     await assert.rejects(page.run('redeemSteamCode(result.code, result.pending)'), error => error.code === 'invalid_code');
+  });
+
+  it('finishes the login when Steam returns to another tab or app window', async () => {
+    const storage = new Map();
+    const first = browser({ env, storage });
+    await first.run('beginSteamLogin()');
+    const back = await signInOnSteam(first.assigned[0], env);
+    const second = browser({ href: back, env, storage });
+    second.run('globalThis.result = takeSteamReturn()');
+    assert.equal(second.run('result.error'), undefined);
+    await second.run('redeemSteamCode(result.code, result.pending)');
+    const library = await second.run('loadSteamLibrary()');
+    assert.equal(library.steamId, steamId);
+  });
+
+  it('keeps the import session across a page reload until it expires', async () => {
+    const storage = new Map();
+    const page = browser({ env, storage });
+    await page.run('beginSteamLogin()');
+    page.location.href = await signInOnSteam(page.assigned[0], env);
+    await page.run('globalThis.result = takeSteamReturn(); redeemSteamCode(result.code, result.pending)');
+    const reloaded = browser({ env, storage });
+    assert.equal(reloaded.run('steamSessionValid()'), true);
+    assert.equal((await reloaded.run('loadSteamLibrary()')).games.length, 2);
+    reloaded.run('forgetSteamSession()');
+    assert.equal(browser({ env, storage }).run('steamSessionValid()'), false);
+  });
+
+  it('shows the error code next to the message', () => {
+    const page = browser({ env });
+    assert.match(page.run('steamFailure("login_required")'), /Połącz Steam ponownie\. \(login_required\)$/);
   });
 
   it('reports Steam errors from the redirect in the user language', () => {

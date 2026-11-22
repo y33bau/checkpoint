@@ -3,8 +3,19 @@
 // one-time code for a short-lived import token and holds that token in memory only.
 const steamPendingKey='checkpoint-steam-login-v2';
 const steamLocalServerKey='checkpoint-steam-server-local';
+const steamSessionKey='checkpoint-steam-session-v2';
 const steamLoginLifetime=10*60*1000;
 let steamSession=null;
+
+// Short-lived login data lives in localStorage so the return from Steam still works when the
+// browser lands in another tab or window of the same app (for example an installed app window).
+function steamStore(key,value) {
+  try{
+    if(value===undefined)return JSON.parse(localStorage.getItem(key)||sessionStorage.getItem(key)||'null');
+    if(value===null){localStorage.removeItem(key);sessionStorage.removeItem(key);return null}
+    localStorage.setItem(key,JSON.stringify(value));
+  }catch{return null}
+}
 
 function steamBase64(bytes) {
   let text='';
@@ -51,7 +62,7 @@ async function beginSteamLogin() {
   if(!server)throw Object.assign(Error('not_configured'),{code:'not_configured'});
   const verifier=steamBase64(crypto.getRandomValues(new Uint8Array(32)));
   const challenge=steamBase64(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))));
-  sessionStorage.setItem(steamPendingKey,JSON.stringify({verifier,server,created:Date.now()}));
+  steamStore(steamPendingKey,{verifier,server,created:Date.now()});
   const url=new URL('/auth/steam/start',server);
   url.searchParams.set('challenge',challenge);
   url.searchParams.set('return_to',steamAppAddress());
@@ -67,11 +78,8 @@ function takeSteamReturn() {
   url.searchParams.delete('steam_code');
   url.searchParams.delete('steam_error');
   history.replaceState(null,'',url.href);
-  let pending=null;
-  try{
-    pending=JSON.parse(sessionStorage.getItem(steamPendingKey)||'null');
-    sessionStorage.removeItem(steamPendingKey);
-  }catch{}
+  const pending=steamStore(steamPendingKey);
+  steamStore(steamPendingKey,null);
   if(error!==null)return {error:/^[a-z_]{1,32}$/.test(error)?error:'invalid'};
   if(!pending||typeof pending.verifier!=='string'||!steamServerOrigin(pending.server)||
      !(Date.now()-pending.created<steamLoginLifetime))return {error:'expired'};
@@ -97,10 +105,16 @@ async function redeemSteamCode(code,pending) {
   if(!/^\d{17}$/.test(data?.steamId)||typeof data?.token!=='string')throw Object.assign(Error('invalid'),{code:'invalid'});
   steamSession={server:pending.server,token:data.token,steamId:data.steamId,
     expiresAt:Date.now()+Math.max(0,(Number(data.expiresIn)||0)-30)*1000};
+  steamStore(steamSessionKey,steamSession);
   return steamSession;
 }
 
 function steamSessionValid() {
+  if(!steamSession){
+    const stored=steamStore(steamSessionKey);
+    if(stored&&typeof stored.token==='string'&&/^\d{17}$/.test(stored.steamId))steamSession=stored;
+  }
+  if(steamSession&&!(steamSession.expiresAt>Date.now())){forgetSteamSession();return false}
   return Boolean(steamSession&&steamSession.expiresAt>Date.now()&&steamSession.server===steamServerAddress());
 }
 
@@ -109,13 +123,20 @@ async function loadSteamLibrary() {
   try{
     return await steamRequest(steamSession.server,'/api/steam/library',{headers:{Authorization:'Bearer '+steamSession.token}});
   }catch(error){
-    if(error.code==='login_required')steamSession=null;
+    if(error.code==='login_required')forgetSteamSession();
     throw error;
   }
 }
 
 function forgetSteamSession() {
   steamSession=null;
+  steamStore(steamSessionKey,null);
+}
+
+// Translated message with the error code, so a screenshot tells which step failed.
+function steamFailure(code) {
+  const text=t(steamErrorMessage(code));
+  return code&&code!=='not_configured'?text+' ('+code+')':text;
 }
 
 function steamErrorMessage(code) {
@@ -126,6 +147,7 @@ function steamErrorMessage(code) {
     rate_limited:'Zbyt wiele prób. Odczekaj kilka minut i spróbuj ponownie.',
     library_private:'Zalogowano, ale Steam nie udostępnia listy gier. Ustaw „Szczegóły gier” jako publiczne w ustawieniach prywatności Steam i spróbuj ponownie.',
     login_required:'Sesja importu wygasła. Połącz Steam ponownie.',
+    steam_key_rejected:'Steam odrzucił klucz API serwera Checkpointa. Właściciel aplikacji musi ustawić nowy klucz.',
     expired:'Logowanie Steam wygasło lub nie zostało potwierdzone. Spróbuj ponownie.',
     session:'Logowanie Steam wygasło lub nie zostało potwierdzone. Spróbuj ponownie.',
     invalid:'Logowanie Steam wygasło lub nie zostało potwierdzone. Spróbuj ponownie.',

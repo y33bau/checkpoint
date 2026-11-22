@@ -143,7 +143,7 @@ async function syncSteam() {
   if (steamBusy) return;
   if (!steamSessionValid()) {
     try { await beginSteamLogin(); }
-    catch (error) { steamMessage = t(steamErrorMessage(error.code)); render(); }
+    catch (error) { steamMessage = steamFailure(error.code); render(); }
     return;
   }
   steamBusy = true;
@@ -157,7 +157,8 @@ async function syncSteam() {
     steamMessage = '';
     previewSteam(data, 'sync');
   } catch (error) {
-    steamMessage = t(steamErrorMessage(error.code));
+    console.error('Steam import failed', error);
+    steamMessage = error.code ? steamFailure(error.code) : error.message || t('Nie udało się pobrać gier.');
   } finally {
     steamBusy = false;
     if (['#connections', '#library', '#now', ''].includes(location.hash)) render();
