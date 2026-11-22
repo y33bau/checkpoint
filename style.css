@@ -814,3 +814,14 @@ body[data-view="now"] .featured-carousel{
       linear-gradient(90deg,#130e1bbb 0%,#130e1b57 34%,transparent 73%);
   }
 }
+
+
+.starter-preview{
+  display:grid;grid-template-columns:70px minmax(0,1fr);gap:13px;align-items:center;
+  padding:12px;border:1px solid #805773;border-radius:14px;
+  background:linear-gradient(120deg,#42283e,#231b31);min-width:0;
+}
+.starter-preview img{width:70px;height:70px;object-fit:cover;border-radius:9px;background:#1b1523}
+.starter-preview .eyebrow{margin-bottom:4px}
+.starter-preview strong{display:block;font-family:var(--font-display);font-size:1.45rem;line-height:1.05}
+.starter-preview small{display:block;margin-top:5px}

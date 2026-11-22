@@ -8,10 +8,18 @@ function primaryGameMap(game) {
   return game.maps.find(map=>web(map.url));
 }
 
+function primaryGuideLink(game) {
+  const guides=game.guides||[];
+  const goal=catalogText(game.runs[game.system].goal||'');
+  const forGoal=goal&&guides.findLast(item=>item.goal&&catalogText(item.goal)===goal&&web(item.url));
+  const guide=forGoal||guides.findLast(item=>!item.goal&&web(item.url))||guides.findLast(item=>web(item.url));
+  return guide?resourceLink(t('Poradnik'),guide.url):btn(t('Poradnik'),'stuck');
+}
+
 function quickResources(game) {
   const map=primaryGameMap(game);
   return (map?resourceLink(t('Otwórz mapę'),map.url):btn(t('Otwórz mapę'),'wand-maps'))+
-    btn(t('Utknąłem'),'stuck')+btn(t('Wklej link'),'resource-paste');
+    primaryGuideLink(game)+btn(t('Utknąłem'),'stuck');
 }
 
 function resourceSource(url) {
