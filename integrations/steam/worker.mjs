@@ -141,13 +141,19 @@ async function callback(request, env, url) {
   const callbackUrl = new URL('/auth/steam/callback', url.origin);
   callbackUrl.searchParams.set('state', state);
   const result = await verifySteamAssertion(url.searchParams, callbackUrl.href);
-  if (result.error) return appRedirect(returnUrl, { steam_error: result.error });
+  if (result.error) {
+    if (result.reason) console.error('Steam assertion rejected:', result.reason);
+    return appRedirect(returnUrl, { steam_error: result.error });
+  }
 
   // A Steam assertion is accepted once.
   const nonceHash = await sha256(result.nonce);
   const fresh = await env.DB.prepare('INSERT INTO used_nonces (nonce, expires_at) VALUES (?1, ?2) ON CONFLICT(nonce) DO NOTHING RETURNING nonce')
     .bind(nonceHash, nowSeconds() + Math.ceil(nonceWindow / 1000) * 2).first();
-  if (!fresh) return appRedirect(returnUrl, { steam_error: 'invalid' });
+  if (!fresh) {
+    console.error('Steam assertion rejected: nonce already used');
+    return appRedirect(returnUrl, { steam_error: 'invalid' });
+  }
 
   const code = randomSecret();
   await env.DB.prepare('INSERT INTO login_codes (code_hash, steam_id, challenge, origin, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)')
