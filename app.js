@@ -3,6 +3,7 @@ const systems=['Xbox','Steam','PlayStation'],statuses=['Gram','W kolejce','Ukoń
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 function web(s){try{const u=new URL(s);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
 const cdn=id=>'https://cdn.cloudflare.steamstatic.com/steam/apps/'+id+'/library_600x900.jpg';
+const steamHeader=id=>'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/'+id+'/header.jpg';
 const run=()=>({progress:0,goal:'',sessions:[]});
 function game(title,system,cover='',catalog='Moje gry'){return {id:crypto.randomUUID(),title,system,cover,catalog,status:'W kolejce',runs:{[system]:run()},scores:[],maps:[],tasks:[]}}
 const key='checkpoint-diary-v1';let games=JSON.parse(localStorage.getItem(key)||'null')??[],filter='',collection='',platform='';
@@ -12,11 +13,17 @@ const score=g=>{const a=g.scores.filter(Number.isFinite);return a.length?(a.redu
 const btn=(label,act,cls='')=>'<button class="'+cls+'" data-act="'+act+'">'+label+'</button>';
 const options=(arr,v,label=s=>s)=>arr.map(s=>'<option value="'+esc(s)+'" '+(s===v?'selected':'')+'>'+esc(label(s))+'</option>').join('');
 const bar=p=>'<div class="bar"><i style="width:'+Number(p)+'%"></i></div>';
-const grid=a=>'<div class="grid">'+a.map(g=>'<button class="tile" data-game="'+g.id+'"><span class="cover"><b>'+esc(g.title)+'</b>'+(web(g.cover)?'<img loading="lazy" alt="" src="'+esc(web(g.cover))+'" onerror="this.hidden=true;this.style.display=\'none\'">':'')+'</span><span class="info"><strong>'+esc(g.title)+'</strong><small>'+esc(Object.keys(g.runs).join(' · '))+'</small></span></button>').join('')+'</div>';
+function coverImage(game) {
+  const main = web(game.cover || '');
+  const fallback = web(game.coverFallback || (game.steamAppId ? steamHeader(game.steamAppId) : ''));
+  if (!main && !fallback) return '';
+  return '<img loading="lazy" alt="" src="'+esc(main || fallback)+'" data-cover-fallback="'+esc(main!==fallback ? fallback : '')+'">';
+}
+const grid=a=>'<div class="grid">'+a.map(g=>'<button class="tile" data-game="'+g.id+'"><span class="cover"><b>'+esc(g.title)+'</b>'+coverImage(g)+'</span><span class="info"><strong>'+esc(g.title)+'</strong><small>'+esc(Object.keys(g.runs).join(' · '))+'</small></span></button>').join('')+'</div>';
 const pageHeading=(title,action='')=>'<div class="top"><h1>'+esc(title)+'</h1>'+action+'</div>';
 const section=s=>'<div class="section"><h2>'+s+'</h2></div>';
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
-const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-feature':'')+'"><div><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
+const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-feature':'')+'">'+(!feature&&(g.cover||g.coverFallback)?'<div class="game-art">'+coverImage(g)+'</div>':'')+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
@@ -113,6 +120,8 @@ function importSteamGames(data) {
       games.push(item);
     }
     item.steamAppId = entry.appid;
+    item.cover ||= cdn(entry.appid);
+    item.coverFallback ||= steamHeader(entry.appid);
     item.runs.Steam ??= run();
     if (Number.isFinite(entry.playtime_forever)) item.runs.Steam.importedMinutes = entry.playtime_forever;
   }
@@ -153,13 +162,66 @@ function action(act){
  if(provider){editConnection(provider);return}
  if(act==='steam-sync'){syncSteam();return}
  let g=active();if(act==='quick')g=games.find(g=>g.status==='Gram');
- if(['add','edit'].includes(act)){openForm(g?t('Edytuj grę'):t('Dodaj grę'),input(t('Tytuł'),'title',g?.title,'required maxlength="120"')+select(t('Platforma'),'system',systems,g?.system)+input(t('Katalog'),'catalog',g?.catalog||'Moje gry','required')+select(t('Status'),'status',statuses,g?.status,t)+input(t('Adres okładki'),'cover',g?.cover,'type="url"'),d=>{const title=d.get('title').trim(),p=d.get('system');if(!title)throw Error(t('Wpisz tytuł.'));const item=g||games.find(x=>x.title.toLowerCase()===title.toLowerCase())||game(title,p);Object.assign(item,{title,system:p,status:d.get('status'),catalog:d.get('catalog').trim()||'Moje gry',cover:web(d.get('cover'))||item.cover});item.runs[p]??=run();if(!games.includes(item))games.push(item);location.hash='game-'+item.id});return}
+ if(['add','edit'].includes(act)){openGameForm(g);return}
  if(act==='import'){openForm(t('Import biblioteki Steam'),'<label>'+t('Wklej JSON z listą gier Steam (GetOwnedGames)')+'<textarea name="json" required rows="6"></textarea></label>',d=>importSteamGames(JSON.parse(d.get('json'))));return}
  if(!g)return;const r=g.runs[g.system];
  if(['session','quick'].includes(act))openForm(t('Zapisz sesję'),input(t('Czas gry (min)'),'minutes',30,'type="number" min="1" max="1440" required')+input(t('Postęp (%)'),'progress',r.progress,'type="number" min="0" max="100" required')+input(t('Co udało się zrobić?'),'note')+input(t('Następny cel'),'goal',r.goal),d=>{r.sessions.push({date:new Date().toLocaleDateString(appLocale()),minutes:Number(d.get('minutes')),note:d.get('note')});r.goal=d.get('goal');r.progress=Number(d.get('progress'));if(act==='quick')location.hash='game-'+g.id});
  if(act==='rate')openForm(t('Oceń grę'),'<p class="muted">'+t('Skala 1–10. Puste kategorie pomijamy w średniej.')+'</p>'+criteria.map((c,i)=>input(t(c),'c'+i,g.scores[i]??'','type="number" min="1" max="10"')).join(''),d=>g.scores=criteria.map((_,i)=>d.get('c'+i)?Number(d.get('c'+i)):null));
  if(act==='map')openForm(t('Przypnij mapę'),input(t('Nazwa mapy'),'name',t('Mapa Wand'),'required')+input(t('Link do mapy Wand lub innej strony'),'url','','type="url" required'),d=>{const url=web(d.get('url'));if(!url)throw Error(t('Wpisz adres https lub http.'));g.maps.push({name:d.get('name'),url})});
  if(act==='task')openForm(t('Nowy cel'),input(t('Co chcesz zrobić?'),'name','','required'),d=>g.tasks.push({name:d.get('name'),done:false}))}
+function openGameForm(existing) {
+  let selectedGame;
+  const platform = existing?.system || preferences.profile?.platform || systems[0];
+  openForm(existing?t('Edytuj grę'):t('Dodaj grę'),
+    select(t('Platforma'),'system',systems,platform) +
+    input(t('Tytuł'),'title',existing?.title,'required maxlength="120" placeholder="'+t('Zacznij wpisywać tytuł…')+'"') +
+    '<div id="catalog-results" class="catalog-results" role="listbox" aria-label="'+t('Podpowiedzi gier')+'" hidden></div>' +
+    '<p id="catalog-status" class="muted" role="status"></p>' +
+    input(t('Katalog'),'catalog',existing?.catalog||'Moje gry','required') +
+    select(t('Status'),'status',statuses,existing?.status,t), data=>{
+      const typedTitle = data.get('title').trim();
+      if (!typedTitle) throw Error(t('Wpisz tytuł.'));
+      const store = data.get('system');
+      const choice = selectedGame();
+      const item = existing || games.find(entry=>entry.title.toLowerCase()===typedTitle.toLowerCase()) || game(typedTitle,store);
+      const renamed = item.title!==typedTitle;
+      Object.assign(item,{title:typedTitle,system:store,status:data.get('status'),catalog:data.get('catalog').trim()||'Moje gry'});
+      item.runs[store] ??= run();
+      if (renamed && !item.steamAppId) {
+        item.cover='';
+        item.coverFallback='';
+      }
+      if (choice && (!item.cover || (renamed && !item.steamAppId))) useCatalogCover(item,choice);
+      if (!games.includes(item)) games.push(item);
+      if (!choice && !item.cover) fillExactCover(item,typedTitle,store);
+      location.hash='game-'+item.id;
+    });
+  selectedGame=wireCatalogSearch(existing?.title);
+}
+
+async function fillExactCover(game, title, store) {
+  try {
+    const [choice] = await findCatalogGames(title,store,true);
+    if (!choice || !games.includes(game) || game.title!==title || game.system!==store || game.cover) return;
+    useCatalogCover(game,choice);
+    persist();
+    if (!dialog.open) render();
+  } catch {
+    // The game stays in the library if its catalogue is unavailable.
+  }
+}
+
+app.addEventListener('error',event=>{
+  const image=event.target;
+  if (!image.matches?.('.cover img, .game-art img')) return;
+  const fallback=image.dataset.coverFallback;
+  if (fallback) {
+    image.dataset.coverFallback='';
+    image.src=fallback;
+  } else {
+    image.remove();
+  }
+},true);
 app.onclick=e=>{const b=e.target.closest('button');if(b?.dataset.game)location.hash='game-'+b.dataset.game;else if(b?.dataset.act)action(b.dataset.act)};
 app.oninput=e=>{if(e.target.id==='search'){filter=e.target.value;catalogGrid()}};
 app.onchange=e=>{const t=e.target;if(t.id==='app-language'){changeAppLanguage(t.value);return}if(t.id==='catalog'){collection=t.value;catalogGrid()}if(t.id==='platform'){platform=t.value;catalogGrid()}if(t.id==='system'){active().system=t.value;persist();render()}if(t.dataset.task!==undefined){active().tasks[Number(t.dataset.task)].done=t.checked;persist()}};

@@ -253,6 +253,7 @@ function clearLocalData() {
   const message = t('Usunąć z tego urządzenia gry, sesje, oceny, mapy, profile połączeń i ustawienia Checkpoint? Tej operacji nie można cofnąć.');
   if (!window.confirm(message)) return;
   connections = {};
+  games = [];
   for (const storageKey of [key, settingsKey, connectionKey]) localStorage.removeItem(storageKey);
   location.reload();
 }

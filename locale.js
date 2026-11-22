@@ -1,4 +1,9 @@
 const english = {
+  'Zacznij wpisywać tytuł…': 'Start typing a title…',
+  'Podpowiedzi gier': 'Game suggestions',
+  'Szukam w katalogu…': 'Searching the game catalogue…',
+  'Brak podpowiedzi. Możesz dodać grę ręcznie.': 'No suggestions yet. You can add the game manually.',
+  'Katalog chwilowo niedostępny. Możesz dodać grę ręcznie.': 'The catalogue is temporarily unavailable. You can add the game manually.',
   'Twoja biblioteka jest pusta': 'Your library is empty',
   'Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.': 'Add your first game or import your Steam library.',
   'Dane na urządzeniu': 'Device data',
