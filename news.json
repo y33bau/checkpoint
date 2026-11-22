@@ -1,22 +1,418 @@
 {
   "articles": [
     {
+      "source": "cdaction",
+      "title": "The Binding of Isaac zalane negatywnymi recenzjami za muzykę z AI. Twórca gęsto się tłumaczy",
+      "url": "https://cdaction.pl/newsy/the-binding-of-isaac-zalane-negatywnymi-recenzjami-za-muzyke-z-ai-tworca-gesto-sie-tlumaczy/",
+      "publishedAt": "2026-11-22T19:19:02+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Prawo bestii (2026) - recenzja serialu [Netflix]. Szatan z Piotrkowa",
+      "url": "https://www.ppe.pl/recenzje/434146/prawo-bestii-2026-recenzja-serialu-netflix-szatan-z-piotrkowa.html",
+      "publishedAt": "2026-11-22T19:00:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Mała gra, WIELKI sukces. Here Comes the Horde to nowa niezależna perełka z Polski",
+      "url": "https://www.ppe.pl/news/434165/mala-gra-wielki-sukces-here-comes-the-horde-to-nowa-niezalezna-perelka-z-polski.html",
+      "publishedAt": "2026-11-22T18:44:06+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "GTA 6 discourse is suffering from the flat earther effect",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-discourse-is-already-suffering-from-the-flat-earther-effect/",
+      "publishedAt": "2026-11-22T18:43:01+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "GTA 6 \"symulatorem rogacza\"? Znany streamer nie wytrzymał po jednej z misji",
+      "url": "https://www.gram.pl/news/gta-6-symulatorem-rogacza-znany-streamer-nie-wytrzymal-po-jednej-z-misji",
+      "publishedAt": "2026-11-22T18:40:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Skasowany projekt Dead by Daylight w końcu ujrzał światło dzienne. Project T mogło namieszać w serii",
+      "url": "https://www.ppe.pl/news/434171/skasowany-projekt-dead-by-daylight-w-koncu-ujrzal-swiatlo-dzienne-project-t-moglo-namieszac-w-serii.html",
+      "publishedAt": "2026-11-22T18:19:37+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Which GTA 6 radio station is your favourite so far?",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/which-gta-6-radio-station-is-your-favourite-so-far/",
+      "publishedAt": "2026-11-22T18:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "GTA 6's massive casino and sick go-kart track are currently closed, but I'm hoping we can trust those 'coming soon' signs 🙏",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6s-massive-casino-and-sick-go-kart-track-are-currently-closed-but-im-hoping-we-can-trust-those-coming-soon-signs/",
+      "publishedAt": "2026-11-22T17:51:53+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "13 lat na karku, a Neverwinter wciąż jest rozwijane. MMORPG z Dungeons & Dragons wiecznie żywe",
+      "url": "https://www.ppe.pl/news/434164/13-lat-na-karku-a-neverwinter-wciaz-jest-rozwijane-mmorpg-z-dungeons-dragons-wiecznie-zywe.html",
+      "publishedAt": "2026-11-22T17:20:58+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "How to steal the Declasse Vamos in GTA 6",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-declasse-vamos-code/",
+      "publishedAt": "2026-11-22T17:04:39+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Polacy wciąż jej nie znają. To komedia, przy której Martin Scorsese nie mógł przestać się śmiać",
+      "url": "https://www.ppe.pl/publicystyka/434151/polacy-wciaz-jej-nie-znaja-to-komedia-przy-ktorej-martin-scorsese-nie-mogl-przestac-sie-smiac.html",
+      "publishedAt": "2026-11-22T17:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Scott Lynch, author of The Lies of Locke Lamora, has 1,493 hours in Star Wars: Rebellion and 1,564 in BattleTech: 'If J.R.R. Tolkien had had a Steam account, his numbers would be pretty embarrassing too'",
+      "url": "https://www.pcgamer.com/gaming-industry/scott-lynch-author-of-the-lies-of-locke-lamora-has-1-493-hours-in-star-wars-rebellion-and-1-564-in-battletech-if-j-r-r-tolkien-had-had-a-steam-account-his-numbers-would-be-pretty-embarrassing-too/",
+      "publishedAt": "2026-11-22T17:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Former Rockstar environment artist breaks silence: GTA 6 is 'generally stunning,' but Red Dead 2 might have had better rivers",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/former-rockstar-environment-artist-breaks-silence-gta-6-is-generally-stunning-but-red-dead-2-might-have-had-better-rivers/",
+      "publishedAt": "2026-11-22T16:55:10+00:00"
+    },
+    {
+      "source": "cdaction",
+      "title": "Ponad połowa graczy na PS5 i Xboksie rzuciła wszystko dla GTA 6. Analitycy podzielili się badaniami",
+      "url": "https://cdaction.pl/newsy/ponad-polowa-graczy-na-ps5-i-xboksie-rzucila-wszystko-dla-gta-6-analitycy-podzielili-sie-badaniami/",
+      "publishedAt": "2026-11-22T16:54:33+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Nakręcił najmroczniejsze filmy ostatnich lat i najwyraźniej musi zrobić sobie przerwę",
+      "url": "https://www.gram.pl/news/horror",
+      "publishedAt": "2026-11-22T16:30:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "\"Małysz\" na konsolach? Duchowy następca kultowego Deluxe Ski Jumping wylądował na nowych platformach",
+      "url": "https://www.ppe.pl/news/434152/malysz-na-konsolach-duchowy-nastepca-kultowego-deluxe-ski-jumping-wyladowal-na-nowych-platformach.html",
+      "publishedAt": "2026-11-22T16:21:00+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "GTA 6's strong and silent Jason was inspired by Steve McQueen and former Army Rangers, says Rockstar",
+      "url": "https://www.eurogamer.net/gta-6-jason-steve-mcqueen-army-rangers",
+      "publishedAt": "2026-11-22T16:11:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Zaglądamy do jaskini wilków, gdzie powstają wampiry – Post mortem The Blood of Dawnwalker",
+      "url": "https://www.gram.pl/artykul/post-mortem-the-blood-of-dawnwalker",
+      "publishedAt": "2026-11-22T16:00:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Activision chce nauczyć przeciwników AI obrażania graczy. Nowy patent może zmienić rozgrywkę",
+      "url": "https://www.gram.pl/news/activision-chce-nauczyc-przeciwnikow-ai-obrazania-graczy-nowy-patent-moze-zmienic-rozgrywke",
+      "publishedAt": "2026-11-22T16:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "This '90s-inspired horror game has one of the coolest post-apocalyptic worlds I've ever seen",
+      "url": "https://www.pcgamer.com/games/horror/this-90s-inspired-horror-game-has-one-of-the-coolest-post-apocalyptic-worlds-ive-ever-seen/",
+      "publishedAt": "2026-11-22T16:00:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Nic dziwnego, że właśnie ten film z serii James Bond jest wzorem dla Denisa Villeneuve’a. Ale czy w tym kierunku pójdzie nowa produkcja?",
+      "url": "https://www.gram.pl/news/nie-dziwi-ze-wlasnie-ten-film-z-serii-james-bond-jest-wzorem-dla-denisa-villeneuvea-ale-czy-wlasnie-w-tym-kierunku-pojdzie-nowa-produkcja",
+      "publishedAt": "2026-11-22T15:30:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Dlaczego Grand Theft Auto VI nie dostanie trybu 60 FPS? Specjaliści podają konkretny problem Rockstar Games",
+      "url": "https://www.ppe.pl/news/434148/dlaczego-grand-theft-auto-vi-nie-dostanie-trybu-60-fps-specjalisci-podaja-konkretny-problem-rockstar-games.html",
+      "publishedAt": "2026-11-22T15:10:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "GTA 6 zdradza, co stało się po wydarzeniach z GTA 5. Jedna z postaci trafiła do więzienia",
+      "url": "https://www.gram.pl/news/gta-6-zdradza-co-stalo-sie-po-wydarzeniach-z-gta-5-jedna-z-postaci-trafila-do-wiezienia",
+      "publishedAt": "2026-11-22T15:00:00+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "„GTA 6 to lekcja dla każdego twórcy gier”. Deweloperzy nie mogą wyjść z podziwu dla geniuszu Rockstara",
+      "url": "https://www.gry-online.pl/newsroom/gta-6-to-lekcja-dla-kazdego-tworcy-gier-deweloperzy-nie-moga-wyjs/za32410",
+      "publishedAt": "2026-11-22T15:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "The GTAs that are still worth playing while you wait for GTA 6 on PC",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/the-gtas-that-are-still-worth-playing-while-you-wait-for-gta-6-on-pc/",
+      "publishedAt": "2026-11-22T15:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "GTA 6 Mamba GT locations: How to restore the third car for Wyman",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-mamba-gt-locations/",
+      "publishedAt": "2026-11-22T14:53:59+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "3 lata po finale jednego z najlepszych seriali HBO, fani dopytują o spin-off. Gwiazda produkcji wybija im to jednak z głowy",
+      "url": "https://www.gram.pl/news/3-lata-po-finale-jednego-z-najlepszych-seriali-hbo-fani-dopytuja-o-spin-off-gwiazda-produkcji-wybija-im-to-jednak-z-glowy",
+      "publishedAt": "2026-11-22T14:40:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "The Legend of Zelda: Ocarina of Time dalej wymiata w Japonii! Wyniki sprzedaży mówią same za siebie...",
+      "url": "https://www.ppe.pl/news/434136/the-legend-of-zelda-ocarina-of-time-dalej-wymiata-w-japonii-wyniki-sprzedazy-mowia-same-za-siebie.html",
+      "publishedAt": "2026-11-22T14:30:00+00:00"
+    },
+    {
+      "source": "cdaction",
+      "title": "Jeremy Irons, Weird Al i Lana Del Rey w GTA 6! Oto pełna lista prowadzących wszystkie stacje radiowe",
+      "url": "https://cdaction.pl/teksty/jeremy-irons-weird-al-i-lana-del-rey-w-gta-6-oto-pelna-lista-prowadzacych-wszystkie-stacje-radiowe/",
+      "publishedAt": "2026-11-22T14:00:25+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Najlepsze stacje radiowe z poszczególnych odsłon GTA",
+      "url": "https://www.ppe.pl/publicystyka/434158/najlepsze-stacje-radiowe-z-poszczegolnych-odslon-gta.html",
+      "publishedAt": "2026-11-22T14:00:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "GTA 6 skrywa nawiązanie do South Park? Gracze odkryli tajemniczy bar na mapie",
+      "url": "https://www.gram.pl/news/gta-6-skrywa-nawiazanie-do-south-park-gracze-odkryli-tajemniczy-bar-na-mapie",
+      "publishedAt": "2026-11-22T14:00:00+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "Premiera GTA 6 niestraszna twórcom gier niezależnych, zwłaszcza na PC. Wielka Encyklopedia Gier pęka w szwach od nowości",
+      "url": "https://www.gry-online.pl/newsroom/premiera-gta-6-niestraszna-tworcom-gier-niezaleznych-zwlaszcza-na/z2323e5",
+      "publishedAt": "2026-11-22T14:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "GTA 6 Riata locations: How to restore the second car for Wyman",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-riata-locations/",
+      "publishedAt": "2026-11-22T13:48:06+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "„Nie da się już stworzyć niczego nowego”. Mocne słowa o przyszłości Dragon Quest",
+      "url": "https://www.ppe.pl/news/434135/nie-da-sie-juz-stworzyc-niczego-nowego-mocne-slowa-o-przyszlosci-dragon-quest.html",
+      "publishedAt": "2026-11-22T13:30:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Grand Theft Auto 6 has a 'complex drug network' that tracks everything from where drugs come from to 'how they eventually reach the street-level buyer'",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/grand-theft-auto-6-has-a-complex-drug-network-that-tracks-everything-from-where-drugs-come-from-to-how-they-eventually-reach-the-street-level-buyer/",
+      "publishedAt": "2026-11-22T13:25:42+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Zdjęcia do kolejnego sezonu hitu Paramount+ już ruszają. Co jednak z jego największą gwiazdą?",
+      "url": "https://www.gram.pl/news/zdjecia-do-kolejnego-sezonu-hitu-paramount-juz-ruszaja-co-jednak-z-jego-najwieksza-gwiazda",
+      "publishedAt": "2026-11-22T13:20:00+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "Milion subskrypcji po 15 latach. Polski youtuber SargeThePlayer świętuje, a pomogło mu GTA 6",
+      "url": "https://www.gry-online.pl/newsroom/milion-subskrypcji-po-15-latach-polski-youtuber-sargetheplayer-sw/zf3240f",
+      "publishedAt": "2026-11-22T13:20:00+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "Binding of Isaac dev pulls AI-generated music from Repentance+ after players expose it",
+      "url": "https://www.eurogamer.net/binding-of-isaac-repentance-plus-ai-music-removed",
+      "publishedAt": "2026-11-22T13:19:20+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "DC miało wreszcie plan na 10 lat. Hollywood potrzebowało zaledwie chwili, żeby go wywrócić",
+      "url": "https://www.ppe.pl/publicystyka/433375/dc-mialo-wreszcie-plan-na-10-lat-hollywood-potrzebowalo-zaledwie-chwili-zeby-go-wywrocic.html",
+      "publishedAt": "2026-11-22T13:00:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Fani GTA 6 atakują Zeldę? Ocena Ocarina of Time gwałtownie spadła na Metacritic",
+      "url": "https://www.gram.pl/news/fani-gta-6-atakuja-zelde-ocena-ocarina-of-time-gwaltownie-spadla-na-metacritic",
+      "publishedAt": "2026-11-22T13:00:00+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Jak piwo za 6 dolarów w GTA 6 wpędziło mnie w spiralę przestępstw i paranoi",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78068/jak-piwo-za-6-dolarow-w-gta-6-wpedzilo-mnie-w-spirale-przestepstw-i-paranoi",
+      "publishedAt": "2026-11-22T12:48:48+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Aktorka grająca Mandy w GTA 6 podekscytowana zabiera głos po tym, jak jej postać stała się wiralem",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78066/aktorka-grajaca-mandy-w-gta-6-podekscytowana-zabiera-glos-po-tym-jak-jej-postac-stala-sie-wiralem",
+      "publishedAt": "2026-11-22T12:45:59+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "The designer of Atari's notorious E.T. likens the deluge of AI games to events that preceded the '80s industry crash: 'There was a glut of crap on the market'",
+      "url": "https://www.pcgamer.com/gaming-industry/game-development/the-designer-of-ataris-notorious-e-t-likens-the-deluge-of-ai-games-to-events-that-preceded-the-80s-industry-crash-there-was-a-glut-of-crap-on-the-market/",
+      "publishedAt": "2026-11-22T12:44:48+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "GTA 6 wywołało największy ruch sieciowy w historii Comcastu",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78065/gta-6-wywolalo-najwiekszy-ruch-sieciowy-w-historii-comcastu",
+      "publishedAt": "2026-11-22T12:43:58+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Brad Pitt chce wrócić do swojego wielkiego hitu. Kontynuacja może pobić kolejny rekord",
+      "url": "https://www.ppe.pl/news/434079/brad-pitt-chce-wrocic-do-swojego-wielkiego-hitu-kontynuacja-moze-pobic-kolejny-rekord.html",
+      "publishedAt": "2026-11-22T12:30:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Powrót popularnej serii science fiction okazał się sukcesem. Widzowie tłumnie udali się do kin",
+      "url": "https://www.gram.pl/news/powrot-popularnej-serii-science-fiction-okazal-sie-sukcesem-widzowie-tlumnie-udali-sie-do-kina",
+      "publishedAt": "2026-11-22T12:30:00+00:00"
+    },
+    {
+      "source": "eurogamerpl",
+      "title": "Recenzenci ogłosili arcydzieło, ale gracze mają inne zdanie. GTA 6 padło ofiarą review bombingu",
+      "url": "https://www.eurogamer.pl/recenzenci-ogosili-arcydzielo-ale-gracze-maja-inne-zdanie-gta-6-padlo-ofiara-review-bombingu",
+      "publishedAt": "2026-11-22T12:21:00+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Sexyy Red w najlepszy możliwy sposób zareagowała na swój wiralowy moment z Jasonem w GTA 6",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78061/sexyy-red-w-najlepszy-mozliwy-sposob-zareagowala-na-swoj-wiralowy-moment-z-jasonem-w-gta-6",
+      "publishedAt": "2026-11-22T12:11:17+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Gracze GTA 6 reagują po tym, jak ekskluzywne sklepy witają posiadaczy tańszej edycji zamkniętymi drzwiami",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78064/gracze-gta-6-reaguja-po-tym-jak-ekskluzywne-sklepy-witaja-posiadaczy-tanszej-edycji-zamknietymi-drzw",
+      "publishedAt": "2026-11-22T12:09:22+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Angielski głos Satoru Gojo nie miał pojęcia, że te szalone kwestie nagrywa do GTA 6",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78062/angielski-glos-satoru-gojo-nie-mial-pojecia-ze-te-szalone-kwestie-nagrywa-do-gta-6",
+      "publishedAt": "2026-11-22T12:07:31+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "GTA 6 bije rekordy nie tylko w grach. Nawet dostawcy internetu odczuli premierę",
+      "url": "https://www.gry-online.pl/newsroom/gta-6-bije-rekordy-nie-tylko-w-grach-nawet-dostawcy-internetu-odc/ze3240e",
+      "publishedAt": "2026-11-22T12:05:00+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Home Alone House Airbnb Images",
+      "url": "https://pl.ign.com/home-sweet-home-alone/78060/home-alone-house-airbnb-images",
+      "publishedAt": "2026-11-22T12:03:54+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Macaulay Culkin powróci jako Kevin McCallister w sequelu filmu Kevin sam w domu",
+      "url": "https://pl.ign.com/home-alone-theater/78056/macaulay-culkin-powroci-jako-kevin-mccallister-w-sequelu-filmu-kevin-sam-w-domu",
+      "publishedAt": "2026-11-22T12:03:54+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Echograph Screenshots",
+      "url": "https://pl.ign.com/echograph/78055/echograph-screenshots",
+      "publishedAt": "2026-11-22T12:03:05+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Echograph to survival horror w stylu retro 3D, łączący w sobie w równych proporcjach Resident Evil i Pokemon Snap",
+      "url": "https://pl.ign.com/echograph/78054/echograph-to-survival-horror-w-stylu-retro-3d-laczacy-w-sobie-w-rownych-proporcjach-resident-evil-i",
+      "publishedAt": "2026-11-22T12:03:05+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "Over half of all console players active on GTA 6's launch day played it, says Circana",
+      "url": "https://www.eurogamer.net/gta-6-launch-day-engagement-circana",
+      "publishedAt": "2026-11-22T12:02:30+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Grałem 30 godzin w GTA 6 przez 3 dni. Mam swoje przemyślenia",
+      "url": "https://www.ppe.pl/publicystyka/433334/gralem-30-godzin-w-gta-6-przez-3-dni-mam-swoje-przemyslenia.html",
+      "publishedAt": "2026-11-22T12:00:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Clair Obscur: Expedition 33 pobiło rekord Baldur’s Gate 3. Aktor nadal nie może uwierzyć w sukces gry",
+      "url": "https://www.gram.pl/news/clair-obscur-expedition-33-pobilo-rekord-baldurs-gate-3-aktor-nadal-nie-moze-uwierzyc-w-sukces-gry",
+      "publishedAt": "2026-11-22T12:00:00+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Hot Toys Avengers: Doomsday - Lord Doom Figure Image Gallery",
+      "url": "https://pl.ign.com/gallery/78053/hot-toys-avengers-doomsday-lord-doom-figure-image-gallery",
+      "publishedAt": "2026-11-22T11:59:19+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Figurka Lorda Dooma od Hot Toys zdradza alternatywny wygląd Roberta Downeya Jr. w MCU",
+      "url": "https://pl.ign.com/avengers-doomsday/78052/figurka-lorda-dooma-od-hot-toys-zdradza-alternatywny-wyglad-roberta-downeya-jr-w-mcu",
+      "publishedAt": "2026-11-22T11:59:19+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Rockstar apeluje do graczy GTA 6. Robią jedną rzecz, która może \"zepsuć\" całą przygodę",
+      "url": "https://www.ppe.pl/news/434078/rockstar-apeluje-do-graczy-gta-6-robia-jedna-rzecz-ktora-moze-zepsuc-cala-przygode.html",
+      "publishedAt": "2026-11-22T11:30:00+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "GTA 6 player gets 30-day PSN ban for sharing in-game nudist photo with a friend",
+      "url": "https://www.eurogamer.net/gta-6-psn-ban-nude-photos-nudist-resort",
+      "publishedAt": "2026-11-22T11:22:10+00:00"
+    },
+    {
+      "source": "eurogamerpl",
+      "title": "Nioh 3 otrzyma kompletną edycję? Koreańska agencja ratingowa zdradziła plany Koei Tecmo",
+      "url": "https://www.eurogamer.pl/nioh-3-otrzyma-kompletna-edycje-koreanska-agencja-ratingowa-zdradzila-plany-koei-tecmo",
+      "publishedAt": "2026-11-22T11:04:20+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "„Tego naprawdę nie da się wymyślić”. Ta legenda Hollywood miała zagrać postać Kevina Costnera w Yellowstone",
+      "url": "https://www.gry-online.pl/newsroom/tego-naprawde-nie-da-sie-wymyslic-ta-legenda-hollywood-miala-zagr/z2323ee",
+      "publishedAt": "2026-11-22T11:02:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Wielki triumf science fiction lat 90’. Najlepszy filmowy Star Trek kończy trzydzieści lat",
+      "url": "https://www.ppe.pl/publicystyka/433888/wielki-triumf-science-fiction-lat-90-najlepszy-filmowy-star-trek-konczy-trzydziesci-lat.html",
+      "publishedAt": "2026-11-22T11:00:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Assassin’s Creed Black Flag Resynced ogromnym sukcesem. Ubisoft chwali wyniki remake'u",
+      "url": "https://www.gram.pl/news/assassins-creed-black-flag-resynced-ogromnym-sukcesem-ubisoft-chwali-wyniki-remake-u",
+      "publishedAt": "2026-11-22T11:00:00+00:00"
+    },
+    {
       "source": "gryonline",
       "title": "GTA 6 współtworzyło 50 osób z polskimi korzeniami. Wśród nich weterani GTA 5 i Red Dead Redemption 2",
       "url": "https://www.gry-online.pl/newsroom/gta-6-wspoltworzylo-50-osob-z-polskimi-korzeniami-wsrod-nich-wete/zd3240d",
       "publishedAt": "2026-11-22T10:56:02+00:00"
     },
     {
-      "source": "ppe",
-      "title": "GTA 6 ROZGROMIŁO na kawałki Red Dead Redemption 2 i GTA 5. Czegoś takiego NIGDY nie było",
-      "url": "https://www.ppe.pl/news/434131/gta-6-rozgromilo-na-kawalki-red-dead-redemption-2-i-gta-5-czegos-takiego-nigdy-nie-bylo.html",
-      "publishedAt": "2026-11-22T10:13:00+00:00"
+      "source": "pcgamer",
+      "title": "Jason's stoic character in Grand Theft Auto 6 was inspired by Steve McQueen and research into Army veterans: 'These guys typically aren't running their mouths'",
+      "url": "https://www.pcgamer.com/games/grand-theft-auto/jasons-stoic-character-in-grand-theft-auto-6-was-inspired-by-steve-mcqueen-and-research-into-army-veterans-these-guys-typically-arent-running-their-mouths/",
+      "publishedAt": "2026-11-22T10:54:09+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Co sądzicie o cyfrowych edycjach Deluxe? Plaga czy korzyści?",
-      "url": "https://www.ppe.pl/publicystyka/434062/co-sadzicie-o-cyfrowych-edycjach-deluxe-plaga-czy-korzysci.html",
-      "publishedAt": "2026-11-22T10:00:00+00:00"
+      "source": "ignpl",
+      "title": "Nowy \"American Psycho\" jednak nie powstanie. Reżyser rozmyślił się po dwóch latach od zapowiedzi",
+      "url": "https://pl.ign.com/seriale/78051/nowy-american-psycho-jednak-nie-powstanie-rezyser-rozmyslil-sie-po-dwoch-latach-od-zapowiedzi",
+      "publishedAt": "2026-11-22T10:45:09+00:00"
     },
     {
       "source": "gram",
@@ -25,34 +421,10 @@
       "publishedAt": "2026-11-22T10:00:00+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Robert Downey Jr. wyjaśnia swój wielki powrót. Marvel musiał na niego zasłużyć",
-      "url": "https://www.ppe.pl/news/434076/robert-downey-jr-wyjasnia-swoj-wielki-powrot-marvel-musial-na-niego-zasluzyc.html",
-      "publishedAt": "2026-11-22T09:30:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Zapomnijcie o Mandy z GTA 6. Gracze mają nową ulubienicę",
-      "url": "https://www.ppe.pl/news/434130/zapomnijcie-o-mandy-z-gta-6-gracze-maja-nowa-ulubienice.html",
-      "publishedAt": "2026-11-22T09:11:36+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Kupowanie gier w pudełkach straciło sens? Ten argument kończy dyskusję",
-      "url": "https://www.ppe.pl/publicystyka/433935/kupowanie-gier-w-pudelkach-stracilo-sens-ten-argument-konczy-dyskusje.html",
-      "publishedAt": "2026-11-22T09:00:00+00:00"
-    },
-    {
       "source": "gram",
       "title": "Gracze GTA 6 spędzili ponad 8 godzin w grze już w dniu premiery. Ujawniono rekordowe zainteresowanie",
       "url": "https://www.gram.pl/news/gracze-gta-6-spedzili-ponad-8-godzin-w-grze-juz-w-dniu-premiery-ujawniono-rekordowe-zainteresowanie",
       "publishedAt": "2026-11-22T09:00:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Znienawidzony finał Gry o Tron doczeka się naprawy?! I to za pośrednictwem gry wideo!",
-      "url": "https://www.ppe.pl/news/434075/znienawidzony-final-gry-o-tron-doczeka-sie-naprawy-i-to-za-posrednictwem-gry-wideo.html",
-      "publishedAt": "2026-11-22T08:30:00+00:00"
     },
     {
       "source": "ignpl",
@@ -73,36 +445,6 @@
       "publishedAt": "2026-11-22T08:02:00+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Komputery wchodzą na salony. Nowa generacja gier będzie należeć do PC",
-      "url": "https://www.ppe.pl/publicystyka/433929/komputery-wchodza-na-salony-nowa-generacja-gier-bedzie-nalezec-do-pc.html",
-      "publishedAt": "2026-11-22T08:00:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "TOP 10 walk w Dragon Ball - dobre czasy klasycznych sztuk walki",
-      "url": "https://www.gram.pl/artykul/top-10-walk-w-dragon-ball-dobre-czasy-klasycznych-sztuk-walki",
-      "publishedAt": "2026-11-22T08:00:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Tysiąc graczy straciło dostęp do popularnego hitu. Twórcy przyznali się do poważnego błędu...",
-      "url": "https://www.ppe.pl/news/434074/tysiac-graczy-stracilo-dostep-do-popularnego-hitu-tworcy-przyznali-sie-do-powaznego-bledu.html",
-      "publishedAt": "2026-11-22T07:30:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "GTA 6 na PC szybciej niż sądzimy. Hakerzy zdradzają konkret",
-      "url": "https://www.ppe.pl/news/434073/gta-6-na-pc-szybciej-niz-sadzimy-hakerzy-zdradzaja-konkret.html",
-      "publishedAt": "2026-11-22T07:14:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "GTA 6 działa w 60 FPS na Xbox Series X. Wykorzystano lukę Microsoftu",
-      "url": "https://www.ppe.pl/news/434072/gta-6-dziala-w-60-fps-na-xbox-series-x-wykorzystano-luke-microsoftu.html",
-      "publishedAt": "2026-11-22T06:38:00+00:00"
-    },
-    {
       "source": "pcgamer",
       "title": "Astarion's Baldur's Gate 3 prequel novel infuriated fans, now it's Shadowheart's turn",
       "url": "https://www.pcgamer.com/games/baldurs-gate/astarions-baldurs-gate-3-prequel-novel-infuriated-fans-now-its-shadowhearts-turn/",
@@ -121,40 +463,10 @@
       "publishedAt": "2026-11-21T22:50:30+00:00"
     },
     {
-      "source": "pcgamer",
-      "title": "Comcast: 'At peak, GTA 6 accounted for nearly a quarter of all internet traffic'",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/comcast-at-peak-gta6-accounted-for-nearly-a-quarter-of-all-internet-traffic/",
-      "publishedAt": "2026-11-21T21:42:29+00:00"
-    },
-    {
       "source": "rps",
       "title": "Public-access television is born anew in NIGHT EYE TV, a digital goggle box filled with art game curios",
       "url": "https://www.rockpapershotgun.com/public-access-television-is-born-anew-in-night-eye-tv-a-digital-goggle-box-filled-with-art-game-curios",
       "publishedAt": "2026-11-21T21:27:20+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "The team behind Ubisoft's 'first playable AI-based R&D project' has been established as its own subsidiary called Motherbrain",
-      "url": "https://www.pcgamer.com/gaming-industry/the-team-behind-ubisofts-first-playable-ai-based-r-and-d-project-has-been-established-as-its-own-subsidiary-called-motherbrain/",
-      "publishedAt": "2026-11-21T21:16:16+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "GTA 6 Protective Custody: Should you choose proceed or postpone when you go to meet Abe?",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-protective-custody-choice-proceed-or-postpone-meet-abe/",
-      "publishedAt": "2026-11-21T20:32:43+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Epoka lodowcowa powraca po 11 latach. Polscy fani mają powody do zmartwień?",
-      "url": "https://www.gram.pl/news/epoka-lodowcowa-powraca-po-11-latach-polscy-fani-maja-powody-do-zmartwien",
-      "publishedAt": "2026-11-21T20:10:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Jestem Rocky (2026) - recenzja filmu [KinoŚwiat]. Oscarowa rola i nostalgiczna bomba. Mamy hit.",
-      "url": "https://www.ppe.pl/recenzje/434045/jestem-rocky-2026-recenzja-filmu-kinoswiat-oscarowa-rola-i-nostalgiczna-bomba-mamy-hit.html",
-      "publishedAt": "2026-11-21T20:06:00+00:00"
     },
     {
       "source": "gryonline",
@@ -163,22 +475,10 @@
       "publishedAt": "2026-11-21T19:59:33+00:00"
     },
     {
-      "source": "ppe",
-      "title": "NOWY Fallout oficjalnie nadchodzi, ale będzie inny niż się spodziewacie",
-      "url": "https://www.ppe.pl/news/434055/nowy-fallout-oficjalnie-nadchodzi-ale-bedzie-inny-niz-sie-spodziewacie.html",
-      "publishedAt": "2026-11-21T19:38:40+00:00"
-    },
-    {
       "source": "ignpl",
       "title": "Przyszłość jest tutaj. GTA VI działa bardzo dobrze na podłączonym do mózgu Neuralinku",
       "url": "https://pl.ign.com/grand-theft-auto-vi/78049/przyszlosc-jest-tutaj-gta-vi-dziala-bardzo-dobrze-na-podlaczonym-do-mozgu-neuralinku",
       "publishedAt": "2026-11-21T19:29:17+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Steam Machine 2 TB już nie do kupienia. Od premiery minęło tylko 5 miesięcy",
-      "url": "https://www.gram.pl/news/steam-machine-2-tb-niedostepne-valve-zamyka-zapisy",
-      "publishedAt": "2026-11-21T19:10:00+00:00"
     },
     {
       "source": "rps",
@@ -187,58 +487,10 @@
       "publishedAt": "2026-11-21T18:57:00+00:00"
     },
     {
-      "source": "ppe",
-      "title": "The Game Awards pokaże nam BARDZO wyczekiwany powrót po latach. Na tę grę czekamy od początku PlayStation 5",
-      "url": "https://www.ppe.pl/news/434054/the-game-awards-pokaze-nam-bardzo-wyczekiwany-powrot-po-latach-na-te-gre-czekamy-od-poczatku-playstation-5.html",
-      "publishedAt": "2026-11-21T18:56:37+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "GTA 6 – poradnik: kody, porady na start i pomoc w grze",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/77939/gta-6-poradnik-kody-porady-na-start-i-pomoc-w-grze",
-      "publishedAt": "2026-11-21T18:25:24+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Dead by Daylight z nowym przerażającym potworem. Najbardziej brutalny klaun z horrorów trafi do gry",
-      "url": "https://www.ppe.pl/news/434053/dead-by-daylight-z-nowym-przerazajacym-potworem-najbardziej-brutalny-klaun-z-horrorow-trafi-do-gry.html",
-      "publishedAt": "2026-11-21T18:16:06+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Rayman Legends Retold na fantastycznym materiale. Nowy muzyczny poziom wgniata w fotel",
-      "url": "https://www.ppe.pl/news/434050/rayman-legends-retold-na-fantastycznym-materiale-nowy-muzyczny-poziom-wgniata-w-fotel.html",
-      "publishedAt": "2026-11-21T18:03:56+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Christian Bale kocha MotoGP. Chciałby zagrać Valentino Rossiego",
-      "url": "https://www.gram.pl/news/christian-bale-kocha-motogp-chcialby-zagrac-valentino-rossiego",
-      "publishedAt": "2026-11-21T18:00:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "Skyrim lead chats about the Fallout diehards who hated that Bethesda got the series: 'We had to prove them wrong, and fortunately we did'",
-      "url": "https://www.pcgamer.com/games/fallout/skyrim-lead-chats-about-the-fallout-diehards-who-hated-that-bethesda-got-the-series-we-had-to-prove-them-wrong-and-fortunately-we-did/",
-      "publishedAt": "2026-11-21T18:00:00+00:00"
-    },
-    {
       "source": "rps",
       "title": "\"Everyone agrees it's more fun this way\": Toby Fox won't tell his team how Deltarune ends until they've built enough of it",
       "url": "https://www.rockpapershotgun.com/everyone-agrees-its-more-fun-this-way-toby-fox-wont-tell-his-team-how-deltarune-ends-until-theyve-built-enough-of-it",
       "publishedAt": "2026-11-21T17:54:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "How to steal the BF Bandito in GTA 6",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-bf-bandito-location/",
-      "publishedAt": "2026-11-21T17:34:25+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Ten zapomniany serial science fiction opowiada o detektywie uwięzionym w pętli czasu. Minęło 20 lat od debiutu, a produkcja zasługuje na reboot",
-      "url": "https://www.gram.pl/news/ten-zapomniany-serial-science-fiction-opowiada-o-detektywie-uwiezionym-w-petli-czasu-minelo-20-lat-od-debiutu-a-produkcja-zasluguje-na-reboot",
-      "publishedAt": "2026-11-21T17:30:00+00:00"
     },
     {
       "source": "eurogamer",
@@ -247,27 +499,9 @@
       "publishedAt": "2026-11-21T17:19:50+00:00"
     },
     {
-      "source": "pcgamer",
-      "title": "Fake figures seized from dishonest dealer in Shanghai sting spurred by tacky Tifa tchotchke",
-      "url": "https://www.pcgamer.com/games/final-fantasy/fake-figures-seized-from-dishonest-dealer-in-shanghai-sting-spurred-by-tacky-tifa-tchotchke/",
-      "publishedAt": "2026-11-21T17:08:06+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "KOTOR Remake na The Game Awards? Nowa nadzieja na powrót jedi",
-      "url": "https://www.gram.pl/news/kotor-remake-na-the-game-awards-nowa-nadzieja-na-powrot-jedi",
-      "publishedAt": "2026-11-21T17:00:00+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Były szef Nvidii fatalnie traktował swoich pracowników. „Powiedział, że wyrwie podwładnemu obie ręce”",
       "url": "https://cdaction.pl/newsy/byly-szef-nvidii-fatalnie-traktowal-swoich-pracownikow-powiedzial-ze-wyrwie-podwladnemu-obie-rece/",
-      "publishedAt": "2026-11-21T17:00:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "World of Warcraft: Forever has turned me into a big, friendly golden retriever that says hello to everybody",
-      "url": "https://www.pcgamer.com/games/world-of-warcraft/world-of-warcraft-forever-has-turned-me-into-a-big-friendly-golden-retriever-that-says-hello-to-everybody/",
       "publishedAt": "2026-11-21T17:00:00+00:00"
     },
     {
@@ -277,100 +511,10 @@
       "publishedAt": "2026-11-21T16:53:00+00:00"
     },
     {
-      "source": "pcgamer",
-      "title": "GTA 6 La Cascara Motel safe code",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-la-cascara-motel-safe-code/",
-      "publishedAt": "2026-11-21T16:36:30+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "How to find the Avery Pawn Shop safe code in GTA 6",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-pawn-shop-safe-code/",
-      "publishedAt": "2026-11-21T16:30:40+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Gwiazda Blade Runner 2099, nadchodzącego hitu science fiction Amazona, ujawnia zaskakującą inspirację dla swojej postaci",
-      "url": "https://www.gram.pl/news/gwiazda-blade-runner-2099-nadchodzacego-hitu-science-fiction-amazona-ujawnia-zaskakujaca-inspiracje-dla-swojej-postaci",
-      "publishedAt": "2026-11-21T16:30:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "The most unforgivable crime in GTA 6 is that TV placement",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/the-most-unforgivable-crime-in-gta-6-is-that-tv-placement/",
-      "publishedAt": "2026-11-21T16:16:37+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Władca Pierścieni: W kręgu wojny - flip & write w Śródziemiu",
-      "url": "https://www.gram.pl/artykul/wladca-pierscieni-w-kregu-wojny-flip-write-w-srodziemiu",
-      "publishedAt": "2026-11-21T16:00:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "As a kid, I didn't have a monster in my attic, I had a LAN",
-      "url": "https://www.pcgamer.com/games/as-a-kid-i-didnt-have-a-monster-in-my-attic-i-had-a-lan/",
-      "publishedAt": "2026-11-21T16:00:00+00:00"
-    },
-    {
       "source": "eurogamer",
       "title": "Phasmophobia's next update lets you ask ghosts to throw things and it's out next week",
       "url": "https://www.eurogamer.net/phasmophobia-resonance-update-release-date-dowsing-rods-unity-6",
       "publishedAt": "2026-11-21T15:56:10+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "How to unlock the Brooks Boatworks safe in GTA 6",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-brooks-boatworks-safe-code/",
-      "publishedAt": "2026-11-21T15:51:59+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "99 niesamowitych drobnych detali w Grand Theft Auto 6",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78045/99-niesamowitych-drobnych-detali-w-grand-theft-auto-6",
-      "publishedAt": "2026-11-21T15:46:28+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Zapowiedziano powieść o Posępnym Sercu będącą prequelem Baldur's Gate 3",
-      "url": "https://pl.ign.com/baldurs-gate-iii/78044/zapowiedziano-powiesc-o-posepnym-sercu-bedaca-prequelem-baldurs-gate-3",
-      "publishedAt": "2026-11-21T15:32:44+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "GTA 6 nie ma oficjalnie widoku z pierwszej osoby, ale da się go wymusić - zobacz, jak to zrobić",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78040/gta-6-nie-ma-oficjalnie-widoku-z-pierwszej-osoby-ale-da-sie-go-wymusic-zobacz-jak-to-zrobic",
-      "publishedAt": "2026-11-21T15:30:56+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Jeden z największych wizjonerów kina ujawnia szczegóły filmu The Rise and Fall of Jabba the Hutt ze świata Gwiezdnych wojen",
-      "url": "https://www.gram.pl/news/jeden-z-najwiekszych-wizjonerow-kina-ujawnia-szczegoly-filmu-the-rise-and-fall-of-jabba-the-hutt-ze-swiata-gwiezdnych-wojen",
-      "publishedAt": "2026-11-21T15:30:00+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Gracze GTA 6 są zgodni: skrytka Jasona wymaga pilnej poprawki",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78043/gracze-gta-6-sa-zgodni-skrytka-jasona-wymaga-pilnej-poprawki",
-      "publishedAt": "2026-11-21T15:29:53+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Ustawienia obrazu w GTA 6 wyjaśnione - nasze rekomendacje dla rozmycia w ruchu, redukcji jasności i innych opcji",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78042/ustawienia-obrazu-w-gta-6-wyjasnione-nasze-rekomendacje-dla-rozmycia-w-ruchu-redukcji-jasnosci-i-inn",
-      "publishedAt": "2026-11-21T15:28:21+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Bezwzględna policja w GTA 6 budzi taki postrach, że gracze naprawdę przestrzegają prawa",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78039/bezwzgledna-policja-w-gta-6-budzi-taki-postrach-ze-gracze-naprawde-przestrzegaja-prawa",
-      "publishedAt": "2026-11-21T15:26:35+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Christian Bale wyjaśnia, dlaczego wymyślił swój zachrypnięty głos Batmana na ostatnią chwilę podczas przesłuchań",
-      "url": "https://pl.ign.com/batman-begins-theater/78037/christian-bale-wyjasnia-dlaczego-wymyslil-swoj-zachrypniety-glos-batmana-na-ostatnia-chwile-podczas",
-      "publishedAt": "2026-11-21T15:25:39+00:00"
     },
     {
       "source": "eurogamer",
@@ -379,21 +523,9 @@
       "publishedAt": "2026-11-21T15:03:50+00:00"
     },
     {
-      "source": "gram",
-      "title": "GTA 6 z uporczywym błędem na PS5. Nawet ponowna instalacja nie zawsze pomaga",
-      "url": "https://www.gram.pl/news/gta-6-z-uporczywym-bledem-na-ps5-nawet-ponowna-instalacja-nie-zawsze-pomaga",
-      "publishedAt": "2026-11-21T15:00:00+00:00"
-    },
-    {
       "source": "gryonline",
       "title": "Na początku XXI wieku tysiące internautów rozwiązywało zagadki fikcyjnej sztucznej inteligencji. Jedna z pierwszych wielkich gier internetowych powstała jako reklama filmu science fiction Spielberga",
       "url": "https://www.gry-online.pl/newsroom/na-poczatku-xxi-wieku-tysiace-internautow-rozwiazywalo-zagadki-fi/zb323ab",
-      "publishedAt": "2026-11-21T15:00:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "While you wait for The Elder Scrolls 6: Sentinel, you owe it to yourself to play Tainted Grail",
-      "url": "https://www.pcgamer.com/games/rpg/while-you-wait-for-the-elder-scrolls-6-sentinel-you-owe-it-to-yourself-to-play-tainted-grail/",
       "publishedAt": "2026-11-21T15:00:00+00:00"
     },
     {
@@ -403,22 +535,10 @@
       "publishedAt": "2026-11-21T14:29:11+00:00"
     },
     {
-      "source": "ignpl",
-      "title": "Nowa mroczna gra od twórcy Assassin's Creed i Prince of Persia jest stale rozwijana. Wczesny dostęp z potężną aktualizacją",
-      "url": "https://pl.ign.com/pc/78036/nowa-mroczna-gra-od-tworcy-assassins-creed-i-prince-of-persia-jest-stale-rozwijana-wczesny-dostep-z",
-      "publishedAt": "2026-11-21T14:25:16+00:00"
-    },
-    {
       "source": "eurogamer",
       "title": "GTA 6 has a 99 Metascore from critics, but players are review bombing it",
       "url": "https://www.eurogamer.net/gta-6-review-bombed-metacritic-user-score",
       "publishedAt": "2026-11-21T14:19:40+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Spędziłem 110 godzin w GTA 6. Oto najdziwniejsze rzeczy, jakie widziałem",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78035/spedzilem-110-godzin-w-gta-6-oto-najdziwniejsze-rzeczy-jakie-widzialem",
-      "publishedAt": "2026-11-21T14:08:00+00:00"
     },
     {
       "source": "gryonline",
@@ -427,40 +547,10 @@
       "publishedAt": "2026-11-21T14:05:00+00:00"
     },
     {
-      "source": "gram",
-      "title": "To już oficjalne. Nowy Wiedźmin opóźniony",
-      "url": "https://www.gram.pl/news/to-juz-oficjalne-nowy-wiedzmin-opozniony",
-      "publishedAt": "2026-11-21T14:00:00+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Gracze GTA 6 odmawiają korzystania z błędu na nieskończone pieniądze. Twierdzą, że psuje on całą zabawę",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78027/gracze-gta-6-odmawiaja-korzystania-z-bledu-na-nieskonczone-pieniadze-twierdza-ze-psuje-on-cala-zabaw",
-      "publishedAt": "2026-11-21T13:43:26+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "GTA 6 Bikini Girl Screenshots",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78031/gta-6-bikini-girl-screenshots",
-      "publishedAt": "2026-11-21T13:38:27+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "W GTA 6 znajdziecie „dziewczynę w bikini” ze zwiastuna. Twórcy puszczają oko do fanowskich teorii",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78030/w-gta-6-znajdziecie-dziewczyne-w-bikini-ze-zwiastuna-tworcy-puszczaja-oko-do-fanowskich-teorii",
-      "publishedAt": "2026-11-21T13:38:27+00:00"
-    },
-    {
       "source": "gryonline",
       "title": "„Uważam jego zachowanie za pozbawione wszelkich skrupułów”. 62 lata temu Walt Disney zablokował realizację jednej z największych produkcji w historii Hollywood",
       "url": "https://www.gry-online.pl/newsroom/uwazam-jego-zachowanie-za-pozbawione-wszelkich-skrupulow-62-lata/z0323ec",
       "publishedAt": "2026-11-21T13:02:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "GTA 6 to gra na 5,5/10? Gracze dają upust frustracji",
-      "url": "https://www.gram.pl/news/gta-6-to-gra-na-5-5-10-gracze-daja-upust-frustracji",
-      "publishedAt": "2026-11-21T13:00:00+00:00"
     },
     {
       "source": "gryonline",
@@ -473,12 +563,6 @@
       "title": "GTA 6 features the series' first non-binary character, says actor Jesse James Rose, and players can't hurt them",
       "url": "https://www.eurogamer.net/gta-6-first-non-binary-character-jesse-james-rose",
       "publishedAt": "2026-11-21T12:50:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Kevin sam w domu może doczekać się kontynuacji! Macaulay Culkin ma wrócić do kultowej roli",
-      "url": "https://www.gram.pl/news/kevin-sam-w-domu-moze-doczekac-sie-kontynuacji-macaulay-culkin-ma-wrocic-do-kultowej-roli",
-      "publishedAt": "2026-11-21T12:30:00+00:00"
     },
     {
       "source": "gryonline",
@@ -499,12 +583,6 @@
       "publishedAt": "2026-11-21T10:31:55+00:00"
     },
     {
-      "source": "gryonline",
-      "title": "„Po prostu okropny”. Reżyser Kevina samego w domu ostro ocenił aktora, którego zwolnił z filmu. Gwiazdor nie wytrzymał i odpowiedział na jego zarzuty",
-      "url": "https://www.gry-online.pl/newsroom/po-prostu-okropny-rezyser-kevina-samego-w-domu-ostro-ocenil-aktor/zf323eb",
-      "publishedAt": "2026-11-21T10:02:00+00:00"
-    },
-    {
       "source": "eurogamerpl",
       "title": "W Rockstar Games nie brakuje weteranów. Mnóstwo deweloperów pracuje w studiu co najmniej 10 lat",
       "url": "https://www.eurogamer.pl/w-rockstar-games-nie-brakuje-weteranow-mnostwo-deweloperow-pracuje-w-studiu-co-najmniej-10-lat",
@@ -517,34 +595,10 @@
       "publishedAt": "2026-11-21T09:00:00+00:00"
     },
     {
-      "source": "gryonline",
-      "title": "Gracze podzielili się na dwa obozy i strzelają „opiniami”. GTA 6 ofiarą review bombingu na Metacritic",
-      "url": "https://www.gry-online.pl/newsroom/gracze-podzielili-sie-na-dwa-obozy-i-strzelaja-opiniami-gta-6-ofi/ze32405",
-      "publishedAt": "2026-11-21T08:55:00+00:00"
-    },
-    {
-      "source": "gryonline",
-      "title": "Macie kartę Nvidii? Pobierzcie nowy sterownik. Może uratować wasz dysk SSD przed przedwczesnym zużyciem",
-      "url": "https://www.gry-online.pl/newsroom/macie-karte-nvidii-pobierzcie-nowy-sterownik-moze-uratowac-wasz-d/zf32406",
-      "publishedAt": "2026-11-21T08:48:20+00:00"
-    },
-    {
       "source": "eurogamerpl",
       "title": "Poznaliśmy oficjalne dane sprzedażowe GTA 6. Wynik przebił oczekiwania analityków",
       "url": "https://www.eurogamer.pl/poznalismy-oficjalne-dane-sprzedazowe-gta-6-wynik-przebil-oczekiwania-analitykow",
       "publishedAt": "2026-11-21T08:25:50+00:00"
-    },
-    {
-      "source": "gryonline",
-      "title": "Za 4 dni najważniejsza premiera Netflixa w tym miesiącu. Lada moment obejrzycie oparty na faktach film wojenny",
-      "url": "https://www.gry-online.pl/newsroom/za-4-dni-najwazniejsza-premiera-netflixa-w-tym-miesiacu-lada-mome/z732378",
-      "publishedAt": "2026-11-21T08:02:00+00:00"
-    },
-    {
-      "source": "gryonline",
-      "title": "Otwarty świat, który wręcz przytłaczał ogromem możliwości. GTA: San Andreas deklasowało rozmachem konkurencję i poprzedników",
-      "url": "https://www.gry-online.pl/newsroom/otwarty-swiat-ktory-wrecz-przytlaczal-ogromem-mozliwosci-gta-san/zd32404",
-      "publishedAt": "2026-11-21T08:00:00+00:00"
     },
     {
       "source": "cdaction",
@@ -619,12 +673,6 @@
       "publishedAt": "2026-11-20T15:59:00+00:00"
     },
     {
-      "source": "eurogamer",
-      "title": "Star Wars: Galactic Racer studio \"didn't dream\" Biddy Blas would be as popular as he is",
-      "url": "https://www.eurogamer.net/biddy-blas-star-wars-galactic-racer-viral-scrib-doon",
-      "publishedAt": "2026-11-20T15:54:10+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Gra totalna czy zawracanie głowy? GTA 6 goni za realizmem, który nie zawsze ma sens [FELIETON]",
       "url": "https://cdaction.pl/teksty/gra-totalna-czy-zawracanie-glowy-gta-6-goni-za-realizmem-ktory-nie-zawsze-ma-sens-felieton/",
@@ -673,18 +721,6 @@
       "publishedAt": "2026-11-20T13:59:50+00:00"
     },
     {
-      "source": "cdaction",
-      "title": "Część graczy narzeka w GTA 6 na nudę i cytuje słynną wypowiedź Gabe’a Newella. „Gdybym chciał to wszystko robić, to zagrałbym w The Sims”",
-      "url": "https://cdaction.pl/newsy/czesc-graczy-narzeka-w-gta-6-na-nude-i-cytuje-slynna-wypowiedz-gabea-newella-gdybym-chcial-to-wszystko-robic-to-zagralbym-w-the-sims/",
-      "publishedAt": "2026-11-20T13:15:00+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "title": "UK Prime Minister won't be playing GTA 6, government says, while hailing Rockstar Games a \"British success story\"",
-      "url": "https://www.eurogamer.net/gta-6-uk-prime-minister-andy-burnham",
-      "publishedAt": "2026-11-20T13:08:30+00:00"
-    },
-    {
       "source": "eurogamerpl",
       "title": "GTA 6 skrywa tryb pierwszoosobowy. Gracze odkryli sposób na jego aktywację",
       "url": "https://www.eurogamer.pl/gta-6-skrywa-tryb-pierwszoosobowy-gracze-odkryli-sposob-na-jego-aktywacje",
@@ -703,18 +739,6 @@
       "publishedAt": "2026-11-20T12:42:30+00:00"
     },
     {
-      "source": "cdaction",
-      "title": "Ubisoft otworzył studio w całości poświęcone AI. Motherbrain będzie generować gry sztuczną inteligencją",
-      "url": "https://cdaction.pl/newsy/ubisoft-otworzyl-studio-w-calosci-poswiecone-ai-motherbrain-bedzie-generowac-gry-sztuczna-inteligencja/",
-      "publishedAt": "2026-11-20T12:30:09+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "title": "Total War: Warhammer 40,000 breaks the game into star system mini-campaigns, each with their own stories and objectives",
-      "url": "https://www.eurogamer.net/total-war-warhammer-40000-campaign-space-marines",
-      "publishedAt": "2026-11-20T12:12:10+00:00"
-    },
-    {
       "source": "rps",
       "title": "Amid a year of layoffs, Ubisoft yank the cover off Motherbrain, their new studio \"focused on AI for gameplay innovation\"",
       "url": "https://www.rockpapershotgun.com/amid-a-year-of-layoffs-ubisoft-yank-the-cover-off-motherbrain-their-new-studio-focused-on-ai-for-gameplay-innovation",
@@ -725,18 +749,6 @@
       "title": "Mobilne Assassin’s Creed Jade nadal powstaje, ale Ubisoft stawia na PC i konsole",
       "url": "https://www.eurogamer.pl/mobilne-assassins-creed-jade-nadal-powstaje-ale-ubisoft-stawia-na-pc-i-konsole",
       "publishedAt": "2026-11-20T11:49:30+00:00"
-    },
-    {
-      "source": "cdaction",
-      "title": "Wiemy, ilu amerykańskich żołnierzy skorzystało z oferty wolnego na GTA 6. „Będę miał dobre 24 godziny do stracenia”",
-      "url": "https://cdaction.pl/newsy/wiemy-ilu-amerykanskich-zolnierzy-skorzystalo-z-oferty-wolnego-na-gta-6-bede-mial-dobre-24-godziny-do-stracenia/",
-      "publishedAt": "2026-11-20T11:45:54+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "title": "GTA 6 day-one sales are enormous, estimates suggest, making previous $2 billion opening weekend predictions seem conservative",
-      "url": "https://www.eurogamer.net/gta-6-sales-estimate-rockstar-grand-theft-auto",
-      "publishedAt": "2026-11-20T11:40:30+00:00"
     },
     {
       "source": "eurogamerpl",
@@ -797,18 +809,6 @@
       "title": "GTA 6 nie dostanie trybu 60 FPS. Rockstar rozwiewa nadzieje graczy",
       "url": "https://www.eurogamer.pl/gta-6-nie-dostanie-trybu-60-fps-rockstar-rozwiewa-nadzieje-graczy",
       "publishedAt": "2026-11-18T20:47:00+00:00"
-    },
-    {
-      "source": "eurogamerpl",
-      "title": "Koniec szczęśliwej passy Sony na The Game Awards. Po 11 latach firma wypada z najważniejszej kategorii",
-      "url": "https://www.eurogamer.pl/koniec-szczesliwej-passy-sony-na-the-game-awards-po-11-latach-firma-wypada-z-najwazniejszej-kategorii",
-      "publishedAt": "2026-11-18T20:03:20+00:00"
-    },
-    {
-      "source": "eurogamerpl",
-      "title": "Tworzenie wielkich gier przestaje mieć sens? Były szef Take-Two wyjaśnia, dlaczego GTA 6 jest wyjątkiem",
-      "url": "https://www.eurogamer.pl/tworzenie-wielkich-gier-przestaje-miec-sens-byly-szef-take-two-wyjasnia-dlaczego-gta-6-jest-wyjatkiem",
-      "publishedAt": "2026-11-18T18:59:20+00:00"
     },
     {
       "source": "planetagracza",
