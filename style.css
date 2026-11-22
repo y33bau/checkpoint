@@ -598,7 +598,15 @@ summary{cursor:pointer}
   background:linear-gradient(#16112077,#16112099),var(--shelf-artwork) center / cover no-repeat;
   filter:blur(8px)
 }
-.library-covers .cover[data-artwork="full"] img{object-fit:contain}
+.library-covers .cover[data-artwork="full"] img{object-fit:contain;margin:auto}
+.library-covers .cover[data-artwork="full"][data-artwork-axis="horizontal"] img{
+  width:var(--shelf-art-size);
+  mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+}
+.library-covers .cover[data-artwork="full"][data-artwork-axis="vertical"] img{
+  height:var(--shelf-art-size);
+  mask-image:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent);
+}
 
 .featured-carousel{position:relative}
 .featured-carousel[data-swipe="true"]{touch-action:pan-y}
