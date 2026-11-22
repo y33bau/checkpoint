@@ -14,9 +14,10 @@ const connectionInstructions = {
         links:[['Ustawienia prywatności Steam','https://steamcommunity.com/my/edit/settings']],
       },
       xbox:{
-        info:'Importuje historię grania i podsumowanie osiągnięć. Szczegóły osiągnięć są dostępne z karty gry, gdy mostek jest uruchomiony.',
+        info:'Importuje historię grania i podsumowanie osiągnięć. Logujesz się na oficjalnej stronie Microsoft. Checkpoint nie widzi hasła i nie przechowuje tokenów konta. Xbox nie udostępnia gier kupionych, ale nigdy nieuruchomionych, ani listy Game Pass.',
         items:[
-          'Na komputerze skonfiguruj i uruchom Checkpoint Bridge. Klucz OpenXBL wpisz do lokalnej konfiguracji mostka.',
+          'Na kafelku Xbox wybierz „Połącz Xbox”, zaloguj się kontem Microsoft i zatwierdź gry w podglądzie. Później użyj „Odśwież z Xbox”.',
+          'Opcjonalnie: na komputerze skonfiguruj i uruchom Checkpoint Bridge. Klucz OpenXBL wpisz do lokalnej konfiguracji mostka.',
           'W Checkpoincie na tym samym komputerze wybierz „Podłącz bibliotekę” na kafelku Xbox. Zostaw podpowiedziany adres i wpisz osobny klucz mostka.',
           'Kliknij „Pokaż zaimportowane gry”, aby zobaczyć listę. Na karcie gry wybierz „Pokaż osiągnięcia”.',
           'Jeśli korzystasz z telefonu, wyeksportuj plik Xbox przez Bridge i wybierz „Importuj plik” na kafelku Xbox.',
@@ -69,9 +70,10 @@ const connectionInstructions = {
         links:[['Steam privacy settings','https://steamcommunity.com/my/edit/settings']],
       },
       xbox:{
-        info:'Imports play history and achievement summaries. Individual achievements are available on the game card while the bridge is running.',
+        info:'Imports play history and achievement summaries. You sign in on Microsoft’s official website. Checkpoint never sees your password and stores no account tokens. Xbox does not share purchased games that were never launched, or Game Pass lists.',
         items:[
-          'Set up and run Checkpoint Bridge on your computer. Add your OpenXBL key to the bridge’s local configuration.',
+          'On the Xbox card, select Connect Xbox, sign in with your Microsoft account and confirm the games in the preview. Later, use Refresh from Xbox.',
+          'Optional: set up and run Checkpoint Bridge on your computer. Add your OpenXBL key to the bridge’s local configuration.',
           'On the same computer, select Connect library on the Xbox card. Keep the suggested address and enter the separate bridge key.',
           'Select Show imported games to see your list. Open a game and choose Show achievements for details.',
           'On a phone, export the Xbox file using the bridge, then select Import file on the Xbox card.',

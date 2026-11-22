@@ -6,6 +6,8 @@ workers_dev = true
 [vars]
 # Comma separated app addresses (origin + path) allowed to receive a Steam login.
 APP_URLS = "https://y33bau.github.io/checkpoint/"
+# Application (client) ID of the Microsoft Entra app (personal accounts). Not a secret.
+XBOX_CLIENT_ID = ""
 
 [[d1_databases]]
 binding = "DB"
@@ -15,6 +17,7 @@ migrations_dir = "migrations"
 
 [env.local.vars]
 APP_URLS = "http://localhost:8080/,http://127.0.0.1:8080/"
+XBOX_CLIENT_ID = ""
 
 [[env.local.d1_databases]]
 binding = "DB"

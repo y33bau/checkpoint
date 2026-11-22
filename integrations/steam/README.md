@@ -50,3 +50,31 @@ cd ../.. && python3 -m http.server 8080      # aplikacja na http://localhost:808
 Otwórz `http://localhost:8080/?steam_server=http://localhost:8787#connections`. Nadpisanie adresu serwera działa tylko, gdy aplikacja jest otwarta na `localhost` lub `127.0.0.1`.
 
 Testy automatyczne (bez sieci, Steam jest symulowany): `npm test` w katalogu głównym repozytorium.
+
+## Logowanie Xbox (ten sam serwer)
+
+Użytkownik wybiera **Połącz Xbox** na kafelku Xbox, loguje się kontem Microsoft na oficjalnej stronie i widzi podgląd gier z historii grania (z podsumowaniem osiągnięć i Gamerscore).
+
+1. `GET /auth/xbox/start` przyjmuje `challenge` i `return_to` jak Steam, zapisuje `state` oraz własny weryfikator PKCE dla Microsoft i przekierowuje na `login.microsoftonline.com/consumers` (tylko konta osobiste, zakres `XboxLive.signin`).
+2. `GET /auth/xbox/callback` sprawdza `state` i ciasteczko `__Host-checkpoint-xbox`, wymienia kod Microsoft na token, potem na token użytkownika Xbox i XSTS, pobiera historię gier z `titlehub.xboxlive.com` i odsyła do aplikacji jednorazowy `?xbox_code=`. Tokeny Microsoft i Xbox istnieją tylko w trakcie tego żądania i nigdy nie trafiają do D1.
+3. `POST /api/xbox/token` (`{ code, verifier }`) zwraca token importu ważny 10 minut i gamertag.
+4. `GET /api/xbox/library` zwraca listę w formacie `checkpoint-source-v1` (taki sam jak Checkpoint Bridge), więc identyfikatory gier (`titleId`) są zgodne z wcześniejszymi importami.
+
+Ograniczenia Xbox: brak gier kupionych, ale nigdy nieuruchomionych, i brak listy Game Pass.
+
+### Konfiguracja (raz)
+
+1. Na https://entra.microsoft.com → App registrations → New registration: konta **Personal Microsoft accounts only**, Redirect URI typu **Web**: `https://checkpoint-steam.ad-szelag.workers.dev/auth/xbox/callback`.
+2. Wpisz Application (client) ID do `XBOX_CLIENT_ID` w `wrangler.toml`.
+3. Certificates & secrets → New client secret, a potem w katalogu `integrations/steam`:
+
+```sh
+npx wrangler d1 migrations apply DB --remote --env=""
+npx wrangler secret put XBOX_CLIENT_SECRET --env=""
+npm run deploy
+```
+
+| Nazwa | Rodzaj | Opis |
+| --- | --- | --- |
+| `XBOX_CLIENT_ID` | zmienna | Application (client) ID aplikacji Microsoft Entra. |
+| `XBOX_CLIENT_SECRET` | sekret | Client secret tej aplikacji. Nigdy nie trafia do przeglądarki. |

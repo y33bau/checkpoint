@@ -2,8 +2,10 @@
 // Flow: /auth/steam/start (PKCE challenge) -> Steam OpenID -> /auth/steam/callback
 // -> app gets a one-time code -> POST /api/steam/token (code + verifier)
 // -> short-lived import token -> GET /api/steam/library.
-// Secrets: STEAM_WEB_API_KEY. Vars: APP_URLS. Binding: DB (D1).
+// Xbox sign-in (/auth/xbox/*, /api/xbox/*) lives in xbox.mjs.
+// Secrets: STEAM_WEB_API_KEY, XBOX_CLIENT_SECRET. Vars: APP_URLS, XBOX_CLIENT_ID. Binding: DB (D1).
 import { nonceWindow, steamAuthorizeUrl, verifySteamAssertion } from './openid.mjs';
+import { createXbox, xboxLimits, xboxReady, xboxTables } from './xbox.mjs';
 
 const libraryEndpoint = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/';
 const stateCookie = '__Host-checkpoint-steam';
@@ -16,6 +18,7 @@ export const limits = {
   start: { max: 10, window: 600 },
   token: { max: 20, window: 600 },
   library: { max: 20, window: 600 },
+  ...xboxLimits,
 };
 
 const encoder = new TextEncoder();
@@ -71,7 +74,7 @@ async function overLimit(env, action, request) {
 
 async function cleanup(env) {
   const now = nowSeconds();
-  await env.DB.batch(['login_states', 'used_nonces', 'login_codes', 'import_tokens', 'rate_limits']
+  await env.DB.batch(['login_states', 'used_nonces', 'login_codes', 'import_tokens', 'rate_limits', ...xboxTables]
     .map(table => env.DB.prepare('DELETE FROM ' + table + ' WHERE expires_at <= ?1').bind(now)));
 }
 
@@ -214,6 +217,8 @@ async function library(request, env, reply, origin) {
   }
 }
 
+const xbox = createXbox({ appUrls, overLimit, sha256, randomSecret, nowSeconds, baseHeaders, redirect, lifetimes });
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -230,12 +235,29 @@ export default {
       if (url.pathname === '/auth/steam/callback') return callback(request, env, url);
       return new Response(null, { status: 404, headers: baseHeaders });
     }
+    if (url.pathname.startsWith('/auth/xbox/')) {
+      if (request.method !== 'GET') return new Response(null, { status: 405, headers: baseHeaders });
+      if (url.protocol !== 'https:' && !isLocalHost(url)) return new Response(null, { status: 400, headers: baseHeaders });
+      if (url.pathname === '/auth/xbox/start') {
+        ctx?.waitUntil?.(cleanup(env).catch(() => {}));
+        return xbox.start(request, env, url);
+      }
+      if (url.pathname === '/auth/xbox/callback') return xbox.callback(request, env, url);
+      return new Response(null, { status: 404, headers: baseHeaders });
+    }
 
     const { headers, origin } = corsHeaders(request, env);
     const reply = (body, status = 200) => Response.json(body, { status, headers });
     if (request.method === 'OPTIONS') return new Response(null, { status: origin ? 204 : 403, headers });
     if (url.pathname === '/api/steam/status' && request.method === 'GET') {
       return reply({ sharedLogin: true, ready: Boolean(env.STEAM_WEB_API_KEY) });
+    }
+    if (url.pathname === '/api/xbox/status' && request.method === 'GET') return reply({ ready: xboxReady(env) });
+    if (url.pathname === '/api/xbox/token') {
+      return request.method === 'POST' ? xbox.exchange(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);
+    }
+    if (url.pathname === '/api/xbox/library') {
+      return request.method === 'GET' ? xbox.library(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);
     }
     if (url.pathname === '/api/steam/token') {
       return request.method === 'POST' ? exchange(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);
