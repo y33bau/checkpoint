@@ -95,49 +95,41 @@ function renderConnections() {
     const saved = connections[provider.id];
     const isSteam = provider.id === 'steam';
     const hasLibrary=Object.hasOwn(librarySources,provider.id);
-    const steamStatus = isSteam && saved?.syncedAt
+    const steamStatus = isSteam && saved?.syncedAt && !saved?.lastImport
       ? '<small>'+t('Ostatnia synchronizacja')+': ' + esc(new Date(saved.syncedAt).toLocaleString(appLocale())) + '</small>'
       : '';
     const mark=provider.id==='nintendo'?'<span class="provider-mark" aria-hidden="true">N</span>':
       '<span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span>';
-    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t(saved?.librarySyncedAt?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
+    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t((saved?.librarySyncedAt||saved?.syncedAt)?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?.lastImport?'Biblioteka wczytana':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
       '<p class="muted">' + t(provider.description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
       '<div class="actions">' + btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action') +
       '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+(provider.id==='nintendo'?t('Zaloguj się na Nintendo'):t('Otwórz')+' '+provider.name) + '</a>' +
       (isSteam && saved?.server ? '<button class="primary" data-act="steam-sync"' + (steamBusy ? ' disabled' : '') + '>'+t('Odśwież bibliotekę')+'</button>' : '') +
+      (isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam'):'')+
       (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
       '</div>' + (isSteam ? '<a class="text-link" href="https://github.com/y33bau/checkpoint/tree/main/integrations/steam" target="_blank" rel="noopener noreferrer">'+t('Jak podłączyć Steam?')+'</a>' : '') +
       (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
-      (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus +
+      (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus + (saved?.lastImport?lastImportMarkup(saved):'') +
       (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') + '</article>';
   }).join('') + '</div>';
 }
 function editConnection(provider) {
-  const saved = connections[provider.id];
-  const isSteam = provider.id === 'steam';
-  const nameRules = isSteam ? 'required inputmode="numeric" pattern="[0-9]{17}"' : 'maxlength="80"';
-  openForm(provider.name, input(t(provider.label), 'profile', saved?.profile, nameRules) +
-    (isSteam ? '<a class="text-link" href="https://help.steampowered.com/pl/faqs/view/2816-be67-5b69-0fec" target="_blank" rel="noopener noreferrer">'+t('Gdzie znaleźć ID Steam?')+'</a>'+input(t('Adres serwera Steam'), 'server', saved?.server, 'type="url" placeholder="https://…"') : '') +
-    (saved ? '<label><span><input type="checkbox" name="unlink"> '+t('Usuń zapisany profil')+'</span></label>' : ''), data => {
-      if (data.has('unlink')) {
-        delete connections[provider.id];
-        sourceKeys.delete(provider.id);
-        sourceMessages.delete(provider.id);
-      } else {
-        const profile = data.get('profile').trim();
-        if (!profile && !['wand','nintendo'].includes(provider.id)) throw Error(t('Wpisz identyfikator profilu.'));
-        const server = data.get('server')?.trim() || '';
-        if (server && !web(server).startsWith('https://')) throw Error(t('Adres serwera musi zaczynać się od https://.'));
-        connections[provider.id] = {...saved, profile, server, syncedAt: saved?.profile === profile && saved?.server === server ? saved.syncedAt : null };
-      }
-      localStorage.setItem(connectionKey, JSON.stringify(connections));
-      steamMessage = '';
-    });
-  if (saved && isSteam) {
-    const profileInput = form.elements.profile;
-    form.elements.unlink.onchange = event => { profileInput.disabled = event.target.checked; };
-  }
+  if(provider.id==='steam'){openSteamWizard();return}
+  const saved=connections[provider.id];
+  openForm(provider.name,input(t(provider.label),'profile',saved?.profile,'maxlength="80"')+
+    (saved?'<label><span><input type="checkbox" name="unlink"> '+t('Usuń zapisany profil')+'</span></label>':''),data=>{
+    if(data.has('unlink')){
+      delete connections[provider.id];
+      sourceKeys.delete(provider.id);
+      sourceMessages.delete(provider.id);
+    }else{
+      const profile=data.get('profile').trim();
+      if(!profile&&!['wand','nintendo'].includes(provider.id))throw Error(t('Wpisz identyfikator profilu.'));
+      connections[provider.id]={...saved,profile};
+    }
+    localStorage.setItem(connectionKey,JSON.stringify(connections));
+  });
 }
 async function syncSteam() {
   const saved = connections.steam;
@@ -149,35 +141,45 @@ async function syncSteam() {
     const url = new URL(saved.server);
     url.searchParams.set('steamid', saved.profile);
     const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    if (!response.ok) throw Error(t('Serwer Steam zwrócił błąd')+' (' + response.status + '). '+t('Sprawdź adres i widoczność biblioteki.'));
-    const data = await response.json();
+    const data = await response.json().catch(()=>null);
+    if(!response.ok){
+      const problems={
+        library_unavailable:'Steam nie udostępnia szczegółów gier tego profilu.',
+        profile_not_configured:'Ten identyfikator Steam nie jest skonfigurowany na serwerze.',
+        server_not_configured:'Serwer Steam wymaga klucza API i identyfikatora.',
+      };
+      throw Error(t(problems[data?.error] || 'Serwer Steam jest niedostępny.'));
+    }
     if (deviceBusy || connections.steam !== saved) return;
-    const count = importSteamGames(data);
-    persist();
-    saved.syncedAt = new Date().toISOString();
-    localStorage.setItem(connectionKey, JSON.stringify(connections));
-    steamMessage = t('Zaktualizowano gry Steam')+': ' + count + '.';
+    steamMessage='';
+    previewSteam(data,'sync');
   } catch (error) {
-    steamMessage = error.message || t('Nie udało się pobrać gier.');
+    steamMessage = error.name==='TypeError'||error.name==='TimeoutError'?t('Serwer Steam jest niedostępny.'):error.message||t('Nie udało się pobrać gier.');
   } finally {
     steamBusy = false;
     if (['#connections', '#library', '#now', ''].includes(location.hash)) render();
   }
 }
 function importSteamGames(data) {
-  const items = data?.response?.games ?? data?.games;
-  if (!Array.isArray(items)) throw Error(t('Brak dostępnej listy gier Steam.'));
-  const valid = items.filter(item => typeof item?.name === 'string' && item.name.trim() && Number.isInteger(item.appid));
-  if (items.length && !valid.length) throw Error(t('Lista Steam nie zawiera tytułów i identyfikatorów gier.'));
+  const valid=steamGameRows(data);
   const imported=[];
+  const byId=new Map(games.filter(item=>item.steamAppId).map(item=>[item.steamAppId,item]));
+  const byTitle=new Map();
+  for(const item of games){
+    const title=catalogText(item.title);
+    if(!item.steamAppId&&(!byTitle.has(title)||item.runs.Steam))byTitle.set(title,item);
+  }
   for (const entry of valid) {
-    let item = games.find(g => g.steamAppId === entry.appid) ||
-      games.find(g => !g.steamAppId && g.title.toLowerCase() === entry.name.toLowerCase());
+    const title=catalogText(entry.name);
+    let item=byId.get(entry.appid)||byTitle.get(title);
     if (!item) {
       item = game(entry.name, 'Steam', cdn(entry.appid), 'Steam');
       games.push(item);
     }
     item.steamAppId = entry.appid;
+    byId.set(entry.appid,item);
+    if(byTitle.get(title)===item)byTitle.delete(title);
+    item.importSources={...item.importSources,steam:true};
     item.cover ||= cdn(entry.appid);
     item.coverFallback ||= steamHeader(entry.appid);
     item.runs.Steam ??= run();
@@ -209,20 +211,20 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
 const input=(label,name,val='',attr='')=>'<label>'+label+'<input name="'+name+'" value="'+esc(val)+'" '+attr+'></label>';
 const select=(label,name,arr,val,optionLabel)=>'<label>'+label+'<select name="'+name+'">'+options(arr,val,optionLabel)+'</select></label>';
 let saveAction;
-function openForm(title,body,action){fields.innerHTML='<h2 id="dialog-title">'+title+'</h2>'+body;saveAction=action;form.onsubmit=submitForm;dialog.showModal()}
+function openForm(title,body,action){fields.innerHTML='<h2 id="dialog-title">'+title+'</h2>'+body;const save=document.querySelector('#save');save.textContent=t('Zapisz');save.disabled=false;saveAction=action;form.onsubmit=submitForm;dialog.showModal()}
 document.querySelector('#close').onclick=()=>dialog.close();
 const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persist();dialog.close();render()}catch(err){alert(err.message)}};
 function action(act){
  const game=active();
  if(deviceBusy)return;
  const [sourceAction,providerId]=act.split(':');
- if(Object.hasOwn(librarySources,providerId)){
+ if(providerId==='steam'||Object.hasOwn(librarySources,providerId)){
    if(sourceAction==='source-view'){
      librarySource=providerId;libraryStatus='';filter='';collection='';platform='';libraryLimit=libraryPageSize;
      location.hash='library';return;
    }
-   if(sourceAction==='source-file'){openLibraryFile(providerId);return}
-   if(sourceAction==='source-connect' && providerId!=='wand'){editLibrarySource(providerId,true);return}
+   if(sourceAction==='source-file' && providerId!=='steam'){openLibraryFile(providerId);return}
+   if(sourceAction==='source-connect' && !['wand','steam'].includes(providerId)){editLibrarySource(providerId,true);return}
    if(sourceAction==='source-sync' && providerId!=='wand'){syncLibrarySource(providerId);return}
  }
  if(act==='xbox-achievements' && game){showXboxAchievements(game);return}
@@ -288,7 +290,16 @@ function action(act){
  if(act==='steam-sync'){syncSteam();return}
  let g=active();if(act==='quick')g=featuredGame();
  if(['add','edit'].includes(act)){openGameForm(g);return}
- if(act==='import'){openForm(t('Import biblioteki Steam'),'<label>'+t('Wklej JSON z listą gier Steam (GetOwnedGames)')+'<textarea name="json" required rows="6"></textarea></label>',d=>importSteamGames(JSON.parse(d.get('json'))));return}
+ if(act==='import'){
+   wizardForm(t('Import biblioteki Steam'),'<label>'+t('Wklej JSON z listą gier Steam (GetOwnedGames)')+
+     '<textarea name="json" required rows="6"></textarea></label><p id="wizard-status" role="status"></p>',data=>{
+     const payload=JSON.parse(data.get('json'));
+     steamGameRows(payload);
+     dialog.close();
+     previewSteam(payload,'file');
+   },'Dalej');
+   return;
+ }
  if(!g)return;const r=g.runs[g.system];
  if(['session','quick'].includes(act))openForm(t('Zapisz sesję'),input(t('Czas gry (min)'),'minutes',30,'type="number" min="1" max="1440" required')+input(t('Postęp (%)'),'progress',r.progress,'type="number" min="0" max="100" required')+input(t('Co udało się zrobić?'),'note')+input(t('Następny cel'),'goal',r.goal),d=>{const playedAt=Date.now();r.sessions.push({playedAt,date:new Date(playedAt).toLocaleDateString(appLocale()),minutes:Number(d.get('minutes')),note:d.get('note')});r.goal=d.get('goal');if(d.get('note').trim())r.resumeNote=d.get('note').trim();r.progress=Number(d.get('progress'));if(act==='quick')location.hash='game-'+g.id});
  if(act==='rate')openGameScores(g);
@@ -412,7 +423,4 @@ app.onchange=event=>{
 };
 window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();else loadWeather();loadGamePass();
 
-const steamRefreshInterval = 24 * 60 * 60 * 1000;
-if (connections.steam?.server && Date.now() - (Date.parse(connections.steam.syncedAt) || 0) >= steamRefreshInterval) {
-  syncSteam();
-}
+resumeSteamIdentity();

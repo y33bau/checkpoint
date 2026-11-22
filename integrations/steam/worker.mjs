@@ -1,3 +1,5 @@
+import { steamIdentity } from './openid.mjs';
+
 const libraryEndpoint = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/';
 
 export default {
@@ -8,6 +10,9 @@ export default {
     const reply = (body, status = 200) => Response.json(body, { status, headers });
 
     if (request.method !== 'GET') return reply({ error: 'method_not_allowed' }, 405);
+    const pathname=new URL(request.url).pathname;
+    if(pathname==='/auth/steam/status')return reply({steamOpenId:true});
+    if(pathname==='/auth/steam/start'||pathname==='/auth/steam/callback')return steamIdentity(request,env);
     if (!env.STEAM_WEB_API_KEY || !env.STEAM_ID64 || !env.APP_ORIGIN) {
       return reply({ error: 'server_not_configured' }, 503);
     }

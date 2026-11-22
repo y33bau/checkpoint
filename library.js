@@ -54,7 +54,7 @@ function visibleLibraryGames() {
   const prepared = games.flatMap((game,index)=>{
     if ((query && !catalogText(game.title).includes(query)) ||
         (libraryStatus && (libraryStatus==='queue' ? !game.pinnedAt : game.status!==libraryStatus)) ||
-        (librarySource && !game.importSources?.[librarySource]) ||
+        (librarySource && !(game.importSources?.[librarySource] || (librarySource==='steam' && game.steamAppId))) ||
         (collection && collection!==game.catalog) ||
         (platform && !game.runs[platform])) return [];
     return [{game,index,...(sort==='recent'||sort==='hours'?libraryMetrics(game):{})}];
@@ -86,7 +86,7 @@ function renderLibrary() {
         '<select id="catalog" aria-label="'+t('Katalog')+'"><option value="">'+t('Wszystkie katalogi')+'</option>'+options([...new Set(games.map(game=>game.catalog))],collection)+'</select>'+
         '<select id="platform" aria-label="'+t('Filtr platformy')+'"><option value="">'+t('Wszystkie platformy')+'</option>'+options(systems,platform)+'</select>'+
         '<select id="library-source" aria-label="'+t('Źródło importu')+'"><option value="">'+t('Wszystkie źródła')+
-        '</option>'+Object.entries(librarySources).map(([id,provider])=>'<option value="'+id+'" '+(librarySource===id?'selected':'')+'>'+provider.name+'</option>').join('')+'</select>'+
+        '</option>'+Object.entries({steam:{name:'Steam'},...librarySources}).map(([id,provider])=>'<option value="'+id+'" '+(librarySource===id?'selected':'')+'>'+provider.name+'</option>').join('')+'</select>'+
         '<select id="library-sort" aria-label="'+t('Sortowanie')+'">'+sortOptions+'</select>'+
         '<div class="library-view" aria-label="'+t('Widok biblioteki')+'">'+libraryPressed('Lista','library-view:list',view==='list')+libraryPressed('Okładki','library-view:covers',view==='covers')+'</div>'+
         btn(t('Import Steam JSON'),'import')+

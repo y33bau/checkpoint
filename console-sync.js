@@ -20,7 +20,7 @@ function sourceConnectionButtons(provider,saved) {
 function sourceConnectionDetails(provider,saved) {
   if(provider==='wand')return '<small>'+t('Zaimportuj skopiowaną listę i publiczne linki do map Wand.')+'</small>'+
     sourceStatus(provider);
-  const last=saved?.librarySyncedAt?new Date(saved.librarySyncedAt).toLocaleString(appLocale()):'';
+  const last=saved?.librarySyncedAt&&!saved?.lastImport?new Date(saved.librarySyncedAt).toLocaleString(appLocale()):'';
   return '<small>'+t(provider==='xbox'?'Historia grania i podsumowanie osiągnięć.':'Zakupy i uprawnienia PS4 / PS5 oraz historia grania.')+'</small>'+
     (last?'<small>'+t('Ostatnia synchronizacja')+' · '+esc(last)+'</small>':'')+
     '<a class="text-link" href="'+sourceGuide+'" target="_blank" rel="noopener noreferrer">'+t('Konfiguracja połączenia')+'</a>'+
@@ -43,37 +43,6 @@ function sourceURL(raw) {
   if(parsed.username||parsed.password||parsed.hash)throw Error(t('Podaj prawidłowy adres połączenia.'));
   if(parsed.protocol==='https:' || (parsed.protocol==='http:' && parsed.host==='127.0.0.1:43179'))return parsed.href;
   throw Error(t('Podaj HTTPS lub adres lokalnego programu.'));
-}
-
-function editLibrarySource(provider,connectAfter=false) {
-  const source=librarySources[provider];
-  const existing=connections[provider];
-  openForm(t('Podłącz bibliotekę')+' · '+source.name,
-    '<p class="muted">'+t('Uruchom program Checkpoint Bridge i wpisz jego osobny klucz dostępu.')+'</p>'+
-    input(t('Adres połączenia'),'server',existing?.libraryUrl || localBridge+source.path,'type="url" required')+
-    input(t('Klucz programu'),'access',sourceKeys.get(provider),'type="password" minlength="24" required autocomplete="off"')+
-    (existing?.libraryUrl?'<label><span><input type="checkbox" name="unlink"> '+t('Odłącz bibliotekę')+'</span></label>':''),data=>{
-      if(data.has('unlink')){
-        const {libraryUrl,librarySyncedAt,...retained}=existing;
-        connections[provider]=retained;
-        sourceKeys.delete(provider);
-        sourceMessages.delete(provider);
-        localStorage.setItem(connectionKey,JSON.stringify(connections));
-        return;
-      }
-      const address=sourceURL(data.get('server').trim());
-      const key=data.get('access').trim();
-      if(key.length<24)throw Error(t('Podaj prawidłowy klucz programu.'));
-      connections[provider]={profile:existing?.profile||'',...existing,libraryUrl:address,librarySyncedAt:existing?.libraryUrl===address?existing.librarySyncedAt:null};
-      sourceKeys.set(provider,key);
-      sourceMessages.delete(provider);
-      localStorage.setItem(connectionKey,JSON.stringify(connections));
-      if(connectAfter)setTimeout(()=>syncLibrarySource(provider),0);
-    });
-  if(existing?.libraryUrl)form.elements.unlink.onchange=event=>{
-    form.elements.server.disabled=event.target.checked;
-    form.elements.access.disabled=event.target.checked;
-  };
 }
 
 function normalizeSourceRows(data,provider) {
@@ -112,8 +81,7 @@ function parseWandList(text) {
   });
 }
 
-function mergeLibrarySource(data,provider) {
-  const rows=normalizeSourceRows(data,provider);
+function mergeNormalizedSource(rows,provider) {
   const source=librarySources[provider];
   const byTitle=new Map(games.map(item=>[catalogText(item.title),item]));
   const byId=new Map(games.filter(item=>item.sourceIds?.[provider]).map(item=>[item.sourceIds[provider],item]));
@@ -184,10 +152,9 @@ function openLibraryFile(provider) {
         exported=JSON.parse(await file.text());
       }
       if(!dialog.open || document.querySelector('#source-file-status')!==field)return;
-      const result=mergeLibrarySource(exported,provider);
-      setSourceStatus(provider,importMessage(exported,result));
+      normalizeSourceRows(exported,provider);
       dialog.close();
-      render();
+      previewConsole(exported,provider,wand?'list':'file');
     }catch{field.textContent=t('Nie udało się wczytać listy. Sprawdź format danych.')}
     finally{save.disabled=false}
   };
@@ -197,7 +164,7 @@ async function syncLibrarySource(provider) {
   if(sourceJobs.has(provider)||deviceBusy)return;
   const saved=connections[provider];
   const key=sourceKeys.get(provider);
-  if(!saved?.libraryUrl || !key){editLibrarySource(provider,true);return}
+  if(!saved?.libraryUrl || !key){consoleConnectionStep(provider,true);return}
   sourceJobs.add(provider);
   setSourceStatus(provider,t('Pobieram bibliotekę…'));
   try {
@@ -205,15 +172,14 @@ async function syncLibrarySource(provider) {
     const response=await fetch(url,{
       headers:{Authorization:'Bearer '+key},cache:'no-store',redirect:'error',signal:AbortSignal.timeout(50000),
     });
-    if(!response.ok)throw Error('Connection failed');
+    if(response.status===401)throw Error(t('Klucz Checkpoint Bridge jest nieprawidłowy.'));
+    if(response.status===502)throw Error(t('Bridge odpowiada, ale dostawca konta nie zwrócił biblioteki.'));
+    if(!response.ok)throw Error(t('Bridge odrzucił połączenie.'));
     const data=await response.json();
     if(deviceBusy||connections[provider]!==saved)return;
-    const result=mergeLibrarySource(data,provider);
-    saved.librarySyncedAt=new Date().toISOString();
-    localStorage.setItem(connectionKey,JSON.stringify(connections));
-    setSourceStatus(provider,importMessage(data,result));
-    if(['#connections','#library'].includes(location.hash))render();
-  }catch{setSourceStatus(provider,t('Nie udało się połączyć. Sprawdź program, klucz i autoryzację konta.'))}
+    setSourceStatus(provider,'');
+    previewConsole(data,provider,'sync');
+  }catch(error){setSourceStatus(provider,error.name==='TypeError'||error.name==='TimeoutError'?t('Bridge nie odpowiada. Sprawdź program i zgodę przeglądarki.'):error.message)}
   finally{sourceJobs.delete(provider)}
 }
 
@@ -241,7 +207,7 @@ async function showXboxAchievements(game) {
   const saved=connections.xbox;
   const key=sourceKeys.get('xbox');
   if(!panel || !saved?.libraryUrl || !/^\d{1,12}$/.test(game.sourceIds?.xbox))return;
-  if(!key){editLibrarySource('xbox',false);return}
+  if(!key){consoleConnectionStep('xbox',false);return}
   panel.textContent=t('Pobieram osiągnięcia…');
   try{
     const url=new URL(sourceURL(saved.libraryUrl));

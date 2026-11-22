@@ -8,7 +8,7 @@ const connectionInstructions = {
         items:[
           'Na Steamie znajdź swój ID Steam (17 cyfr) i ustaw „Szczegóły gier” jako publiczne.',
           'Jeśli nie masz serwera importu, uruchom go raz według instrukcji konfiguracji. Klucz Steam API dodaj jako sekret serwera.',
-          'Na kafelku Steam wybierz „Dodaj profil” lub „Edytuj profil”. Wpisz ID Steam i adres HTTPS serwera, zapisz i kliknij „Odśwież bibliotekę”.',
+          'Na kafelku Steam wybierz „Dodaj profil” lub „Edytuj profil”. Wpisz ID Steam i adres HTTPS serwera, sprawdź połączenie i zatwierdź zaznaczone gry.',
           'Jeśli masz już dane GetOwnedGames, otwórz Bibliotekę, wybierz „Import Steam JSON” i wklej ich treść.',
         ],
         links:[['Jak znaleźć ID Steam?','https://help.steampowered.com/pl/faqs/view/2816-be67-5b69-0fec'],['Konfiguracja serwera Steam','https://github.com/y33bau/checkpoint/tree/main/integrations/steam']],
@@ -27,7 +27,7 @@ const connectionInstructions = {
         info:'Importuje aktywne pozycje z biblioteki PS4 i PS5 oraz historię grania z czasem gry, jeśli konto ją udostępnia.',
         items:[
           'Na komputerze skonfiguruj i uruchom Checkpoint Bridge. Autoryzację PlayStation przeprowadź według instrukcji mostka i zachowaj dane dostępowe w jego lokalnej konfiguracji.',
-          'Na kafelku PlayStation wybierz „Podłącz bibliotekę”. Na tym samym komputerze zostaw podpowiedziany adres i wpisz osobny klucz mostka.',
+          'Na kafelku PlayStation wybierz „Podłącz bibliotekę”. Na tym samym komputerze zostaw podpowiedziany adres i w kolejnym kroku wpisz osobny klucz mostka. Zatwierdź gry w podglądzie.',
           'Użyj „Pokaż zaimportowane gry”, aby wyświetlić swoją kolekcję. Opcja „Synchronizuj bibliotekę” ponownie pobiera listę.',
           'Na telefonie możesz wczytać plik wyeksportowany przez Bridge przyciskiem „Importuj plik”.',
         ],
@@ -46,7 +46,7 @@ const connectionInstructions = {
         info:'Ręczny import listy gier i publicznych linków do map. Mapy możesz też dodawać pojedynczo na karcie gry.',
         items:[
           'Skopiuj lub wypisz tytuły, po jednym w każdym wierszu. Jeśli masz link do mapy, dodaj go po znaku |.',
-          'Na kafelku Wand wybierz „Wklej listę gier”, wklej tekst i zapisz. Przycisk „Pokaż zaimportowane gry” otworzy przefiltrowaną bibliotekę.',
+          'Na kafelku Wand wybierz „Wklej listę gier”, wklej tekst i przejrzyj podgląd i zatwierdź import. Przycisk „Pokaż zaimportowane gry” otworzy przefiltrowaną bibliotekę.',
           'Żeby przypiąć samą mapę, otwórz kartę gry i wybierz „Mapy i cele”, a potem „Dodaj mapę”.',
         ],
         example:'Elden Ring | https://wand.com/…',
@@ -63,7 +63,7 @@ const connectionInstructions = {
         items:[
           'Find your 17-digit Steam ID and make Game details public in your Steam privacy settings.',
           'If you need an import server, set it up once using the setup guide. Add the Steam API key as a server secret.',
-          'On the Steam card, select Add profile or Edit profile. Enter your Steam ID and the HTTPS server URL, save and select Refresh library.',
+          'On the Steam card, select Add profile or Edit profile. Enter your Steam ID and the HTTPS server URL, check the connection and confirm the selected games.',
           'If you already have GetOwnedGames data, open Library, select Import Steam JSON and paste the data.',
         ],
         links:[['Find your Steam ID','https://help.steampowered.com/en/faqs/view/2816-BE67-5B69-0FEC'],['Set up the Steam server','https://github.com/y33bau/checkpoint/tree/main/integrations/steam']],
@@ -82,7 +82,7 @@ const connectionInstructions = {
         info:'Imports active PS4 and PS5 library entries plus play history and play time when the account provides them.',
         items:[
           'Set up and run Checkpoint Bridge on your computer. Follow the PlayStation authorization steps in the setup guide and keep credentials in the local configuration.',
-          'On the PlayStation card, select Connect library. On the same computer, keep the suggested address and enter the separate bridge key.',
+          'On the PlayStation card, select Connect library. On the same computer, keep the suggested address, enter the separate bridge key and confirm the games in the preview.',
           'Select Show imported games to view your collection. Sync library refreshes the list.',
           'On a phone, use Import file to load a file exported by the bridge.',
         ],
@@ -101,7 +101,7 @@ const connectionInstructions = {
         info:'Manually import a list and public Wand map links. You can also attach individual maps on a game card.',
         items:[
           'Copy or type one title per line. If you have a public map link, add it after |.',
-          'On the Wand card, select Paste game list, paste the text and save. Show imported games opens the filtered library.',
+          'On the Wand card, select Paste game list, paste the text and confirm the selected games in the preview. Show imported games opens the filtered library.',
           'To attach an individual map, open the game card, choose Maps and goals, then Add map.',
         ],
         example:'Elden Ring | https://wand.com/…',

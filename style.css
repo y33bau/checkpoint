@@ -543,3 +543,15 @@ main {flex:1 0 auto;padding-bottom:0}
 .connection-guide-section li+li{margin-top:5px}
 .connection-guide-links{display:flex;flex-wrap:wrap;gap:8px 16px;padding-bottom:10px}
 .connection-guide code{overflow-wrap:anywhere}
+
+.wizard-step{font-weight:700;color:var(--coral);margin-bottom:8px}
+#wizard-status:empty{display:none}
+.import-review-controls{margin-block:12px}
+#import-review-list{max-height:42dvh;overflow:auto;overscroll-behavior:contain;padding:3px}
+.import-review-row{display:flex;align-items:center;gap:10px;margin:0;padding:8px;border-bottom:1px solid var(--line);cursor:pointer}
+.import-review-row :is(strong,small){display:block}
+#import-review-more{margin:9px 0}
+.last-import{display:grid;gap:4px;margin:0;font-size:.875rem}
+.last-import div{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:4px}
+.last-import dt{color:var(--soft)}
+.last-import dd{margin:0;text-align:right}
