@@ -1,0 +1,10 @@
+{
+  "name": "checkpoint",
+  "private": true,
+  "scripts": {
+    "test": "node --test --no-warnings \"tests/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

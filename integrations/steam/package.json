@@ -1,0 +1,14 @@
+{
+  "name": "checkpoint-steam",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler d1 migrations apply DB --local --env local && wrangler dev --env local",
+    "deploy": "wrangler deploy --env=\"\"",
+    "check": "wrangler deploy --dry-run --env=\"\" --outdir dist"
+  },
+  "devDependencies": {
+    "wrangler": "4.50.0"
+  }
+}

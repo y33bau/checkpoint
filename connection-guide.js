@@ -4,14 +4,14 @@ const connectionInstructions = {
     intro:'Jak podłączyć konto lub wczytać gry z każdej usługi.',
     steps:{
       steam:{
-        info:'Importuje bibliotekę Steam i czas gry. Masz do wyboru odświeżanie przez serwer importu lub wklejenie gotowych danych JSON.',
+        info:'Importuje bibliotekę Steam i czas gry. Logujesz się na oficjalnej stronie Steam. Checkpoint nie prosi o hasło, klucz API ani numer ID.',
         items:[
-          'Na Steamie znajdź swój ID Steam (17 cyfr) i ustaw „Szczegóły gier” jako publiczne.',
-          'Jeśli nie masz serwera importu, uruchom go raz według instrukcji konfiguracji. Klucz Steam API dodaj jako sekret serwera.',
-          'Na kafelku Steam wybierz „Dodaj profil” lub „Edytuj profil”. Wpisz ID Steam i adres HTTPS serwera, sprawdź połączenie i zatwierdź zaznaczone gry.',
-          'Jeśli masz już dane GetOwnedGames, otwórz Bibliotekę, wybierz „Import Steam JSON” i wklej ich treść.',
+          'W ustawieniach prywatności Steam ustaw „Szczegóły gier” jako publiczne. Bez tego logowanie się uda, ale Steam nie udostępni listy gier.',
+          'Na kafelku Steam wybierz „Połącz Steam” i zaloguj się na stronie Steam.',
+          'Po powrocie sprawdź podgląd, odznacz tytuły, których nie chcesz, i wybierz „Importuj wybrane”.',
+          'Później użyj „Odśwież bibliotekę”. Jeśli masz gotowe dane GetOwnedGames, możesz też wybrać „Import Steam JSON”.',
         ],
-        links:[['Jak znaleźć ID Steam?','https://help.steampowered.com/pl/faqs/view/2816-be67-5b69-0fec'],['Konfiguracja serwera Steam','https://github.com/y33bau/checkpoint/tree/main/integrations/steam']],
+        links:[['Ustawienia prywatności Steam','https://steamcommunity.com/my/edit/settings']],
       },
       xbox:{
         info:'Importuje historię grania i podsumowanie osiągnięć. Szczegóły osiągnięć są dostępne z karty gry, gdy mostek jest uruchomiony.',
@@ -59,14 +59,14 @@ const connectionInstructions = {
     intro:'How to link an account or import games from each service.',
     steps:{
       steam:{
-        info:'Imports your Steam library and play time. You can refresh through a connected server or paste existing game data.',
+        info:'Imports your Steam library and play time. You sign in on Steam’s official website. Checkpoint never asks for your password, an API key or your Steam ID.',
         items:[
-          'Find your 17-digit Steam ID and make Game details public in your Steam privacy settings.',
-          'If you need an import server, set it up once using the setup guide. Add the Steam API key as a server secret.',
-          'On the Steam card, select Add profile or Edit profile. Enter your Steam ID and the HTTPS server URL, check the connection and confirm the selected games.',
-          'If you already have GetOwnedGames data, open Library, select Import Steam JSON and paste the data.',
+          'In your Steam privacy settings, make Game details public. Without it, sign-in still works, but Steam will not share your game list.',
+          'On the Steam card, select Connect Steam and sign in on the Steam website.',
+          'When you return, review the preview, deselect any titles you do not want and select Import selected.',
+          'Later, use Refresh library. If you already have GetOwnedGames data, you can also select Import Steam JSON.',
         ],
-        links:[['Find your Steam ID','https://help.steampowered.com/en/faqs/view/2816-BE67-5B69-0FEC'],['Set up the Steam server','https://github.com/y33bau/checkpoint/tree/main/integrations/steam']],
+        links:[['Steam privacy settings','https://steamcommunity.com/my/edit/settings']],
       },
       xbox:{
         info:'Imports play history and achievement summaries. Individual achievements are available on the game card while the bridge is running.',
