@@ -1,4 +1,8 @@
 const english = {
+  "Wybierz ogrywaną grę": "Choose a game to play",
+  "Półka": "Shelf", "Indeks": "Index", "Kolekcje": "Collections",
+  "Opcje połączenia": "Connection options", "Filtry i sortowanie": "Filter and sort",
+  "Dane aplikacji": "App data", "Opcje gry": "Game options",
   "Steam odrzucił klucz API serwera Checkpointa. Właściciel aplikacji musi ustawić nowy klucz.": "Steam rejected the Checkpoint server API key. The app owner needs to set a new key.",
   "Zaloguj się kontem Microsoft i wybierz gry z historii grania Xbox do importu.": "Sign in with your Microsoft account and choose games from your Xbox play history to import.",
   "Połącz Xbox": "Connect Xbox",

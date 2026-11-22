@@ -37,7 +37,7 @@ function gamePassNotice(game,link=false) {
 function eveningPanel() {
   return '<section class="panel feature-panel evening-panel"><div class="row"><div><h2>'+t('Mam 45 minut')+'</h2>'+
     '<p class="muted">'+t('Losuj z biblioteki albo odkryj grę z katalogu.')+'</p></div>'+
-    btn(t('Wybierz grę na wieczór'),'evening','primary')+'</div><div id="evening-results"></div></section>';
+    btn(t('Wybierz grę na wieczór'),'evening')+'</div><div id="evening-results"></div></section>';
 }
 
 function eveningPicks(minutes,mood,platform) {

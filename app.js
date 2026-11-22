@@ -54,7 +54,7 @@ function featuredGameSelect(game) {
   const playing=games.filter(item=>item.status==='Gram');
   const choice=playing.length<2?'':'<label class="featured-choice">'+t('Gra na pulpicie')+'<select id="featured-game">'+playing.map(item=>
     '<option value="'+esc(item.id)+'" '+(item===game?'selected':'')+'>'+esc(item.title)+'</option>').join('')+'</select></label>';
-  return '<div class="featured-bar">'+choice+btn(t('＋ Dodaj do ogrywanych'),'pick:playing')+'</div>';
+  return '<details class="featured-switch"><summary>'+t('Wybierz ogrywaną grę')+'</summary><div class="featured-bar">'+choice+btn(t('＋ Dodaj do ogrywanych'),'pick:playing')+'</div></details>';
 }
 
 function featureArtwork(game) {
@@ -105,12 +105,13 @@ function renderConnections() {
       '<p class="muted">' + t(provider.description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
       '<div class="actions">' + (isSteam ? steamConnectButton(saved) : provider.id==='xbox' ? xboxConnectButton(saved) : btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action')) +
+      '</div><details class="extra-options"><summary>'+t('Opcje połączenia')+'</summary><div class="actions">' +
       '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+(provider.id==='nintendo'?t('Zaloguj się na Nintendo'):t('Otwórz')+' '+provider.name) + '</a>' +
       (provider.id==='xbox'&&saved?.profile?btn(t('Odłącz Xbox'),'xbox-unlink'):'')+(isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam')+btn(t('Import Steam JSON'),'import')+(saved?btn(t('Odłącz Steam'),'steam-unlink'):''):'')+
       (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
       '</div>' + (isSteam && !steamServerAddress() ? '<small>'+t(steamErrorMessage('not_configured'))+'</small>' : '') +
       (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
-      (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus + (saved?.lastImport?lastImportMarkup(saved):'') +
+      (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus + '</details>' + (saved?.lastImport?lastImportMarkup(saved):'') +
       (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') + '</article>';
   }).join('') + '</div>';
 }
@@ -203,7 +204,7 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
  else if(view==='rank'){app.innerHTML=renderRankings()}
  else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
- else{const current=featuredGame();app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?featuredGameSelect(current)+banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div><p id="media-status" role="status"></p>',true):'<div class="panel row"><p>'+t('Nie ogrywasz teraz żadnej gry.')+'</p>'+btn(t('＋ Dodaj do ogrywanych'),'pick:playing','primary')+'</div>')+eveningPanel()+gameShelf(queuedGames(current))}
+ else{const current=featuredGame();app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div><p id="media-status" role="status"></p>',true)+featuredGameSelect(current):'<div class="panel row"><p>'+t('Nie ogrywasz teraz żadnej gry.')+'</p>'+btn(t('＋ Dodaj do ogrywanych'),'pick:playing','primary')+'</div>')+eveningPanel()+gameShelf(queuedGames(current))}
  paintMedia(g);
  if(g && currentGameTab==='ratings')attachCriticScores([g]);
  document.querySelector('.account-link').setAttribute('aria-current',view==='settings'?'page':'false');
@@ -278,7 +279,7 @@ function action(act){
    renderLibraryResults();
    return;
  }
- if(act==='library-view:list'||act==='library-view:covers'){
+ if(['library-view:list','library-view:covers','library-view:groups'].includes(act)){
    updateLibrarySetting('view',act.slice('library-view:'.length));
    render();
    app.querySelector('.library-view [aria-pressed="true"]')?.focus({preventScroll:true});
@@ -287,9 +288,9 @@ function action(act){
  if(act==='save-local-settings'){saveLocalSettings();return}
  if(act==='clear-local-data'){clearLocalData();return}
  if(act==='edit-account'){editAccount();return}
- if(act==='edit-weather'){editWeather();return}
  if(act==='force-update'){forceUpdate();return}
  if(act==='refresh-news'){loadNews(true);return}
+ if(act==='more-news'){newsLimit+=6;app.innerHTML=renderNews();app.querySelectorAll('.news-story')[newsLimit-6]?.focus();return}
  if(act.startsWith('news-source-')){selectNewsSource(act.slice(12));return}
  const provider=providers.find(p=>act==='profile-'+p.id);
  if(provider){editConnection(provider);return}
@@ -439,7 +440,7 @@ app.onchange=event=>{
     if(target.checked && target.closest('.return-tasks'))target.closest('.goal-row').hidden=true;
   }
 };
-window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();else loadWeather();loadGamePass();
+window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();loadGamePass();
 
 resumeSteamLogin();
 resumeXboxLogin();

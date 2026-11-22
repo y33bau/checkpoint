@@ -1,32 +1,4 @@
 const settingsKey = 'checkpoint-settings-v1';
-const weatherDefaults={
-  pl:{name:'Warszawa, PL',latitude:52.2297,longitude:21.0122},
-  en:{name:'London, UK',latitude:51.5072,longitude:-0.1276},
-};
-function weatherDefault(language=appLanguage()) {
-  return weatherDefaults[language]||weatherDefaults.pl;
-}
-function currentWeather() {
-  return preferences.weather || weatherDefault();
-}
-function weatherName(place) {
-  return place.device?t('Moja lokalizacja'):place.name;
-}
-function weatherPlace(result) {
-  return {
-    name:[result.name,result.country_code].filter(Boolean).join(', '),
-    latitude:result.latitude,
-    longitude:result.longitude,
-  };
-}
-async function lookupWeatherCities(city,language=appLanguage()) {
-  const url=new URL('https://geocoding-api.open-meteo.com/v1/search');
-  url.search=new URLSearchParams({name:city,count:'7',language});
-  const response=await fetch(url,{signal:AbortSignal.timeout(8000)});
-  if(!response.ok)throw Error('Weather search unavailable');
-  const {results:places=[]}=await response.json();
-  return places;
-}
 let preferences = {};
 try {
   preferences = JSON.parse(localStorage.getItem(settingsKey) || '{}') || {};
@@ -40,7 +12,6 @@ function savePreferences() {
 
 function renderSettings() {
   const profile = preferences.profile || {};
-  const place = currentWeather();
   return pageHeading(t('Ustawienia')) + `
     <div class="settings-grid">
       <article class="panel settings-card">
@@ -56,9 +27,7 @@ function renderSettings() {
         <small>${[profile.age ? profile.age + ' ' + t('lat') : '', profile.platform || ''].filter(Boolean).map(esc).join(' · ')}</small>
         <div class="actions">${btn(t('Edytuj profil'),'edit-account','primary')}</div>
       </article>
-      <article class="panel settings-card"><h2>${t('Pogoda')}</h2><p>${esc(weatherName(place))}</p>
-        <div class="actions">${btn(t('Zmień miejscowość'),'edit-weather')}</div>
-      </article>
+      <details class="panel settings-tools"><summary>${t('Dane aplikacji')}</summary><div class="settings-grid">
       <article class="panel settings-card"><h2>${t('Aktualizacja aplikacji')}</h2>
         <p class="muted">${t('Pobierz ponownie pliki aplikacji z serwera.')}</p>
         <div class="actions">${btn(t('Wymuś aktualizację'),'force-update')}</div>
@@ -73,7 +42,7 @@ function renderSettings() {
         <input type="file" id="backup-file" accept=".json,application/json" hidden>
         <p class="muted" id="backup-status" role="status"></p>
       </article>
-    </div>`;
+    </div></details></div>`;
 }
 
 function editAccount() {
@@ -90,81 +59,6 @@ function editAccount() {
       };
       savePreferences();
     });
-}
-
-function editWeather() {
-  openForm(t('Miejscowość'), input(t('Nazwa miejscowości'),'city','','required maxlength="80"') +
-    '<p id="city-results" role="status"></p>', () => {});
-  form.onsubmit = async event => {
-    event.preventDefault();
-    const results = document.querySelector('#city-results');
-    const save = document.querySelector('#save');
-    const city = new FormData(form).get('city').trim();
-    if (city.length < 2) {
-      results.textContent = t('Wpisz co najmniej dwie litery.');
-      return;
-    }
-    save.disabled = true;
-    results.textContent = t('Szukam miejscowości…');
-    try {
-      const places=await lookupWeatherCities(city);
-      results.replaceChildren();
-      if (!places.length) results.textContent = t('Brak wyników. Spróbuj innej nazwy.');
-      for (const place of places) {
-        const choice = document.createElement('button');
-        choice.type = 'button';
-        choice.className = 'city-choice';
-        choice.textContent = [place.name, place.admin1, place.country].filter(Boolean).join(' · ');
-        choice.onclick = () => {
-          preferences.weather=weatherPlace(place);
-          savePreferences();
-          dialog.close();
-          render();
-          loadWeather();
-        };
-        results.append(choice);
-      }
-    } catch {
-      results.textContent = t('Nie udało się wyszukać miejscowości.');
-    } finally {
-      save.disabled = false;
-    }
-  };
-}
-
-let weatherRequest;
-async function loadWeather() {
-  weatherRequest?.abort();
-  weatherRequest = new AbortController();
-  const signal = weatherRequest.signal;
-  const place = currentWeather();
-  const panel = document.querySelector('#weather');
-  const city = '<a href="#settings" class="weather-location" aria-label="'+t('Ustawienia pogody')+'"><span aria-hidden="true">◉</span> '+esc(weatherName(place))+'</a>';
-  panel.innerHTML = city + '<span class="weather-status">'+t('Pobieram pogodę…')+'</span>';
-  try {
-    const url = new URL('https://api.open-meteo.com/v1/forecast');
-    url.search = new URLSearchParams({
-      latitude: place.latitude,
-      longitude: place.longitude,
-      current:'temperature_2m,wind_speed_10m,precipitation,pressure_msl',
-    });
-    const response = await fetch(url, {signal:AbortSignal.any([signal,AbortSignal.timeout(9000)])});
-    if (!response.ok) throw Error();
-    const {current} = await response.json();
-    if (signal.aborted) return;
-    const number = (value, digits=0) => new Intl.NumberFormat(appLocale(),{maximumFractionDigits:digits}).format(value);
-    const metrics = [
-      ['Temp.', current.temperature_2m, '°C', 0],
-      [t('Wiatr'), current.wind_speed_10m, 'km/h', 0],
-      [t('Opady'), current.precipitation, 'mm', 1],
-      [t('Ciśnienie'), current.pressure_msl, 'hPa', 0],
-    ];
-    panel.innerHTML = city + metrics.map(([label,value,unit,digits]) =>
-      '<span class="weather-metric"><small>'+label+'</small><strong>'+
-      (Number.isFinite(value)?number(value,digits)+' '+unit:'—')+'</strong></span>').join('');
-  } catch {
-    if (!signal.aborted) panel.innerHTML = city + '<span class="weather-status">'+t('Pogoda chwilowo niedostępna')+'</span>';
-  }
 }
 
 async function forceUpdate() {
@@ -197,6 +91,7 @@ const newsSources = {
   pl: {gryonline:'GRYOnline.pl', eurogamerpl:'Eurogamer Polska', cdaction:'CD-Action', ppe:'PPE', gram:'Gram.pl', planetagracza:'PlanetaGracza', ignpl:'IGN Polska'},
   en: {eurogamer:'Eurogamer', pcgamer:'PC Gamer', rps:'Rock Paper Shotgun'},
 };
+let newsLimit = 6;
 let newsSource = 'all';
 let newsData;
 let newsLoading = false;
@@ -206,11 +101,11 @@ function changeAppLanguage(language) {
   if ((language !== 'pl' && language !== 'en') || appLanguage() === language) return;
   preferences.language = language;
   savePreferences();
+  newsLimit = 6;
   newsSource = 'all';
   applyLanguage();
   render();
   app.querySelector('#app-language')?.focus();
-  loadWeather();
 }
 
 function renderNews() {
@@ -221,16 +116,17 @@ function renderNews() {
     Object.hasOwn(sources,item.source) && (newsSource==='all'||newsSource===item.source));
   let content = '<p role="status" class="muted">'+t('Pobieram nagłówki…')+'</p>';
   if (newsData || newsError) {
-    content = articles.length ? articles.slice(0,24).map(item=>{
+    content = articles.length ? articles.slice(0,newsLimit).map(item=>{
       const link = web(item.url);
       if (!link) return '';
       const date = item.publishedAt ? new Date(item.publishedAt).toLocaleDateString(appLocale()) : '';
-      return '<a class="news-story panel" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer"><span class="news-source '+esc(item.source)+'">'+esc(sources[item.source])+'</span><h2>'+esc(item.title)+'</h2><small>'+esc(date)+'</small></a>';
+      return '<a class="news-story panel" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer"><span class="news-source '+esc(item.source)+'">'+esc(sources[item.source])+'</span> <small>'+esc(date)+'</small><h2>'+esc(item.title)+'</h2></a>';
     }).join('') : '<p role="status" class="muted">'+t('Brak dostępnych wiadomości dla tego źródła.')+'</p>';
   }
   return pageHeading(t('Newsy'),btn(t('Odśwież'),'refresh-news')) + '<div class="news-filters" aria-label="'+t('Źródła')+'">'+filters+
     '</div>'+(newsError?'<p class="muted" role="status">'+t('Nie udało się odświeżyć wiadomości.')+'</p>':'')+
-    '<div class="news-grid">'+content+'</div>';
+    '<div class="news-grid">'+content+'</div>'+
+    (articles.length>newsLimit?btn(t('Pokaż kolejne'),'more-news'):'');
 }
 
 async function loadNews(force=false) {
@@ -260,6 +156,7 @@ async function loadNews(force=false) {
 
 function selectNewsSource(source) {
   if (source !== 'all' && !Object.hasOwn(newsSources[appLanguage()],source)) return;
+  newsLimit = 6;
   newsSource = source;
   app.innerHTML = renderNews();
   app.querySelector('[aria-pressed="true"]')?.focus();
