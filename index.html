@@ -5,33 +5,34 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0e0d18">
   <title>Checkpoint — dziennik gracza</title>
-  <link rel="stylesheet" href="style.css?v=afterglow2">
+  <link rel="stylesheet" href="style.css?v=afterglow3">
 </head>
 <body>
   <header class="masthead">
-    <a class="brand" href="#now" aria-label="Checkpoint, gram teraz">
+    <a class="brand" href="#now" aria-label="Checkpoint, gram teraz" data-i18n-label="Checkpoint, gram teraz">
       <span class="brand-mark" aria-hidden="true"></span>
-      <span>CHECK<span class="brand-accent">POINT</span><small>Dziennik gracza</small></span>
+      <span>CHECK<span class="brand-accent">POINT</span><small data-i18n="Dziennik gracza">Dziennik gracza</small></span>
     </a>
-    <a class="button account-link" href="#settings"><span aria-hidden="true">⚙</span> <span>Ustawienia</span></a>
+    <a class="button account-link" href="#settings"><span aria-hidden="true">⚙</span> <span data-i18n="Ustawienia">Ustawienia</span></a>
   </header>
-  <aside class="weather-strip" id="weather" aria-label="Pogoda" aria-live="polite"></aside>
+  <aside class="weather-strip" id="weather" aria-label="Pogoda" data-i18n-label="Pogoda" aria-live="polite"></aside>
   <main id="app"></main>
-  <nav aria-label="Nawigacja">
-    <a href="#now"><span aria-hidden="true">◈</span>Gram teraz</a>
-    <a href="#library"><span aria-hidden="true">▦</span>Biblioteka</a>
-    <a href="#rank"><span aria-hidden="true">☆</span>Ranking</a>
-    <a href="#connections"><span aria-hidden="true">⛓</span>Połączenia</a>
-    <a href="#news"><span aria-hidden="true">▤</span>Newsy</a>
+  <nav aria-label="Nawigacja" data-i18n-label="Nawigacja">
+    <a href="#now"><span aria-hidden="true">◈</span><span class="nav-label" data-i18n="Gram teraz">Gram teraz</span></a>
+    <a href="#library"><span aria-hidden="true">▦</span><span class="nav-label" data-i18n="Biblioteka">Biblioteka</span></a>
+    <a href="#news"><span aria-hidden="true">▤</span><span class="nav-label" data-i18n="Newsy">Newsy</span></a>
+    <a href="#rank"><span aria-hidden="true">☆</span><span class="nav-label" data-i18n="Ranking">Ranking</span></a>
+    <a href="#connections"><span aria-hidden="true">⛓</span><span class="nav-label" data-i18n="Połączenia">Połączenia</span></a>
   </nav>
   <dialog id="modal" aria-labelledby="dialog-title">
     <form id="form">
-      <button type="button" id="close" aria-label="Zamknij">×</button>
+      <button type="button" id="close" aria-label="Zamknij" data-i18n-label="Zamknij">×</button>
       <div id="fields"></div>
-      <button class="primary" id="save">Zapisz</button>
+      <button class="primary" id="save" data-i18n="Zapisz">Zapisz</button>
     </form>
   </dialog>
-  <script src="dashboard.js?v=afterglow2"></script>
-  <script src="app.js?v=afterglow2"></script>
+  <script src="locale.js?v=afterglow3"></script>
+  <script src="dashboard.js?v=afterglow3"></script>
+  <script src="app.js?v=afterglow3"></script>
 </body>
 </html>

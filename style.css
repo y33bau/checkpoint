@@ -109,3 +109,9 @@ nav .active span{color:var(--coral)}
   nav a span{font-size:16px}
   .settings-grid,.news-grid{grid-template-columns:1fr}
 }
+
+nav a .nav-label{font-size:inherit;color:inherit;line-height:inherit}
+.empty-library{padding:clamp(20px,4vw,36px);max-width:680px}
+.empty-library p{margin:8px 0 18px}
+button.danger{color:#ffb3b5;border-color:#81515b}
+#local-settings-status:empty{display:none}

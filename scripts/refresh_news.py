@@ -4,11 +4,15 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from html import unescape
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
 FEEDS = {
+    "gryonline": "https://www.gry-online.pl/rss/news.xml",
+    "eurogamerpl": "https://www.eurogamer.pl/feed/news",
+    "cdaction": "https://cdaction.pl/feed",
     "eurogamer": "https://www.eurogamer.net/feed/news",
     "pcgamer": "https://www.pcgamer.com/rss/",
     "rps": "https://www.rockpapershotgun.com/feed/news",
@@ -21,8 +25,10 @@ def read_feed(source, feed):
         root = ElementTree.fromstring(response.read(3_000_000))
     articles = []
     for item in root.findall("./channel/item"):
-        title = item.findtext("title", "").strip()
+        title = unescape(item.findtext("title", "")).strip()
         url = item.findtext("link", "").strip()
+        if urlsplit(url).scheme == "http":
+            url = urlsplit(url)._replace(scheme="https").geturl()
         if not title or urlsplit(url).scheme != "https":
             continue
         try:
