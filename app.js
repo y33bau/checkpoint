@@ -393,7 +393,7 @@ app.onchange=event=>{
     if(target.checked && target.closest('.return-tasks'))target.closest('.goal-row').hidden=true;
   }
 };
-window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();loadWeather();loadGamePass();
+window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();else loadWeather();loadGamePass();
 
 const steamRefreshInterval = 24 * 60 * 60 * 1000;
 if (connections.steam?.server && Date.now() - (Date.parse(connections.steam.syncedAt) || 0) >= steamRefreshInterval) {

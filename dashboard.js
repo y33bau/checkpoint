@@ -1,5 +1,32 @@
 const settingsKey = 'checkpoint-settings-v1';
-const defaultWeather = { name: 'Łańcut', latitude: 50.0687, longitude: 22.2291 };
+const weatherDefaults={
+  pl:{name:'Warszawa, PL',latitude:52.2297,longitude:21.0122},
+  en:{name:'London, UK',latitude:51.5072,longitude:-0.1276},
+};
+function weatherDefault(language=appLanguage()) {
+  return weatherDefaults[language]||weatherDefaults.pl;
+}
+function currentWeather() {
+  return preferences.weather || weatherDefault();
+}
+function weatherName(place) {
+  return place.device?t('Moja lokalizacja'):place.name;
+}
+function weatherPlace(result) {
+  return {
+    name:[result.name,result.country_code].filter(Boolean).join(', '),
+    latitude:result.latitude,
+    longitude:result.longitude,
+  };
+}
+async function lookupWeatherCities(city,language=appLanguage()) {
+  const url=new URL('https://geocoding-api.open-meteo.com/v1/search');
+  url.search=new URLSearchParams({name:city,count:'7',language});
+  const response=await fetch(url,{signal:AbortSignal.timeout(8000)});
+  if(!response.ok)throw Error('Weather search unavailable');
+  const {results:places=[]}=await response.json();
+  return places;
+}
 let preferences = {};
 try {
   preferences = JSON.parse(localStorage.getItem(settingsKey) || '{}') || {};
@@ -13,7 +40,7 @@ function savePreferences() {
 
 function renderSettings() {
   const profile = preferences.profile || {};
-  const place = preferences.weather || defaultWeather;
+  const place = currentWeather();
   return pageHeading(t('Ustawienia')) + `
     <div class="settings-grid">
       <article class="panel settings-card">
@@ -29,7 +56,7 @@ function renderSettings() {
         <small>${[profile.age ? profile.age + ' ' + t('lat') : '', profile.platform || ''].filter(Boolean).map(esc).join(' · ')}</small>
         <div class="actions">${btn(t('Edytuj profil'),'edit-account','primary')}</div>
       </article>
-      <article class="panel settings-card"><h2>${t('Pogoda')}</h2><p>${esc(place.name)}</p>
+      <article class="panel settings-card"><h2>${t('Pogoda')}</h2><p>${esc(weatherName(place))}</p>
         <div class="actions">${btn(t('Zmień miejscowość'),'edit-weather')}</div>
       </article>
       <article class="panel settings-card"><h2>${t('Aktualizacja aplikacji')}</h2>
@@ -80,11 +107,7 @@ function editWeather() {
     save.disabled = true;
     results.textContent = t('Szukam miejscowości…');
     try {
-      const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
-      url.search = new URLSearchParams({name:city, count:'7', language:appLanguage()});
-      const response = await fetch(url, {signal:AbortSignal.timeout(8000)});
-      if (!response.ok) throw Error();
-      const {results:places = []} = await response.json();
+      const places=await lookupWeatherCities(city);
       results.replaceChildren();
       if (!places.length) results.textContent = t('Brak wyników. Spróbuj innej nazwy.');
       for (const place of places) {
@@ -93,7 +116,7 @@ function editWeather() {
         choice.className = 'city-choice';
         choice.textContent = [place.name, place.admin1, place.country].filter(Boolean).join(' · ');
         choice.onclick = () => {
-          preferences.weather = {name:place.name, latitude:place.latitude, longitude:place.longitude};
+          preferences.weather=weatherPlace(place);
           savePreferences();
           dialog.close();
           render();
@@ -114,9 +137,9 @@ async function loadWeather() {
   weatherRequest?.abort();
   weatherRequest = new AbortController();
   const signal = weatherRequest.signal;
-  const place = preferences.weather || defaultWeather;
+  const place = currentWeather();
   const panel = document.querySelector('#weather');
-  const city = '<a href="#settings" class="weather-location" aria-label="'+t('Ustawienia pogody')+'"><span aria-hidden="true">◉</span> '+esc(place.name)+'</a>';
+  const city = '<a href="#settings" class="weather-location" aria-label="'+t('Ustawienia pogody')+'"><span aria-hidden="true">◉</span> '+esc(weatherName(place))+'</a>';
   panel.innerHTML = city + '<span class="weather-status">'+t('Pobieram pogodę…')+'</span>';
   try {
     const url = new URL('https://api.open-meteo.com/v1/forecast');
