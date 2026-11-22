@@ -392,6 +392,15 @@ app.addEventListener('error',event=>{
 },true);
 app.addEventListener('load',event=>{
   const image=event.target;
+  if(image.matches?.('.library-covers .cover img')){
+    const frame=image.parentElement;
+    const imageRatio=image.naturalWidth/image.naturalHeight;
+    const frameRatio=frame.clientWidth/frame.clientHeight;
+    const cropFraction=1-Math.min(imageRatio/frameRatio,frameRatio/imageRatio);
+    const preserveArtwork=cropFraction>0.12;
+    frame.dataset.artwork=preserveArtwork?'full':'cover';
+    frame.style.setProperty('--shelf-artwork',preserveArtwork?'url('+JSON.stringify(image.currentSrc||image.src)+')':'none');
+  }
   if(!image.matches?.('.feature-art .feature-image'))return;
   image.dataset.artReady='yes';
   if(image.dataset.artMode==='poster')image.previousElementSibling.src=image.currentSrc||image.src;
