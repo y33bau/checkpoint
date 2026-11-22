@@ -8,7 +8,7 @@ function playthroughPanel(game) {
     '<div class="game-progress"><strong>'+locale.format(run.progress)+'%</strong>'+bar(run.progress)+'</div>'+
     '<p class="muted">'+locale.format(minutes)+' '+t('min zapisanych')+
     (Number.isFinite(run.importedMinutes)?' · '+locale.format(run.importedMinutes)+' '+t('min z platformy')+' '+esc(game.system):'')+'</p>'+
-    (notice?'<div class="gamepass-banner">'+notice+'</div>':'')+activityPanel(run)+xboxAchievementsButton(game)+'</section>';
+    (notice?'<div class="gamepass-banner">'+notice+'</div>':'')+activityPanel(run)+achievementsPanel(game,run)+xboxAchievementsButton(game)+'</section>';
 }
 
 function sessionLog(run) {

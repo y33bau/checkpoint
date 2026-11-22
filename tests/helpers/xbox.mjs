@@ -10,6 +10,17 @@ export const titles = [
   { titleId: '1915865634', name: 'Forza Horizon 5 duplicate', type: 'Game' },
 ];
 
+export const achievementLists = {
+  1915865634: [
+    { id: '1', name: 'Welcome to Mexico', description: 'Complete the opening drive', lockedDescription: 'Complete the opening drive',
+      progressState: 'Achieved', progression: { timeUnlocked: '2026-10-01T10:00:00.000Z' }, isSecret: false,
+      mediaAssets: [{ name: 'icon', type: 'Icon', url: 'https://images-eds-ssl.xboxlive.com/image?url=abc' }],
+      rewards: [{ value: '10', type: 'Gamerscore' }] },
+    { id: '2', name: 'Secret road', description: 'Spoiler text', lockedDescription: 'Secret achievement', progressState: 'NotStarted',
+      progression: { timeUnlocked: '0001-01-01T00:00:00.0000000Z' }, isSecret: true, rewards: [{ value: '20', type: 'Gamerscore' }] },
+  ],
+};
+
 export function installXboxFetch({ tokenOk = true, xstsError, library = { xuid, titles } } = {}) {
   const calls = [];
   const original = globalThis.fetch;
@@ -29,6 +40,11 @@ export function installXboxFetch({ tokenOk = true, xstsError, library = { xuid, 
     if (url.href === 'https://xsts.auth.xboxlive.com/xsts/authorize') {
       if (xstsError) return Response.json({ XErr: xstsError }, { status: 401 });
       return Response.json({ Token: 'xsts-token', DisplayClaims: { xui: [{ uhs: 'hash', xid: xuid, gtg: gamertag }] } });
+    }
+    if (url.origin === 'https://achievements.xboxlive.com') {
+      if (init.headers?.Authorization !== 'XBL3.0 x=hash;xsts-token') return new Response(null, { status: 401 });
+      const list = achievementLists[url.searchParams.get('titleId')];
+      return list ? Response.json({ achievements: list, pagingInfo: { continuationToken: null } }) : new Response(null, { status: 404 });
     }
     if (url.origin === 'https://titlehub.xboxlive.com') {
       if (init.headers?.Authorization !== 'XBL3.0 x=hash;xsts-token') return new Response(null, { status: 401 });

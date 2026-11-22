@@ -127,6 +127,10 @@ function previewSteam(data,mode) {
     persist();
     recordLastImport('steam',count,games.length-before,mode);
     steamMessage=t('Zaktualizowano gry Steam')+' · '+count;
+    if(mode==='sync'){
+      const appids=new Set(rows.map(row=>row.appid));
+      importSteamAchievementsAfterSync(games.filter(item=>appids.has(item.steamAppId)));
+    }
   });
 }
 
