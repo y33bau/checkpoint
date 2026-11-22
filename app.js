@@ -38,7 +38,7 @@ function gameShelf(list) {
       '<span class="case-stage"><span class="game-case">'+
       '<span class="case-edge" aria-hidden="true">'+title+'</span>'+
       '<span class="cover" aria-hidden="true"><b>'+title+'</b>'+coverImage(game)+'</span>'+
-      '</span></span><span class="shelf-caption"><strong>'+title+'</strong><small>'+platforms+'</small></span></button>';
+      '</span></span><span class="shelf-caption"><strong>'+title+'</strong><small>'+platforms+'</small>'+gamePassNotice(game)+'</span></button>';
   }).join('');
   const contents = cases || '<p class="shelf-empty">'+t('Przypnij gry w Bibliotece, aby pojawiły się na półce.')+'</p>';
   return '<section aria-labelledby="shelf-title">'+header+
@@ -117,7 +117,7 @@ async function syncSteam() {
     const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (!response.ok) throw Error(t('Serwer Steam zwrócił błąd')+' (' + response.status + '). '+t('Sprawdź adres i widoczność biblioteki.'));
     const data = await response.json();
-    if (connections.steam !== saved) return;
+    if (deviceBusy || connections.steam !== saved) return;
     const count = importSteamGames(data);
     persist();
     saved.syncedAt = new Date().toISOString();
@@ -156,11 +156,12 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.q
  if(view==='settings'){app.innerHTML=renderSettings()}
  else if(view==='news'){app.innerHTML=renderNews();loadNews()}
  else if(view==='connections'){app.innerHTML=renderConnections()}
- else if(g){const r=g.runs[g.system];app.innerHTML=pageHeading(t('Karta gry'),btn(t('Edytuj'),'edit'))+banner(g,'<p>'+esc(g.catalog)+'</p><div class="actions">'+btn(t('Zapisz sesję'),'session','primary')+youtubeGuide(g)+queueToggle(g)+'</div>')+'<div class="panel"><div class="row"><h2>'+t('Przejście')+'</h2><select aria-label="'+t('Platforma przejścia')+'" id="system">'+options(Object.keys(g.runs),g.system)+'</select></div>'+bar(r.progress)+'<strong>'+r.progress+'%</strong> · '+r.sessions.reduce((n,s)=>n+s.minutes,0)+' '+t('min zapisanych')+(Number.isFinite(r.importedMinutes)?' · '+r.importedMinutes+' '+t('min w Steam'):'')+'<p>'+esc(r.goal||t('Zapisz kolejny cel po sesji.'))+'</p></div>'+section(t('Mapy i cele'))+'<div class="actions">'+btn(t('＋ Dodaj mapę'),'map')+btn(t('＋ Dodaj cel'),'task')+'</div>'+g.maps.map(m=>'<a class="entry" href="'+esc(web(m.url))+'" rel="noopener noreferrer" target="_blank">'+esc(m.name)+'</a>').join('')+g.tasks.map((t,i)=>'<label class="entry"><input type="checkbox" data-task="'+i+'" '+(t.done?'checked':'')+'>'+esc(t.name)+'</label>').join('')+section(t('Twoja ocena'))+'<div class="panel row"><span class="number">'+(score(g)?.toFixed(1)??'—')+' / 10</span>'+btn(t('Oceń grę'),'rate')+'</div>'+section(t('Dziennik sesji'))+(r.sessions.length?r.sessions.slice().reverse().map(s=>'<div class="panel"><strong>'+esc(s.playedAt ? new Date(s.playedAt).toLocaleDateString(appLocale()) : s.date)+' · '+s.minutes+' min</strong><p>'+esc(s.note)+'</p></div>').join(''):'<p class="muted">'+t('Tutaj pojawi się pierwsza zapisana sesja.')+'</p>')}
+ else if(g){const r=g.runs[g.system];app.innerHTML=pageHeading(t('Karta gry'),btn(t('Edytuj'),'edit'))+banner(g,'<p>'+esc(g.catalog)+'</p><div class="actions">'+btn(t('Zapisz sesję'),'session','primary')+youtubeGuide(g)+queueToggle(g)+'</div>')+'<div class="panel"><div class="row"><h2>'+t('Przejście')+'</h2><select aria-label="'+t('Platforma przejścia')+'" id="system">'+options(Object.keys(g.runs),g.system)+'</select></div>'+(gamePassNotice(g,true)?'<div class="gamepass-banner">'+gamePassNotice(g,true)+'</div>':'')+bar(r.progress)+'<strong>'+r.progress+'%</strong> · '+r.sessions.reduce((n,s)=>n+s.minutes,0)+' '+t('min zapisanych')+(Number.isFinite(r.importedMinutes)?' · '+r.importedMinutes+' '+t('min w Steam'):'')+'<p>'+esc(r.goal||t('Zapisz kolejny cel po sesji.'))+'</p></div>'+returnPanel(g,r)+voicePanel()+section(t('Mapy i cele'))+'<div class="actions">'+btn(t('＋ Dodaj mapę'),'map')+btn(t('＋ Dodaj cel'),'task')+'</div>'+g.maps.map(m=>'<a class="entry" href="'+esc(web(m.url))+'" rel="noopener noreferrer" target="_blank">'+esc(m.name)+'</a>').join('')+g.tasks.map((task,index)=>goalRow(task,index)).join('')+chroniclePanel(g)+section(t('Twoja ocena'))+'<div class="panel row"><span class="number">'+(score(g)?.toFixed(1)??'—')+' / 10</span>'+btn(t('Oceń grę'),'rate')+'</div>'+section(t('Dziennik sesji'))+(r.sessions.length?r.sessions.slice().reverse().map(s=>'<div class="panel"><strong>'+esc(s.playedAt ? new Date(s.playedAt).toLocaleDateString(appLocale()) : s.date)+' · '+s.minutes+' min</strong><p>'+esc(s.note)+'</p></div>').join(''):'<p class="muted">'+t('Tutaj pojawi się pierwsza zapisana sesja.')+'</p>')}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
  else if(view==='rank'){let ranked=games.filter(g=>score(g)!==null).sort((a,b)=>score(b)-score(a));app.innerHTML=pageHeading(t('Ranking'))+(ranked.map((g,i)=>'<button class="entry" data-game="'+g.id+'"><span class="number">'+(i+1)+'</span><strong>'+esc(g.title)+'</strong>'+score(g).toFixed(1)+' / 10</button>').join('')||'<div class="panel"><h2>'+t('Jaką grę oceniasz najwyżej?')+'</h2><p>'+t('Wybierz grę z biblioteki i oceń ją, aby rozpocząć ranking.')+'</p><a href="#library" class="button" style="display:inline-block;margin-top:12px">'+t('Wybierz grę')+'</a></div>')}
  else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'}
- else{const current=games.find(g=>g.status==='Gram');app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button></div>',true):'<div class="panel">'+t('Wybierz w karcie gry status „Gram”.')+'</div>')+gameShelf(queuedGames(current))}
+ else{const current=games.find(g=>g.status==='Gram');app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div><p id="media-status" role="status"></p>',true):'<div class="panel">'+t('Wybierz w karcie gry status „Gram”.')+'</div>')+eveningPanel()+gameShelf(queuedGames(current))}
+ paintMedia(g);
  document.querySelector('.account-link').setAttribute('aria-current',view==='settings'?'page':'false');
  for(const link of document.querySelectorAll('nav a')) {
    if(link.classList.contains('active')) link.setAttribute('aria-current','page');
@@ -174,6 +175,27 @@ function openForm(title,body,action){fields.innerHTML='<h2 id="dialog-title">'+t
 document.querySelector('#close').onclick=()=>dialog.close();
 const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persist();dialog.close();render()}catch(err){alert(err.message)}};
 function action(act){
+ const game=active();
+ if(deviceBusy)return;
+ if(act==='evening'){openEvening();return}
+ if(act==='edit-hint' && game){editSessionHint(game);return}
+ if(act==='edit-return' && game){editReturn(game);return}
+ if(act.startsWith('pin-goal:') && game){toggleGoalPin(game,Number(act.slice(9)));return}
+ if(act==='voice-toggle'){toggleVoice(game || games.find(item=>item.status==='Gram'));return}
+ if(act.startsWith('voice-remove:')){removeAttachment(act.slice(13),'voice',game);return}
+ if(act==='chronicle-edit' && game){editChronicle(game);return}
+ if(act==='chronicle-remove-shot'){removeAttachment(null,'screenshot',game);return}
+ if(act==='chronicle-generate'){prepareChronicle(game);return}
+ if(act==='chronicle-download' && preparedCard){downloadFile(preparedCard,preparedCard.name);return}
+ if(act==='chronicle-share' && preparedCard){
+   navigator.share({files:[preparedCard]}).catch(error=>{if(error.name!=='AbortError')chronicleStatus('Nie udało się udostępnić karty.')});
+   return;
+ }
+ if(act==='backup-export'){exportBackup();return}
+ if(act==='backup-import'){
+   if(recording){backupStatus('Najpierw zakończ nagrywanie.');return}
+   document.querySelector('#backup-file').click();return;
+ }
  if(act==='library-more'){
    const previous = libraryLimit;
    libraryLimit += libraryPageSize;
@@ -208,7 +230,7 @@ function action(act){
  if(['add','edit'].includes(act)){openGameForm(g);return}
  if(act==='import'){openForm(t('Import biblioteki Steam'),'<label>'+t('Wklej JSON z listą gier Steam (GetOwnedGames)')+'<textarea name="json" required rows="6"></textarea></label>',d=>importSteamGames(JSON.parse(d.get('json'))));return}
  if(!g)return;const r=g.runs[g.system];
- if(['session','quick'].includes(act))openForm(t('Zapisz sesję'),input(t('Czas gry (min)'),'minutes',30,'type="number" min="1" max="1440" required')+input(t('Postęp (%)'),'progress',r.progress,'type="number" min="0" max="100" required')+input(t('Co udało się zrobić?'),'note')+input(t('Następny cel'),'goal',r.goal),d=>{const playedAt=Date.now();r.sessions.push({playedAt,date:new Date(playedAt).toLocaleDateString(appLocale()),minutes:Number(d.get('minutes')),note:d.get('note')});r.goal=d.get('goal');r.progress=Number(d.get('progress'));if(act==='quick')location.hash='game-'+g.id});
+ if(['session','quick'].includes(act))openForm(t('Zapisz sesję'),input(t('Czas gry (min)'),'minutes',30,'type="number" min="1" max="1440" required')+input(t('Postęp (%)'),'progress',r.progress,'type="number" min="0" max="100" required')+input(t('Co udało się zrobić?'),'note')+input(t('Następny cel'),'goal',r.goal),d=>{const playedAt=Date.now();r.sessions.push({playedAt,date:new Date(playedAt).toLocaleDateString(appLocale()),minutes:Number(d.get('minutes')),note:d.get('note')});r.goal=d.get('goal');if(d.get('note').trim())r.resumeNote=d.get('note').trim();r.progress=Number(d.get('progress'));if(act==='quick')location.hash='game-'+g.id});
  if(act==='rate')openForm(t('Oceń grę'),'<p class="muted">'+t('Skala 1–10. Puste kategorie pomijamy w średniej.')+'</p>'+criteria.map((c,i)=>input(t(c),'c'+i,g.scores[i]??'','type="number" min="1" max="10"')).join(''),d=>g.scores=criteria.map((_,i)=>d.get('c'+i)?Number(d.get('c'+i)):null));
  if(act==='map')openForm(t('Przypnij mapę'),input(t('Nazwa mapy'),'name',t('Mapa Wand'),'required')+input(t('Link do mapy Wand lub innej strony'),'url','','type="url" required'),d=>{const url=web(d.get('url'));if(!url)throw Error(t('Wpisz adres https lub http.'));g.maps.push({name:d.get('name'),url})});
  if(act==='task')openForm(t('Nowy cel'),input(t('Co chcesz zrobić?'),'name','','required'),d=>g.tasks.push({name:d.get('name'),done:false}))}
@@ -245,7 +267,7 @@ function openGameForm(existing) {
 async function fillExactCover(game, title, store) {
   try {
     const [choice] = await findCatalogGames(title,store,true);
-    if (!choice || !games.includes(game) || game.title!==title || game.system!==store || game.cover) return;
+    if (deviceBusy || !choice || !games.includes(game) || game.title!==title || game.system!==store || game.cover) return;
     useCatalogCover(game,choice);
     persist();
     if (!dialog.open) render();
@@ -279,6 +301,9 @@ app.oninput=event=>{
 };
 app.onchange=event=>{
   const target=event.target;
+  if(deviceBusy)return;
+  if(target.id==='backup-file'){importBackup(target.files?.[0]);target.value='';return}
+  if(target.id==='chronicle-file'){saveScreenshot(active(),target.files?.[0]);target.value='';return}
   if(target.id==='app-language'){changeAppLanguage(target.value);return}
   if(['catalog','platform','library-sort'].includes(target.id)){
     if(target.id==='catalog') collection=target.value;
@@ -288,9 +313,14 @@ app.onchange=event=>{
     renderLibraryResults();
   }
   if(target.id==='system'){active().system=target.value;persist();render()}
-  if(target.dataset.task!==undefined){active().tasks[Number(target.dataset.task)].done=target.checked;persist()}
+  if(target.dataset.task!==undefined){
+    active().tasks[Number(target.dataset.task)].done=target.checked;
+    persist();
+    for(const checkbox of app.querySelectorAll('[data-task]'))if(checkbox.dataset.task===target.dataset.task)checkbox.checked=target.checked;
+    if(target.checked && target.closest('.return-tasks'))target.closest('.goal-row').hidden=true;
+  }
 };
-window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();loadWeather();
+window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();loadWeather();loadGamePass();
 
 const steamRefreshInterval = 24 * 60 * 60 * 1000;
 if (connections.steam?.server && Date.now() - (Date.parse(connections.steam.syncedAt) || 0) >= steamRefreshInterval) {

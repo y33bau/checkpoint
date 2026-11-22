@@ -99,7 +99,7 @@ function queueToggle(game, compact=false) {
 function libraryRow(game, covers) {
   const title = esc(game.title);
   const cover = '<span class="cover"><b>'+title+'</b>'+coverImage(game)+'</span>';
-  const metadata = '<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small></span>';
+  const metadata = '<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
   return '<div class="library-item"><button type="button" class="'+(covers?'tile':'library-row')+'" data-game="'+esc(game.id)+'">'+cover+metadata+'</button>'+queueToggle(game,true)+'</div>';
 }
 

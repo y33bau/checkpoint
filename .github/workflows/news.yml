@@ -32,6 +32,10 @@ jobs:
             git worktree add --detach "$RUNNER_TEMP/news-tree"
           fi
           python scripts/refresh_news.py "$RUNNER_TEMP/news/news.json"
+          if python scripts/refresh_gamepass.py "$RUNNER_TEMP/news/gamepass.json"; then
+            cp "$RUNNER_TEMP/news/gamepass.json" "$RUNNER_TEMP/news-tree/gamepass.json"
+            git -C "$RUNNER_TEMP/news-tree" add gamepass.json
+          fi
           cd "$RUNNER_TEMP/news-tree"
           cp "$RUNNER_TEMP/news/news.json" news.json
           git add news.json

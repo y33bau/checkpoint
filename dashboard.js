@@ -42,6 +42,9 @@ function renderSettings() {
         <div class="actions">${btn(t('Zapisz ustawienia lokalnie'),'save-local-settings')}
         ${btn(t('Wyczyść dane'),'clear-local-data','danger')}</div>
         <p class="muted" id="local-settings-status" role="status"></p>
+        <div class="actions">${btn(t('Pobierz kopię'),'backup-export')}${btn(t('Wczytaj kopię'),'backup-import')}</div>
+        <input type="file" id="backup-file" accept=".json,application/json" hidden>
+        <p class="muted" id="backup-status" role="status"></p>
       </article>
     </div>`;
 }
@@ -249,11 +252,15 @@ function saveLocalSettings() {
   }
 }
 
-function clearLocalData() {
-  const message = t('Usunąć z tego urządzenia gry, sesje, oceny, mapy, profile połączeń i ustawienia Checkpoint? Tej operacji nie można cofnąć.');
-  if (!window.confirm(message)) return;
-  connections = {};
-  games = [];
-  for (const storageKey of [key, settingsKey, connectionKey]) localStorage.removeItem(storageKey);
-  location.reload();
+async function clearLocalData() {
+  if(deviceBusy)return;
+  if(recording){backupStatus('Najpierw zakończ nagrywanie.');return}
+  const message=t('Usunąć lokalne dane Checkpoint wraz z nagraniami i zrzutami? Tej operacji nie można cofnąć.');
+  if(!window.confirm(message))return;
+  deviceBusy=true;
+  try {
+    await replaceDeviceData(null,null,null,[]);
+    location.reload();
+  } catch {backupStatus('Nie udało się wyczyścić danych.')}
+  finally {deviceBusy=false}
 }
