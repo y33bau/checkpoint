@@ -27,7 +27,7 @@ function renderSettings() {
         <small>${[profile.age ? profile.age + ' ' + t('lat') : '', profile.platform || ''].filter(Boolean).map(esc).join(' · ')}</small>
         <div class="actions">${btn(t('Edytuj profil'),'edit-account','primary')}</div>
       </article>
-      ${googlePanel()}
+      ${checkpointFirebaseConfig ? googlePanel() : ""}
       <article class="panel settings-card">
         <h2>${t('Krótki przewodnik')}</h2>
         <div class="actions">${btn(t('Pokaż przewodnik'),'show-guide')}</div>
