@@ -60,7 +60,7 @@ function featuredPanel(game) {
   return '<section class="panel featured-carousel" data-swipe="'+(playing.length>1)+'">'+
     '<article class="featured-game"><div class="featured-identity">'+
     '<div class="featured-cover" aria-hidden="true">'+featureArtwork(game)+'</div>'+
-    '<div><span class="eyebrow">'+esc(game.system)+'</span><h2>'+esc(game.title)+'</h2></div></div>'+
+    '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+'</span><h2>'+esc(game.title)+'</h2></div></div>'+
     (run.progress>0?'<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>':'')+
     (run.goal?'<p class="featured-goal"><strong>'+t('Następny cel')+'</strong> '+esc(run.goal)+'</p>':'')+
     (lastNote?'<p class="featured-note">'+esc(lastNote)+'</p>':'')+
@@ -454,6 +454,8 @@ app.addEventListener('load',event=>{
   }
   if(!image.matches?.('.feature-art .feature-image'))return;
   image.dataset.artReady='yes';
+  const imageUrl=JSON.stringify(image.currentSrc||image.src);
+  image.closest('.featured-cover')?.style.setProperty('--featured-image','url('+imageUrl+')');
 },true);
 app.onclick=event=>{
   const button=event.target.closest('button');
