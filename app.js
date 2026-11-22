@@ -29,8 +29,8 @@ function youtubeGuide(game) {
 
 function gameShelf(list) {
   const label = t('Moja kolejka');
-  const header = '<div class="section shelf-heading"><h2 id="shelf-title">'+label+'</h2>'+
-    '<div class="actions">'+btn(t('＋ Dodaj do kolejki'),'pick:queue')+'<a class="button" href="#library">'+t('Biblioteka')+'</a></div></div>';
+  const header = '<div class="now-section-heading"><h2 id="shelf-title">'+label+'</h2>'+
+    btn(t('＋ Dodaj do kolejki'),'pick:queue')+'</div>';
   const cases = list.map(game=>{
     const title = esc(game.title);
     const platforms = esc(Object.keys(game.runs).join(' · '));
@@ -40,9 +40,8 @@ function gameShelf(list) {
       '<span class="cover" aria-hidden="true"><b>'+title+'</b>'+coverImage(game)+'</span>'+
       '</span></span><span class="shelf-caption"><strong>'+title+'</strong><small>'+platforms+'</small>'+gamePassNotice(game)+'</span></button>';
   }).join('');
-  const contents = cases || '<p class="shelf-empty">'+t('Dodaj gry do kolejki, aby pojawiły się na półce.')+'</p>';
-  return '<section aria-labelledby="shelf-title">'+header+
-    '<div class="game-shelf"><div class="shelf-track">'+contents+'</div></div></section>';
+  return '<section class="panel now-queue" aria-labelledby="shelf-title">'+header+
+    (cases?'<div class="game-shelf"><div class="shelf-track">'+cases+'</div></div>':'')+'</section>';
 }
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
 function featuredGame() {
@@ -58,14 +57,17 @@ function featuredPanel(game) {
     '<button type="button" data-act="featured-prev" aria-label="'+t('Poprzednia gra')+'">‹</button>'+
     '<span aria-live="polite">'+(playing.indexOf(game)+1)+' / '+playing.length+'</span>'+
     '<button type="button" data-act="featured-next" aria-label="'+t('Następna gra')+'">›</button></div>';
-  return '<section class="featured-carousel" data-swipe="'+(playing.length>1)+'">'+banner(game,
-    '<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>'+
+  return '<section class="panel featured-carousel" data-swipe="'+(playing.length>1)+'">'+
+    '<article class="featured-game"><div class="featured-identity">'+
+    '<div class="featured-cover" aria-hidden="true">'+featureArtwork(game)+'</div>'+
+    '<div><span class="eyebrow">'+esc(game.system)+'</span><h2>'+esc(game.title)+'</h2></div></div>'+
+    (run.progress>0?'<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>':'')+
+    (run.goal?'<p class="featured-goal"><strong>'+t('Następny cel')+'</strong> '+esc(run.goal)+'</p>':'')+
     (lastNote?'<p class="featured-note">'+esc(lastNote)+'</p>':'')+
-    '<p>'+esc(run.goal||t('Następny cel czeka na zapisanie.'))+'</p>'+quickResources(game)+
-    '<div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
-    '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div>'+
-    '<div id="featured-voice"></div><p id="media-status" role="status"></p>',true)+pager+'</section>'+
-    '<div class="featured-switch">'+btn(t('＋ Dodaj do ogrywanych'),'pick:playing')+'</div>';
+    '<div class="featured-main-actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
+    '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button></div>'+
+    '<div class="featured-tools">'+quickResources(game)+voiceButton()+'</div>'+
+    '<div id="featured-voice"></div><p id="media-status" role="status"></p></article>'+pager+'</section>';
 }
 
 function stepFeatured(direction, focusAction) {
@@ -90,11 +92,11 @@ function featureArtwork(game) {
   ];
   if(!sources.length)return '';
   const [first,...rest]=sources;
-  return '<div class="feature-art" aria-hidden="true"><img class="feature-backdrop" alt=""><img class="feature-image" alt="" src="'+esc(first.url)+'" data-art-mode="'+first.mode+'" data-art-next="'+
+  return '<div class="feature-art" aria-hidden="true"><img class="feature-image" alt="" src="'+esc(first.url)+'" data-art-mode="'+first.mode+'" data-art-next="'+
     esc(JSON.stringify(rest))+'"></div>';
 }
 
-const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-feature':'')+'">'+(feature?featureArtwork(g):(g.cover||g.coverFallback)?'<div class="game-art">'+coverImage(g)+'</div>':'')+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
+const banner=(g,inner)=>'<article class="hero">'+((g.cover||g.coverFallback)?'<div class="game-art">'+coverImage(g)+'</div>':'')+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
@@ -226,7 +228,13 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
  else if(view==='rank'){app.innerHTML=renderRankings()}
  else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
- else{const current=featuredGame();app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?featuredPanel(current):'<div class="panel row"><p>'+t('Nie ogrywasz teraz żadnej gry.')+'</p>'+btn(t('＋ Dodaj do ogrywanych'),'pick:playing','primary')+'</div>')+eveningPanel()+gameShelf(queuedGames(current))}
+ else{
+   const current=featuredGame();
+   const addPlaying=btn(t('＋ Do ogrywanych'),'pick:playing');
+   app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+
+     (current?featuredPanel(current):'<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>')+
+     eveningPanel()+gameShelf(queuedGames(current));
+ }
  paintMedia(g||(view==='now'?featuredGame():null));
  syncSessionVoice();
  if(g && currentGameTab==='ratings')attachCriticScores([g]);
@@ -446,7 +454,6 @@ app.addEventListener('load',event=>{
   }
   if(!image.matches?.('.feature-art .feature-image'))return;
   image.dataset.artReady='yes';
-  if(image.dataset.artMode==='poster')image.previousElementSibling.src=image.currentSrc||image.src;
 },true);
 app.onclick=event=>{
   const button=event.target.closest('button');
@@ -501,7 +508,10 @@ window.onhashchange=event=>{
       [...app.querySelectorAll('#results [data-game]')].find(el=>el.dataset.game===libraryReturnGame)?.focus({preventScroll:true});
       libraryReturnGame=undefined;
     }
-  } else window.scrollTo(0,0);
+  } else {
+    window.scrollTo(0,0);
+    if(location.hash==='#now')app.scrollTop=0;
+  }
 };
 
 let featuredSwipe;

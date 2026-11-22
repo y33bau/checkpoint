@@ -10,9 +10,8 @@ function primaryGameMap(game) {
 
 function quickResources(game) {
   const map=primaryGameMap(game);
-  return '<div class="actions game-resource-actions">'+
-    (map?resourceLink(t('Otwórz mapę'),map.url):btn(t('Otwórz mapę'),'wand-maps'))+
-    btn(t('Utknąłem'),'stuck')+btn(t('Wklej link'),'resource-paste')+'</div>';
+  return (map?resourceLink(t('Otwórz mapę'),map.url):btn(t('Otwórz mapę'),'wand-maps'))+
+    btn(t('Utknąłem'),'stuck')+btn(t('Wklej link'),'resource-paste');
 }
 
 function resourceSource(url) {

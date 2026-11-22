@@ -1,4 +1,5 @@
 const english = {
+  "＋ Do ogrywanych": "+ Now playing",
   "Źródło": "Source", "Przypnij": "Pin", "Przypięto": "Pinned",
   "Otwórz mapę": "Open map", "Utknąłem": "I’m stuck", "Wklej link": "Paste link",
   "Mapa": "Map", "Poradnik": "Guide", "Poradniki": "Guides", "Mapy i poradniki": "Maps and guides",
