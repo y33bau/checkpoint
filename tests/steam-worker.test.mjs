@@ -144,6 +144,23 @@ describe('shared Steam worker', () => {
     assert.equal((await response.json()).error, 'library_private');
   });
 
+  it('reports a rejected Steam API key separately', async () => {
+    steam.restore();
+    steam = installSteamFetch();
+    const mocked = globalThis.fetch;
+    globalThis.fetch = async (input, init) => new URL(String(input.url ?? input)).origin === 'https://api.steampowered.com'
+      ? new Response('<html>Forbidden</html>', { status: 403 }) : mocked(input, init);
+    try {
+      const code = (await login()).location.searchParams.get('steam_code');
+      const { token } = await (await exchange(code)).json();
+      const response = await api('/api/steam/library', { headers: { Authorization: 'Bearer ' + token } });
+      assert.equal(response.status, 502);
+      assert.equal((await response.json()).error, 'steam_key_rejected');
+    } finally {
+      globalThis.fetch = mocked;
+    }
+  });
+
   it('expires import tokens', async () => {
     const code = (await login()).location.searchParams.get('steam_code');
     const { token } = await (await exchange(code)).json();

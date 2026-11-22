@@ -1,4 +1,5 @@
 const english = {
+  "Steam odrzucił klucz API serwera Checkpointa. Właściciel aplikacji musi ustawić nowy klucz.": "Steam rejected the Checkpoint server API key. The app owner needs to set a new key.",
   "Zaloguj się przez Steam i wybierz gry do importu. Możesz też wkleić listę JSON.": "Sign in through Steam and choose which games to import. You can also paste a JSON list.",
   "Połącz Steam": "Connect Steam",
   "Odłącz Steam": "Disconnect Steam",

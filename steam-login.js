@@ -126,6 +126,7 @@ function steamErrorMessage(code) {
     rate_limited:'Zbyt wiele prób. Odczekaj kilka minut i spróbuj ponownie.',
     library_private:'Zalogowano, ale Steam nie udostępnia listy gier. Ustaw „Szczegóły gier” jako publiczne w ustawieniach prywatności Steam i spróbuj ponownie.',
     login_required:'Sesja importu wygasła. Połącz Steam ponownie.',
+    steam_key_rejected:'Steam odrzucił klucz API serwera Checkpointa. Właściciel aplikacji musi ustawić nowy klucz.',
     expired:'Logowanie Steam wygasło lub nie zostało potwierdzone. Spróbuj ponownie.',
     session:'Logowanie Steam wygasło lub nie zostało potwierdzone. Spróbuj ponownie.',
     invalid:'Logowanie Steam wygasło lub nie zostało potwierdzone. Spróbuj ponownie.',

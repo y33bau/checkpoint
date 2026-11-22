@@ -152,7 +152,8 @@ async function syncSteam() {
     steamMessage = '';
     previewSteam(data, 'sync');
   } catch (error) {
-    steamMessage = t(steamErrorMessage(error.code));
+    console.error('Steam import failed', error);
+    steamMessage = error.code ? t(steamErrorMessage(error.code)) : error.message || t('Nie udało się pobrać gier.');
   } finally {
     steamBusy = false;
     if (['#connections', '#library', '#now', ''].includes(location.hash)) render();
