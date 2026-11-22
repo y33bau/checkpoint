@@ -4,7 +4,10 @@
 // Microsoft and Xbox tokens live only for the duration of the callback and are never stored.
 // The game list is kept for the import window, then the app gets a one-time code
 // -> POST /api/xbox/token (code + verifier) -> short-lived import token -> GET /api/xbox/library.
+// Achievement lists for the most recently played titles are fetched in the same callback,
+// because the Xbox tokens are gone afterwards.
 // Vars: XBOX_CLIENT_ID. Secret: XBOX_CLIENT_SECRET.
+import { achievementRow, maxAchievements } from './achievements.mjs';
 
 const authority = 'https://login.microsoftonline.com/consumers/oauth2/v2.0';
 const userAuthUrl = 'https://user.auth.xboxlive.com/user/authenticate';
@@ -16,6 +19,10 @@ const challengePattern = /^[A-Za-z0-9_-]{43}$/;
 const secretPattern = /^[A-Za-z0-9_-]{43,128}$/;
 const statePattern = /^[A-Za-z0-9_-]{43}$/;
 const maxGames = 5000;
+const achievementsHost = 'https://achievements.xboxlive.com';
+export const xboxAchievementTitles = 10;
+const achievementConcurrency = 5;
+const maxStoredLibrary = 1500000;
 
 export const xboxLimits = {
   xbox_start: { max: 10, window: 600 },
@@ -161,6 +168,66 @@ async function titleHistory(identity) {
   return xboxGames(data.titles);
 }
 
+// Maps one page of the Xbox achievements service (contract 2, Xbox One and newer titles).
+export function xboxAchievementRows(items) {
+  const rows = [];
+  for (const item of Array.isArray(items) ? items : []) {
+    const unlocked = item?.progressState === 'Achieved';
+    const unlockedAt = Date.parse(item?.progression?.timeUnlocked ?? '');
+    const icon = (Array.isArray(item?.mediaAssets) ? item.mediaAssets : []).find(asset => asset?.type === 'Icon')?.url;
+    const reward = (Array.isArray(item?.rewards) ? item.rewards : []).find(entry => entry?.type === 'Gamerscore');
+    const row = achievementRow({
+      id: item?.id,
+      name: item?.name,
+      description: unlocked ? item?.description : item?.lockedDescription || item?.description,
+      unlocked,
+      unlockedAt: unlocked && unlockedAt > 0 ? unlockedAt : undefined,
+      hidden: item?.isSecret === true,
+      icon,
+      gamerscore: Number(reward?.value),
+    });
+    if (row) rows.push(row);
+    if (rows.length >= maxAchievements) break;
+  }
+  return rows;
+}
+
+const xboxLanguage = request => /^\s*pl\b/i.test(request.headers.get('Accept-Language') || '') ? 'pl-PL' : 'en-US';
+
+async function titleAchievements(identity, titleId, language) {
+  const url = new URL('/users/xuid(' + identity.xuid + ')/achievements', achievementsHost);
+  url.searchParams.set('titleId', titleId);
+  url.searchParams.set('maxItems', String(maxAchievements));
+  const response = await fetch(url, {
+    headers: { Authorization: identity.authorization, 'x-xbl-contract-version': '2', 'Accept-Language': language, Accept: 'application/json' },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) return null;
+  const data = await response.json().catch(() => null);
+  return Array.isArray(data?.achievements) ? xboxAchievementRows(data.achievements) : null;
+}
+
+// Adds achievement lists to the most recent titles that have achievements. A failed title keeps its summary.
+export async function attachXboxAchievements(identity, games, language) {
+  const targets = games.filter(game => game.total > 0 || game.unlocked > 0).slice(0, xboxAchievementTitles);
+  let next = 0;
+  async function worker() {
+    while (next < targets.length) {
+      const game = targets[next++];
+      try {
+        const rows = await titleAchievements(identity, game.id, language);
+        if (rows?.length) game.achievements = rows;
+      } catch {}
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(achievementConcurrency, targets.length) }, worker));
+  // Keeps the stored import within D1 limits: drop lists from the oldest titles first.
+  for (let index = targets.length - 1; index >= 0 && JSON.stringify(games).length > maxStoredLibrary; index--) {
+    delete targets[index].achievements;
+  }
+  return games;
+}
+
 export function createXbox(kit) {
   const { appUrls, overLimit, sha256, randomSecret, nowSeconds, baseHeaders, redirect, lifetimes } = kit;
 
@@ -221,6 +288,7 @@ export function createXbox(kit) {
       const accessToken = await microsoftToken(env, code, stored.ms_verifier, callbackAddress(url));
       identity = await xboxIdentity(accessToken);
       library = await titleHistory(identity);
+      await attachXboxAchievements(identity, library, xboxLanguage(request));
     } catch (failure) {
       return appRedirect(returnUrl, { xbox_error: failure instanceof XboxError ? failure.code : 'xbox_unavailable' });
     }

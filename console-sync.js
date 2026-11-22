@@ -62,6 +62,7 @@ function normalizeSourceRows(data,provider) {
       gamerscore:safeInteger(item.gamerscore,10000000),
       gamerscoreTotal:safeInteger(item.gamerscoreTotal,10000000),
       activity:['played','entitled'].includes(item.activity)?item.activity:undefined,
+      achievements:provider==='wand'?undefined:normalizeAchievementList(item.achievements),
       map:provider==='wand'?wandMap(item.map):'',
     };
   }).filter(Boolean);
@@ -111,13 +112,14 @@ function mergeNormalizedSource(rows,provider) {
           ['unlocked',row.unlocked],['total',row.total],['gamerscore',row.gamerscore],['gamerscoreTotal',row.gamerscoreTotal],
         ].filter(([,value])=>value!==undefined))};
       }
+      if(row.achievements?.length)setAchievementList(target,row.achievements);
       if(row.activity)target.sourceActivity=row.activity;
     }
     if(!entry.cover && row.cover)entry.cover=row.cover;
     if(row.map && !entry.maps.some(map=>map.url===row.map))entry.maps.push({name:'Wand',url:row.map});
     touched.add(entry);
   }
-  persist();
+  persistAchievements();
   attachCriticScores([...touched]);
   return {added,count:touched.size};
 }
@@ -184,15 +186,10 @@ async function syncLibrarySource(provider) {
 }
 
 function activityPanel(run) {
-  const achievements=run.sourceAchievements;
-  if(!achievements && !run.sourceActivity)return '';
+  if(!run.sourceActivity)return '';
   const lines=[];
   if(run.sourceActivity==='entitled')lines.push(t('Z biblioteki PlayStation'));
   if(run.sourceActivity==='played')lines.push(t('Z historii grania'));
-  if(achievements?.unlocked!==undefined || achievements?.total!==undefined)
-    lines.push(t('Osiągnięcia')+' · '+(achievements.unlocked??'—')+' / '+(achievements.total??'—'));
-  if(achievements?.gamerscore!==undefined)
-    lines.push('Gamerscore · '+achievements.gamerscore+(achievements.gamerscoreTotal===undefined?'':' / '+achievements.gamerscoreTotal));
   return '<div class="source-activity">'+lines.map(line=>'<p>'+esc(line)+'</p>').join('')+'</div>';
 }
 

@@ -21,6 +21,30 @@ export function steamAssertion(returnTo, { id = steamId, nonce = new Date().toIS
   });
 }
 
+// Portal 2 has achievements, Hades (1145360) has none, 999 belongs to a private profile.
+export const playerAchievements = {
+  620: [
+    { apiname: 'ACH.SURVIVE_CONTAINER_RIDE', achieved: 1, unlocktime: 1700000000, name: 'Wake Up Call', description: 'Survive the manual override' },
+    { apiname: 'ACH.WAKE_UP', achieved: 0, unlocktime: 0, name: 'You Monster', description: 'Reunite with GLaDOS' },
+  ],
+};
+export const schemaAchievements = {
+  620: [
+    { name: 'ACH.SURVIVE_CONTAINER_RIDE', displayName: 'Wake Up Call', hidden: 0, icon: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/620/a.jpg' },
+    { name: 'ACH.WAKE_UP', displayName: 'You Monster', hidden: 1, icon: 'https://evil.example/b.jpg' },
+  ],
+};
+
+function achievementResponse(url) {
+  const appid = url.searchParams.get('appid');
+  if (url.pathname.includes('GetSchemaForGame')) {
+    return Response.json({ game: { availableGameStats: { achievements: schemaAchievements[appid] ?? [] } } });
+  }
+  if (appid === '999') return Response.json({ playerstats: { error: 'Profile is not public', success: false } }, { status: 403 });
+  if (!playerAchievements[appid]) return Response.json({ playerstats: { error: 'Requested app has no stats', success: false } }, { status: 400 });
+  return Response.json({ playerstats: { steamID: url.searchParams.get('steamid'), success: true, achievements: playerAchievements[appid] } });
+}
+
 export function installSteamFetch({ valid = true, library = { response: { game_count: games.length, games } } } = {}) {
   const calls = [];
   const original = globalThis.fetch;
@@ -32,6 +56,7 @@ export function installSteamFetch({ valid = true, library = { response: { game_c
       const ok = valid && body.get('openid.mode') === 'check_authentication';
       return new Response('ns:http://specs.openid.net/auth/2.0\nis_valid:' + ok + '\n');
     }
+    if (url.origin === 'https://api.steampowered.com' && url.pathname.startsWith('/ISteamUserStats/')) return achievementResponse(url);
     if (url.origin === 'https://api.steampowered.com') return Response.json(library);
     throw new TypeError('Unexpected network call: ' + url.href);
   };

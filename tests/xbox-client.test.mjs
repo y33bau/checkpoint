@@ -43,6 +43,7 @@ function browser(env, href = appUrl + '#connections') {
   vm.runInContext(source('steam-login.js'), context);
   vm.runInContext(source('xbox-login.js'), context);
   vm.runInContext(source('console-sync.js'), context);
+  vm.runInContext(source('achievements.js'), context);
   vm.runInContext('var t = label => label; function web(s){try{const u=new URL(s);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}}', context);
   return { location, assigned, storage, run: code => vm.runInContext(code, context) };
 }
@@ -89,6 +90,9 @@ describe('Xbox sign-in in the app', () => {
     assert.equal(JSON.stringify(rows.map(row => [row.id, row.title, row.gamerscore])),
       JSON.stringify([['1915865634', 'Forza Horizon 5', 230], ['219630713', 'Halo Infinite', undefined]]));
     assert.ok(Number.isFinite(rows[0].lastPlayed));
+    assert.equal(JSON.stringify(rows[0].achievements.map(item => [item.name, item.unlocked, item.gamerscore])),
+      JSON.stringify([['Welcome to Mexico', true, 10], ['Secret road', false, 20]]), 'achievement lists arrive with the Xbox sign-in');
+    assert.equal(rows[1].achievements, undefined);
   });
 
   it('keeps Steam and Xbox returns apart and explains errors', () => {

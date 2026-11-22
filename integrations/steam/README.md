@@ -9,6 +9,7 @@ Jeden serwer (Cloudflare Worker) obsługuje logowanie Steam dla wszystkich użyt
 3. `GET /auth/steam/callback` zużywa `state`, porównuje go z ciasteczkiem, weryfikuje odpowiedź Steam przez `check_authentication`, blokuje ponowne użycie `response_nonce` i odsyła do aplikacji jednorazowy kod (`?steam_code=`, ważny 2 minuty). SteamID nie trafia do adresu URL.
 4. `POST /api/steam/token` przyjmuje `{ code, verifier }` tylko z dozwolonego `Origin`. Zwraca token importu ważny 10 minut i SteamID64.
 5. `GET /api/steam/library` z nagłówkiem `Authorization: Bearer <token>` wywołuje `GetOwnedGames` z kluczem przechowywanym jako sekret serwera.
+6. `GET /api/steam/achievements?appids=620,1145360&lang=pl` (do 10 gier, ten sam token) zwraca listy osiągnięć gracza z ikonami (`GetPlayerAchievements` + `GetSchemaForGame`). Aplikacja po imporcie pobiera je automatycznie dla 30 najczęściej granych gier, a na karcie gry jest przycisk „Odśwież osiągnięcia”.
 
 Logowanie jest niezależne od odczytu biblioteki. Jeśli profil ukrywa „Szczegóły gier”, aplikacja zapisuje połączenie i pokazuje komunikat o ustawieniach prywatności.
 
@@ -59,6 +60,7 @@ Użytkownik wybiera **Połącz Xbox** na kafelku Xbox, loguje się kontem Micros
 2. `GET /auth/xbox/callback` sprawdza `state` i ciasteczko `__Host-checkpoint-xbox`, wymienia kod Microsoft na token, potem na token użytkownika Xbox i XSTS, pobiera historię gier z `titlehub.xboxlive.com` i odsyła do aplikacji jednorazowy `?xbox_code=`. Tokeny Microsoft i Xbox istnieją tylko w trakcie tego żądania i nigdy nie trafiają do D1.
 3. `POST /api/xbox/token` (`{ code, verifier }`) zwraca token importu ważny 10 minut i gamertag.
 4. `GET /api/xbox/library` zwraca listę w formacie `checkpoint-source-v1` (taki sam jak Checkpoint Bridge), więc identyfikatory gier (`titleId`) są zgodne z wcześniejszymi importami.
+   Podczas logowania serwer pobiera też pełne listy osiągnięć (`achievements.xboxlive.com`) dla 10 ostatnio granych gier z osiągnięciami; trafiają do pola `achievements` przy grze. Tokeny Xbox nadal nie są zapisywane.
 
 Ograniczenia Xbox: brak gier kupionych, ale nigdy nieuruchomionych, i brak listy Game Pass.
 

@@ -1,11 +1,12 @@
 // Shared Checkpoint Steam server.
 // Flow: /auth/steam/start (PKCE challenge) -> Steam OpenID -> /auth/steam/callback
 // -> app gets a one-time code -> POST /api/steam/token (code + verifier)
-// -> short-lived import token -> GET /api/steam/library.
+// -> short-lived import token -> GET /api/steam/library and GET /api/steam/achievements.
 // Xbox sign-in (/auth/xbox/*, /api/xbox/*) lives in xbox.mjs.
 // Secrets: STEAM_WEB_API_KEY, XBOX_CLIENT_SECRET. Vars: APP_URLS, XBOX_CLIENT_ID. Binding: DB (D1).
 import { nonceWindow, steamAuthorizeUrl, verifySteamAssertion } from './openid.mjs';
 import { createXbox, xboxLimits, xboxReady, xboxTables } from './xbox.mjs';
+import { achievementLimits, parseAppIds, steamAchievements } from './achievements.mjs';
 
 const libraryEndpoint = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/';
 const stateCookie = '__Host-checkpoint-steam';
@@ -19,6 +20,7 @@ export const limits = {
   token: { max: 20, window: 600 },
   library: { max: 20, window: 600 },
   ...xboxLimits,
+  ...achievementLimits,
 };
 
 const encoder = new TextEncoder();
@@ -179,15 +181,36 @@ async function exchange(request, env, reply, origin) {
   return reply({ token, steamId: stored.steam_id, expiresIn: lifetimes.token });
 }
 
-async function library(request, env, reply, origin) {
-  if (!origin) return reply({ error: 'origin_not_allowed' }, 403);
-  if (!env.STEAM_WEB_API_KEY) return reply({ error: 'server_not_configured' }, 503);
-  if (await overLimit(env, 'library', request)) return reply({ error: 'rate_limited' }, 429);
+async function importToken(request, env, origin) {
   const token = /^Bearer ([A-Za-z0-9_-]{43,128})$/.exec(request.headers.get('Authorization') || '')?.[1];
   const stored = token
     ? await env.DB.prepare('SELECT steam_id, origin, expires_at FROM import_tokens WHERE token_hash = ?1').bind(await sha256(token)).first()
     : null;
-  if (!stored || stored.expires_at <= nowSeconds() || stored.origin !== origin) return reply({ error: 'login_required' }, 401);
+  return stored && stored.expires_at > nowSeconds() && stored.origin === origin ? stored : null;
+}
+
+// Achievement lists for up to ten games per call: ?appids=620,1145360&lang=pl|en.
+async function achievements(request, env, reply, origin, url) {
+  if (!origin) return reply({ error: 'origin_not_allowed' }, 403);
+  if (!env.STEAM_WEB_API_KEY) return reply({ error: 'server_not_configured' }, 503);
+  const appids = parseAppIds(url.searchParams.get('appids'));
+  if (!appids) return reply({ error: 'invalid_request' }, 400);
+  if (await overLimit(env, 'steam_achievements', request)) return reply({ error: 'rate_limited' }, 429);
+  const stored = await importToken(request, env, origin);
+  if (!stored) return reply({ error: 'login_required' }, 401);
+  const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'pl';
+  const games = await steamAchievements(env, stored.steam_id, appids, lang);
+  if (games.some(game => game.error === 'steam_key_rejected')) return reply({ error: 'steam_key_rejected' }, 502);
+  if (games.every(game => game.error === 'achievements_private')) return reply({ error: 'achievements_private', steamId: stored.steam_id }, 403);
+  return reply({ steamId: stored.steam_id, games });
+}
+
+async function library(request, env, reply, origin) {
+  if (!origin) return reply({ error: 'origin_not_allowed' }, 403);
+  if (!env.STEAM_WEB_API_KEY) return reply({ error: 'server_not_configured' }, 503);
+  if (await overLimit(env, 'library', request)) return reply({ error: 'rate_limited' }, 429);
+  const stored = await importToken(request, env, origin);
+  if (!stored) return reply({ error: 'login_required' }, 401);
 
   const upstreamUrl = new URL(libraryEndpoint);
   upstreamUrl.search = new URLSearchParams({
@@ -272,6 +295,9 @@ export default {
     }
     if (url.pathname === '/api/steam/token') {
       return request.method === 'POST' ? exchange(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);
+    }
+    if (url.pathname === '/api/steam/achievements') {
+      return request.method === 'GET' ? achievements(request, env, reply, origin, url) : reply({ error: 'method_not_allowed' }, 405);
     }
     if (url.pathname === '/api/steam/library') {
       return request.method === 'GET' ? library(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);

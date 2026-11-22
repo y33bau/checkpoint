@@ -232,6 +232,7 @@ function action(act){
    if(sourceAction==='source-sync' && providerId!=='wand'){syncLibrarySource(providerId);return}
  }
  if(act==='xbox-achievements' && game){showXboxAchievements(game);return}
+ if(act==='steam-achievements' && game){refreshGameAchievements(game);return}
  if(act.startsWith('game-tab:') && game){
    const tab=act.slice('game-tab:'.length);
    if(!Object.hasOwn(gameTabs,tab))return;
@@ -368,6 +369,14 @@ app.addEventListener('error',event=>{
     image.dataset.artMode=next.mode;
     image.dataset.artNext=JSON.stringify(rest);
     image.src=next.url;
+    return;
+  }
+  if(image.matches?.('.achievement img')){
+    const icon=document.createElement('span');
+    icon.className='achievement-icon';
+    icon.setAttribute('aria-hidden','true');
+    icon.textContent='🏆';
+    image.replaceWith(icon);
     return;
   }
   if (!image.matches?.('.cover img, .game-art img')) return;

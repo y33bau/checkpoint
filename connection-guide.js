@@ -4,7 +4,7 @@ const connectionInstructions = {
     intro:'Jak podłączyć konto lub wczytać gry z każdej usługi.',
     steps:{
       steam:{
-        info:'Importuje bibliotekę Steam i czas gry. Logujesz się na oficjalnej stronie Steam. Checkpoint nie prosi o hasło, klucz API ani numer ID.',
+        info:'Importuje bibliotekę Steam, czas gry i osiągnięcia. Logujesz się na oficjalnej stronie Steam. Checkpoint nie prosi o hasło, klucz API ani numer ID.',
         items:[
           'W ustawieniach prywatności Steam ustaw „Szczegóły gier” jako publiczne. Bez tego logowanie się uda, ale Steam nie udostępni listy gier.',
           'Na kafelku Steam wybierz „Połącz Steam” i zaloguj się na stronie Steam.',
@@ -60,7 +60,7 @@ const connectionInstructions = {
     intro:'How to link an account or import games from each service.',
     steps:{
       steam:{
-        info:'Imports your Steam library and play time. You sign in on Steam’s official website. Checkpoint never asks for your password, an API key or your Steam ID.',
+        info:'Imports your Steam library, play time and achievements. You sign in on Steam’s official website. Checkpoint never asks for your password, an API key or your Steam ID.',
         items:[
           'In your Steam privacy settings, make Game details public. Without it, sign-in still works, but Steam will not share your game list.',
           'On the Steam card, select Connect Steam and sign in on the Steam website.',
