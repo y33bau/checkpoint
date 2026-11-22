@@ -21,6 +21,23 @@ function coverImage(game) {
 }
 const grid=a=>'<div class="grid">'+a.map(g=>'<button class="tile" data-game="'+g.id+'"><span class="cover"><b>'+esc(g.title)+'</b>'+coverImage(g)+'</span><span class="info"><strong>'+esc(g.title)+'</strong><small>'+esc(Object.keys(g.runs).join(' · '))+'</small></span></button>').join('')+'</div>';
 const pageHeading=(title,action='')=>'<div class="top"><h1>'+esc(title)+'</h1>'+action+'</div>';
+function gameShelf(list) {
+  const label = t('Na półce');
+  const header = '<div class="section shelf-heading"><h2 id="shelf-title">'+label+'</h2>'+
+    '<a class="button" href="#library">'+t('Biblioteka')+'</a></div>';
+  const cases = list.map(game=>{
+    const title = esc(game.title);
+    const platforms = esc(Object.keys(game.runs).join(' · '));
+    return '<button class="shelf-game" data-game="'+game.id+'">'+
+      '<span class="case-stage"><span class="game-case">'+
+      '<span class="case-edge" aria-hidden="true">'+title+'</span>'+
+      '<span class="cover" aria-hidden="true"><b>'+title+'</b>'+coverImage(game)+'</span>'+
+      '</span></span><span class="shelf-caption"><strong>'+title+'</strong><small>'+platforms+'</small></span></button>';
+  }).join('');
+  const contents = cases || '<p class="shelf-empty">'+t('Dodaj kolejną grę, aby uzupełnić półkę.')+'</p>';
+  return '<section aria-labelledby="shelf-title">'+header+
+    '<div class="game-shelf"><div class="shelf-track">'+contents+'</div></div></section>';
+}
 const section=s=>'<div class="section"><h2>'+s+'</h2></div>';
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
 const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-feature':'')+'">'+(!feature&&(g.cover||g.coverFallback)?'<div class="game-art">'+coverImage(g)+'</div>':'')+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
@@ -137,7 +154,7 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.q
  else if(view==='library'){app.innerHTML=pageHeading(t('Biblioteka'),btn(t('＋ Dodaj grę'),'add','primary'))+'<div class="filters"><input id="search" aria-label="'+t('Szukaj gry')+'" placeholder="'+t('Szukaj gry…')+'" value="'+esc(filter)+'"><select id="catalog" aria-label="'+t('Katalog')+'"><option value="">'+t('Wszystkie katalogi')+'</option>'+options([...new Set(games.map(g=>g.catalog))],collection)+'</select><select id="platform" aria-label="'+t('Filtr platformy')+'"><option value="">'+t('Wszystkie platformy')+'</option>'+options(systems,platform)+'</select>'+btn(t('Import Steam JSON'),'import')+'</div><div id="results"></div>';catalogGrid()}
  else if(view==='rank'){let ranked=games.filter(g=>score(g)!==null).sort((a,b)=>score(b)-score(a));app.innerHTML=pageHeading(t('Ranking'))+(ranked.map((g,i)=>'<button class="entry" data-game="'+g.id+'"><span class="number">'+(i+1)+'</span><strong>'+esc(g.title)+'</strong>'+score(g).toFixed(1)+' / 10</button>').join('')||'<div class="panel"><h2>'+t('Jaką grę oceniasz najwyżej?')+'</h2><p>'+t('Wybierz grę z biblioteki i oceń ją, aby rozpocząć ranking.')+'</p><a href="#library" class="button" style="display:inline-block;margin-top:12px">'+t('Wybierz grę')+'</a></div>')}
  else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'}
- else{const current=games.find(g=>g.status==='Gram');app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button></div>',true):'<div class="panel">'+t('Wybierz w karcie gry status „Gram”.')+'</div>')+'<div class="section"><h2>'+t('Na półce')+'</h2><a class="button" href="#library">'+t('Biblioteka')+'</a></div>'+grid(games.filter(x=>x!==current).slice(0,5))}
+ else{const current=games.find(g=>g.status==='Gram');app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button></div>',true):'<div class="panel">'+t('Wybierz w karcie gry status „Gram”.')+'</div>')+gameShelf(games.filter(x=>x!==current).slice(0,5))}
  document.querySelector('.account-link').setAttribute('aria-current',view==='settings'?'page':'false');
  for(const link of document.querySelectorAll('nav a')) {
    if(link.classList.contains('active')) link.setAttribute('aria-current','page');

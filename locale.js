@@ -1,4 +1,5 @@
 const english = {
+  'Dodaj kolejną grę, aby uzupełnić półkę.': 'Add another game to fill your shelf.',
   'Zacznij wpisywać tytuł…': 'Start typing a title…',
   'Podpowiedzi gier': 'Game suggestions',
   'Szukam w katalogu…': 'Searching the game catalogue…',
