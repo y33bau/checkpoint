@@ -433,6 +433,7 @@ const english = {
   'Dodaj jako nową grę': 'Add as a new game',
   'Dodaj gry do kolejki, aby pojawiły się na półce.': 'Add games to the queue to display them on this shelf.',
   'Nie ogrywasz teraz żadnej gry.': 'You are not playing any game right now.',
+  'Usuń z ogrywanych': 'Remove from playing now',
 };
 
 function appLanguage() {
