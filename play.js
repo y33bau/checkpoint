@@ -44,10 +44,13 @@ function eveningPicks(minutes,mood,platform) {
   const candidates=queuedGames().filter(game=>!platform||game.runs[platform]).flatMap(game=>{
     const saved=game.sessionHint || {};
     const hint={minutes:Number.isFinite(saved.minutes)?saved.minutes:0,mood:Object.hasOwn(moods,saved.mood)?saved.mood:''};
-    if((hint.minutes && hint.minutes>minutes) || (mood && hint.mood && hint.mood!==mood))return [];
-    return [{game,hint,weight:Number(Boolean(hint.minutes))+Number(Boolean(mood && hint.mood===mood)),random:Math.random()}];
+    const timing=estimateTimeFit(minutes,hint.minutes);
+    if(timing===1 || (mood && hint.mood && hint.mood!==mood))return [];
+    const selectedPlatform=platform||game.system;
+    const score=scoreForSession(game,selectedPlatform,timing);
+    return [{game,hint,timing,score,random:Math.random()}];
   });
-  return candidates.sort((a,b)=>b.weight-a.weight||a.random-b.random).slice(0,3);
+  return candidates.sort((a,b)=>(b.score?.value??-1)-(a.score?.value??-1)||(b.timing??0)-(a.timing??0)||a.random-b.random).slice(0,3);
 }
 
 function openEvening() {
@@ -64,12 +67,13 @@ function openEvening() {
     dialog.close();
     const result=document.querySelector('#evening-results');
     if(!result)return;
-    result.innerHTML=picks.length ? picks.map(({game,hint})=>
+    result.innerHTML=picks.length ? picks.map(({game,hint,timing,score})=>
       '<button class="entry evening-pick" data-game="'+esc(game.id)+'">'+
         '<span><strong>'+esc(game.title)+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+
         (hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony'))+' · '+
         (Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony'))+'</small>'+
-        gamePassNotice(game)+'</span></button>').join('') :
+        (timing?'<small>'+t('Dopasowanie do sesji')+' · '+timing+' / 10</small>':'')+
+        (score?startBadge(score):'')+gamePassNotice(game)+'</span></button>').join('') :
       '<p class="muted">'+t('Brak pasujących gier. Zmień kryteria lub przypnij gry do kolejki.')+'</p>';
   };
 }

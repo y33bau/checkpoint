@@ -318,3 +318,27 @@ button.danger{color:#ffb3b5;border-color:#81515b}
 .gamepass-banner{margin-top:10px}
 .evening-pick span{display:grid;gap:3px}
 @media(max-width:620px){.return-grid{grid-template-columns:1fr}}
+
+.start-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.start-metrics>div{display:grid;gap:4px;background:#2c2334;padding:12px;border-radius:10px}
+.start-metrics strong{font-size:22px}
+.start-rating label{margin:0}
+.start-rating details{border-top:1px solid var(--line);padding-top:12px;color:#dbcbe0}
+.start-rating summary{cursor:pointer;font-weight:700}
+.start-rating details p{margin:10px 0 0}
+.start-badge,.evening-pick .start-badge{display:inline-flex;width:max-content;align-items:center;gap:9px;padding:5px 10px;border:1px solid #6a546c;border-radius:9px;color:#f7d4df}
+.start-badge.play{border-color:#4f9b89;color:#a3eddb;background:#143831}
+.start-badge.consider{border-color:#ac8252;color:#ffe0aa;background:#433020}
+.start-badge.skip{border-color:#ad5f77;color:#ffc6d6;background:#492334}
+.featured-choice{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+.feature-art{position:absolute;inset:0;z-index:-2;pointer-events:none;background:transparent}
+.feature-art img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:65% 50%;opacity:0;transition:opacity .25s}
+.feature-art img[data-art-ready=yes]{opacity:1}
+.feature-art:has(img[data-art-mode=poster][data-art-ready=yes]){background:radial-gradient(ellipse at 85% 42%,#523152,#191323 70%)}
+.feature-art img[data-art-mode=poster]{width:65%;inset:0 0 0 auto;object-position:65% 36%;mask-image:linear-gradient(90deg,transparent,#000 30%);filter:saturate(.92)}
+@media(max-width:620px){
+  .feature-art img[data-art-mode=poster]{width:100%;object-position:50% 30%;mask-image:linear-gradient(180deg,#000 40%,transparent 100%)}
+}
+@media(prefers-reduced-motion:reduce){.feature-art img{transition:none}}
+.feature-art .feature-backdrop{visibility:hidden;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.08);filter:blur(24px) saturate(.8);opacity:.44}
+.feature-art:has(.feature-image[data-art-mode=poster][data-art-ready=yes]) .feature-backdrop[src]{visibility:visible}
