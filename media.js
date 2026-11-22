@@ -190,7 +190,7 @@ function validateBackup(data) {
        (item.kind==='screenshot'&&/^image\/(png|jpeg|webp)$/.test(item.type))))throw Error('Media');
     attachments.add(item.id);
   }
-  const seenPlatforms=new Set(['xbox','steam','wand','ps']);
+  const seenPlatforms=new Set(['xbox','steam','wand','ps','nintendo']);
   for(const [id,value] of Object.entries(data.connections)){
     if(!seenPlatforms.has(id)||!plain(value)||!string(value.profile)||
        (value.server && !(id==='steam' && web(value.server).startsWith('https://'))))throw Error('Connection');

@@ -192,7 +192,7 @@ button.danger { color:#ffb3b5;border-color:#81515b; }
   .hero h2 { font-size:clamp(39px,10vw,56px); }
   .game-art { width:100%; }
   .game-art img { object-position:center 30%; }
-  .grid,.news-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .platform-grid,.settings-grid,.news-grid { grid-template-columns:minmax(0,1fr); }
   .weather-strip { gap:4px;padding:5px 6px;font-size:.72rem; }
   .weather-metric { display:grid;padding-inline-start:3px; }
@@ -458,3 +458,9 @@ button.danger { color:#ffb3b5;border-color:#81515b; }
 .library-count{font-variant-numeric:tabular-nums}
 @media(max-width:720px){.game-section-grid{grid-template-columns:minmax(0,1fr);gap:0}}
 @media(max-width:390px){.hero .actions{gap:6px}.hero .actions :is(button,.button){padding-inline:8px}.weather-metric strong{font-size:.69rem}}
+
+.platform-card.nintendo{background:linear-gradient(130deg,#55263d,var(--surface) 70%);border-color:#90536c}
+.nintendo .provider-mark{background:#b62c49;color:white;font-size:25px;font-weight:800;font-style:italic}
+.text-link{color:var(--coral);text-underline-offset:3px}
+.discovery-row img{width:48px;height:55px;object-fit:cover;border-radius:5px}
+.discovery-row>div{flex:1;min-width:0}

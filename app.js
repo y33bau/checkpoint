@@ -1,5 +1,5 @@
 const app=document.querySelector('#app'), dialog=document.querySelector('#modal'),form=document.querySelector('#form'),fields=document.querySelector('#fields');
-const systems=['Xbox','Steam','PlayStation'],statuses=['Gram','W kolejce','Ukończona'],criteria=['Grywalność','Klimat','Dźwięk','Fabuła','Technikalia'];
+const systems=['Xbox','Steam','PlayStation','Nintendo'],statuses=['Gram','W kolejce','Ukończona'],criteria=['Grywalność','Klimat','Dźwięk','Fabuła','Technikalia'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 function web(s){try{const u=new URL(s);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
 const cdn=id=>'https://cdn.cloudflare.steamstatic.com/steam/apps/'+id+'/library_600x900.jpg';
@@ -44,7 +44,6 @@ function gameShelf(list) {
   return '<section aria-labelledby="shelf-title">'+header+
     '<div class="game-shelf"><div class="shelf-track">'+contents+'</div></div></section>';
 }
-const section=s=>'<div class="section"><h2>'+s+'</h2></div>';
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
 function featuredGame() {
   const activeGames=games.filter(game=>game.status==='Gram');
@@ -77,6 +76,7 @@ const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-fea
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
+  { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
   { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zapisz gamertag i wracaj do swojego konta Xbox.' },
   { id: 'steam', name: 'Steam', label: 'SteamID64', url: 'https://steamcommunity.com/my/', description: 'Zapisz SteamID64, aby odświeżać bibliotekę z podłączonego serwera.' },
   { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Skrót do Wand. Mapy przypinasz bezpośrednio do kart gier.' },
@@ -97,14 +97,16 @@ function renderConnections() {
     const steamStatus = isSteam && saved?.syncedAt
       ? '<small>'+t('Ostatnia synchronizacja')+': ' + esc(new Date(saved.syncedAt).toLocaleString(appLocale())) + '</small>'
       : '';
-    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading"><span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span><div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+(saved?t('Profil zapisany'):t('Do skonfigurowania'))+'</span></div></div>' +
+    const mark=provider.id==='nintendo'?'<span class="provider-mark" aria-hidden="true">N</span>':
+      '<span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span>';
+    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+(saved?t('Profil zapisany'):t('Do skonfigurowania'))+'</span></div></div>' +
       '<p class="muted">' + t(provider.description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
       '<div class="actions">' + btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action') +
-      '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+t('Otwórz')+' ' + provider.name + '</a>' +
+      '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+(provider.id==='nintendo'?t('Zaloguj się na Nintendo'):t('Otwórz')+' '+provider.name) + '</a>' +
       (isSteam && saved?.server ? '<button class="primary" data-act="steam-sync"' + (steamBusy ? ' disabled' : '') + '>'+t('Odśwież bibliotekę')+'</button>' : '') +
       '</div>' + (isSteam && !saved?.server ? '<small>'+t('Import online wymaga adresu serwera Steam.')+'</small>' : '') +
-      (!isSteam ? '<small>'+t('Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus +
+      (!isSteam ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus +
       (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') + '</article>';
   }).join('') + '</div>';
 }
@@ -119,7 +121,7 @@ function editConnection(provider) {
         delete connections[provider.id];
       } else {
         const profile = data.get('profile').trim();
-        if (!profile && provider.id !== 'wand') throw Error(t('Wpisz identyfikator profilu.'));
+        if (!profile && !['wand','nintendo'].includes(provider.id)) throw Error(t('Wpisz identyfikator profilu.'));
         const server = data.get('server')?.trim() || '';
         if (server && !web(server).startsWith('https://')) throw Error(t('Adres serwera musi zaczynać się od https://.'));
         connections[provider.id] = { profile, server, syncedAt: saved?.profile === profile && saved?.server === server ? saved.syncedAt : null };
@@ -162,6 +164,7 @@ function importSteamGames(data) {
   if (!Array.isArray(items)) throw Error(t('Brak dostępnej listy gier Steam.'));
   const valid = items.filter(item => typeof item?.name === 'string' && item.name.trim() && Number.isInteger(item.appid));
   if (items.length && !valid.length) throw Error(t('Lista Steam nie zawiera tytułów i identyfikatorów gier.'));
+  const imported=[];
   for (const entry of valid) {
     let item = games.find(g => g.steamAppId === entry.appid) ||
       games.find(g => !g.steamAppId && g.title.toLowerCase() === entry.name.toLowerCase());
@@ -175,7 +178,9 @@ function importSteamGames(data) {
     item.runs.Steam ??= run();
     if (Number.isFinite(entry.playtime_forever)) item.runs.Steam.importedMinutes = entry.playtime_forever;
     if (Number.isFinite(entry.rtime_last_played)) item.runs.Steam.importedPlayedAt = entry.rtime_last_played * 1000;
+    imported.push(item);
   }
+  attachCriticScores(imported);
   return valid.length;
 }
 
@@ -186,9 +191,10 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
  else if(view==='rank'){app.innerHTML=renderRankings()}
- else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'}
+ else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
  else{const current=featuredGame();app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?featuredGameSelect(current)+banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div><p id="media-status" role="status"></p>',true):'<div class="panel">'+t('Wybierz w karcie gry status „Gram”.')+'</div>')+eveningPanel()+gameShelf(queuedGames(current))}
  paintMedia(g);
+ if(g && currentGameTab==='ratings')attachCriticScores([g]);
  document.querySelector('.account-link').setAttribute('aria-current',view==='settings'?'page':'false');
  for(const link of document.querySelectorAll('nav a')) {
    if(link.classList.contains('active')) link.setAttribute('aria-current','page');
@@ -213,6 +219,8 @@ function action(act){
    return;
  }
  if(act==='edit-start' && game){editStartRating(game);return}
+ if(act==='critics-retry' && game){attachCriticScores([game]);return}
+ if(act.startsWith('draw-add:')){const choice=drawnCatalogue[Number(act.slice(9))];if(choice)openGameForm(null,choice);return}
  if(act==='evening'){openEvening();return}
  if(act==='edit-hint' && game){editSessionHint(game);return}
  if(act==='edit-return' && game){editReturn(game);return}
@@ -270,12 +278,12 @@ function action(act){
  if(act==='rate')openGameScores(g);
  if(act==='map')openForm(t('Przypnij mapę'),input(t('Nazwa mapy'),'name',t('Mapa Wand'),'required')+input(t('Link do mapy Wand lub innej strony'),'url','','type="url" required'),d=>{const url=web(d.get('url'));if(!url)throw Error(t('Wpisz adres https lub http.'));g.maps.push({name:d.get('name'),url})});
  if(act==='task')openForm(t('Nowy cel'),input(t('Co chcesz zrobić?'),'name','','required'),d=>g.tasks.push({name:d.get('name'),done:false}))}
-function openGameForm(existing) {
+function openGameForm(existing,suggestion) {
   let selectedGame;
-  const platform = existing?.system || preferences.profile?.platform || systems[0];
+  const platform = existing?.system || suggestion?.store || preferences.profile?.platform || systems[0];
   openForm(existing?t('Edytuj grę'):t('Dodaj grę'),
     select(t('Platforma'),'system',systems,platform) +
-    input(t('Tytuł'),'title',existing?.title,'required maxlength="120" placeholder="'+t('Zacznij wpisywać tytuł…')+'"') +
+    input(t('Tytuł'),'title',existing?.title||suggestion?.title,'required maxlength="120" placeholder="'+t('Zacznij wpisywać tytuł…')+'"') +
     '<div id="catalog-results" class="catalog-results" role="listbox" aria-label="'+t('Podpowiedzi gier')+'" hidden></div>' +
     '<p id="catalog-status" class="muted" role="status"></p>' +
     input(t('Katalog'),'catalog',existing?.catalog||'Moje gry','required') +
@@ -288,16 +296,21 @@ function openGameForm(existing) {
       const renamed = item.title!==typedTitle;
       Object.assign(item,{title:typedTitle,system:store,status:data.get('status'),catalog:data.get('catalog').trim()||'Moje gry'});
       item.runs[store] ??= run();
+      if(renamed){delete item.criticScores;delete item.catalogVersions}
       if (renamed && !item.steamAppId) {
         item.cover='';
         item.coverFallback='';
       }
-      if (choice && (!item.cover || (renamed && !item.steamAppId))) useCatalogCover(item,choice);
+      if(choice){
+        if(!item.cover || (renamed && !item.steamAppId))useCatalogCover(item,choice);
+        else item.catalogVersions={...item.catalogVersions,[store]:choice.versions||[]};
+      }
       if (!games.includes(item)) games.push(item);
-      if (!choice && !item.cover) fillExactCover(item,typedTitle,store);
+      if (!choice && !item.cover) fillExactCover(item,typedTitle,store).finally(()=>attachCriticScores([item]));
+      else attachCriticScores([item]);
       location.hash='game-'+item.id;
     });
-  selectedGame=wireCatalogSearch(existing?.title);
+  selectedGame=wireCatalogSearch(existing?.title||suggestion?.title,suggestion);
 }
 
 async function fillExactCover(game, title, store) {

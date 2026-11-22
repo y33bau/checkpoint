@@ -37,7 +37,7 @@ function gameRatings(game) {
   const total=mean===null?'—':mean.toLocaleString(appLocale(),{minimumFractionDigits:1,maximumFractionDigits:1});
   return '<div class="game-section-grid"><div><section class="panel feature-panel"><div class="row"><h2>'+t('Twoja ocena')+'</h2>'+
     btn(t('Oceń grę'),'rate','primary')+'</div>'+
-    '<p class="game-score"><span class="number">'+total+'</span> / 10</p></section>'+startRatingPanel(game)+'</div>'+
+    '<p class="game-score"><span class="number">'+total+'</span> / 10</p></section>'+criticScoresPanel(game)+startRatingPanel(game)+'</div>'+
     '<div>'+chroniclePanel(game)+'</div></div>';
 }
 

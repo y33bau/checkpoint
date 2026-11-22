@@ -2,6 +2,7 @@ const storeCatalogs = {
   Xbox: 'xbox-console',
   Steam: 'steam',
   PlayStation: 'psn',
+  Nintendo: 'nintendo',
 };
 const catalogBase = 'https://raw.githubusercontent.com/Ephellon/game-store-catalog/main/';
 const catalogCache = new Map();
@@ -30,6 +31,37 @@ function catalogBucket(store, letter) {
   return catalogCache.get(path);
 }
 
+function catalogEntry(entry,store) {
+  if(typeof entry?.name!=='string'||(entry.type&&String(entry.type).toLowerCase()!=='game'))return null;
+  return {
+    title:entry.name,store,
+    steamId:store==='Steam'&&/^\d+$/.test(entry.uuid)?Number(entry.uuid):null,
+    cover:web(entry.image||''),
+    versions:Array.isArray(entry.platforms)?entry.platforms.filter(value=>typeof value==='string'):[],
+  };
+}
+
+async function drawCatalogueGames(platform) {
+  const stores=Object.hasOwn(storeCatalogs,platform)?[platform]:Object.keys(storeCatalogs);
+  const letters='abcdefghijklmnopqrstuvwxyz_';
+  const savedTitles=new Set(games.map(game=>catalogText(game.title)));
+  const choices=new Map();
+  for(let attempt=0;attempt<3&&choices.size<3;attempt++){
+    const store=stores[Math.floor(Math.random()*stores.length)];
+    const letter=letters[Math.floor(Math.random()*letters.length)];
+    try {
+      const pool=(await catalogBucket(store,letter)).map(item=>catalogEntry(item,store))
+        .filter(item=>item && !savedTitles.has(catalogText(item.title)));
+      while(pool.length&&choices.size<3){
+        const slot=Math.floor(Math.random()*pool.length);
+        const [item]=pool.splice(slot,1);
+        choices.set(catalogText(item.title),item);
+      }
+    }catch{continue}
+  }
+  return [...choices.values()];
+}
+
 async function findCatalogGames(title, store, exact=false) {
   const query = catalogText(title);
   if (query.length < 2 || !Object.hasOwn(storeCatalogs,store)) return [];
@@ -39,15 +71,14 @@ async function findCatalogGames(title, store, exact=false) {
     const games = await catalogBucket(store,letter);
     const matches = [];
     for (const entry of games) {
-      if (typeof entry?.name !== 'string' || (entry.type && entry.type.toLowerCase()!=='game')) continue;
+      const choice=catalogEntry(entry,store);
+      if(!choice)continue;
       const name = catalogText(entry.name);
       const clean = name.replace(/^the /,'');
       let rank = name===query ? 0 : clean===query ? 1 : clean.startsWith(query) ? 2 : clean.includes(' '+query) ? 3 : 4;
       if (rank > (exact ? 0 : 3)) continue;
-      const steamId = store==='Steam' && /^\d+$/.test(entry.uuid) ? Number(entry.uuid) : null;
-      const cover = web(entry.image || '');
-      if (!cover && !steamId) rank += 4;
-      matches.push({title:entry.name,store,steamId,cover,rank});
+      if (!choice.cover && !choice.steamId) rank += 4;
+      matches.push({...choice,rank});
     }
     const unique = new Map();
     for (const match of matches.sort((a,b)=>a.rank-b.rank||a.title.length-b.title.length)) {
@@ -70,6 +101,7 @@ async function catalogSuggestions(title, store) {
 }
 
 function useCatalogCover(game, choice) {
+  game.catalogVersions={...game.catalogVersions,[choice.store]:choice.versions||[]};
   if (choice.steamId) {
     game.steamAppId = choice.steamId;
     game.cover = cdn(choice.steamId);
@@ -80,12 +112,12 @@ function useCatalogCover(game, choice) {
   }
 }
 
-function wireCatalogSearch(initialTitle) {
+function wireCatalogSearch(initialTitle,initialChoice) {
   const title = form.elements.title;
   const platform = form.elements.system;
   const results = document.querySelector('#catalog-results');
   const status = document.querySelector('#catalog-status');
-  let timer, revision=0, selectedIndex=-1, items=[], selected=null;
+  let timer, revision=0, selectedIndex=-1, items=[], selected=initialChoice||null;
   title.setAttribute('autocomplete','off');
   title.setAttribute('role','combobox');
   title.setAttribute('aria-autocomplete','list');

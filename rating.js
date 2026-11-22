@@ -20,7 +20,7 @@ function calculateStartScore(m,v,timing) {
 }
 
 function scoreForSession(game,platform,timing) {
-  return calculateStartScore(game.startRating?.metacritic?.[platform],game.startRating?.value,timing);
+  return calculateStartScore(criticValue(game,platform),game.startRating?.value,timing);
 }
 
 function estimateTimeFit(available,typical) {
@@ -37,7 +37,7 @@ function startBadge(score) {
 function startResult(game,timing) {
   const score=scoreForSession(game,game.system,timing);
   if(score)return startBadge(score);
-  if(!game.startRating?.metacritic?.[game.system] || !game.startRating?.value)
+  if(!criticValue(game,game.system) || !game.startRating?.value)
     return '<p class="muted">'+t('Brak danych do pełnego wyniku.')+'</p>';
   return '<p class="muted">'+t('Wybierz dopasowanie czasu, aby zobaczyć wynik.')+'</p>';
 }
@@ -49,7 +49,7 @@ function levelOptions(levels,selected) {
 
 function startRatingPanel(game) {
   const timing=startPreviews.get(game.id);
-  const metacritic=game.startRating?.metacritic?.[game.system];
+  const metacritic=criticValue(game,game.system);
   const personal=game.startRating?.value;
   return '<section class="panel feature-panel start-rating"><div class="row"><h2>'+t('Czy warto zacząć?')+'</h2>'+
     btn(t('Ustaw ocenę startową'),'edit-start')+'</div>'+
@@ -66,13 +66,13 @@ function editStartRating(game) {
   const platform=game.system;
   const rating=game.startRating || {};
   openForm(t('Czy warto zacząć?'),
-    input('Metacritic · '+platform,'metacritic',rating.metacritic?.[platform],'type="number" min="1" max="100" step="1"')+
+    input('Metacritic · '+platform,'metacritic',criticValue(game,platform),'type="number" min="1" max="100" step="1"')+
     '<label>'+t('Wartość dla mnie')+'<select name="personal"><option value="">'+t('Wybierz wartość')+
     '</option>'+levelOptions(valueLevels,rating.value)+'</select></label>',data=>{
     const metacritic=Number(data.get('metacritic'));
     const value=Number(data.get('personal'));
     game.startRating={metacritic:{...rating.metacritic},value:Object.hasOwn(valueLevels,value)?value:null};
-    if(Number.isInteger(metacritic)&&metacritic>=1&&metacritic<=100)game.startRating.metacritic[platform]=metacritic;
+    if(Number.isInteger(metacritic)&&metacritic>=1&&metacritic<=100&&metacritic!==autoCriticValue(game))game.startRating.metacritic[platform]=metacritic;
     else delete game.startRating.metacritic[platform];
   });
 }

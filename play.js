@@ -36,12 +36,12 @@ function gamePassNotice(game,link=false) {
 
 function eveningPanel() {
   return '<section class="panel feature-panel evening-panel"><div class="row"><div><h2>'+t('Mam 45 minut')+'</h2>'+
-    '<p class="muted">'+t('Wylosuj trzy propozycje z kolejki na tę sesję.')+'</p></div>'+
+    '<p class="muted">'+t('Losuj z biblioteki albo odkryj grę z katalogu.')+'</p></div>'+
     btn(t('Wybierz grę na wieczór'),'evening','primary')+'</div><div id="evening-results"></div></section>';
 }
 
 function eveningPicks(minutes,mood,platform) {
-  const candidates=queuedGames().filter(game=>!platform||game.runs[platform]).flatMap(game=>{
+  const candidates=games.filter(game=>!platform||game.runs[platform]).flatMap(game=>{
     const saved=game.sessionHint || {};
     const hint={minutes:Number.isFinite(saved.minutes)?saved.minutes:0,mood:Object.hasOwn(moods,saved.mood)?saved.mood:''};
     const timing=estimateTimeFit(minutes,hint.minutes);
@@ -50,31 +50,60 @@ function eveningPicks(minutes,mood,platform) {
     const score=scoreForSession(game,selectedPlatform,timing);
     return [{game,hint,timing,score,random:Math.random()}];
   });
-  return candidates.sort((a,b)=>(b.score?.value??-1)-(a.score?.value??-1)||(b.timing??0)-(a.timing??0)||a.random-b.random).slice(0,3);
+  return candidates.sort((a,b)=>(b.score?.value??-1)-(a.score?.value??-1)||(b.timing??0)-(a.timing??0)||Number(Boolean(b.game.pinnedAt))-Number(Boolean(a.game.pinnedAt))||a.random-b.random).slice(0,3);
+}
+
+let drawnCatalogue=[];
+let drawRequest=0;
+
+function renderLibraryPicks(result,minutes,mood,platform) {
+  drawnCatalogue=[];
+  const picks=eveningPicks(minutes,mood,platform);
+  result.innerHTML=picks.length ? picks.map(({game,hint,timing,score})=>
+    '<button class="entry evening-pick" data-game="'+esc(game.id)+'">'+
+      '<span><strong>'+esc(game.title)+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+
+      (hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony'))+' · '+
+      (Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony'))+'</small>'+
+      (timing?'<small>'+t('Dopasowanie do sesji')+' · '+timing+' / 10</small>':'')+
+      (score?startBadge(score):'')+gamePassNotice(game)+'</span></button>').join('') :
+    '<p class="muted">'+t('Brak pasujących gier w bibliotece. Zmień kryteria.')+'</p>';
+}
+
+async function renderCataloguePicks(result,platform,ticket) {
+  result.innerHTML='<p role="status">'+t('Losuję z katalogu…')+'</p>';
+  const choices=await drawCatalogueGames(platform);
+  if(ticket!==drawRequest||document.querySelector('#evening-results')!==result)return;
+  drawnCatalogue=choices;
+  result.innerHTML=choices.length?choices.map((item,index)=>
+    '<div class="entry discovery-row">'+(item.cover?'<img loading="lazy" alt="" src="'+esc(item.cover)+'">':'')+
+    '<div><strong>'+esc(item.title)+'</strong><p class="muted">'+esc(item.store)+'</p></div>'+
+    btn(t('Dodaj grę'),'draw-add:'+index)+'</div>').join(''):'<p class="muted">'+t('Katalog chwilowo niedostępny. Spróbuj ponownie.')+'</p>';
 }
 
 function openEvening() {
   openForm(t('Mam 45 minut'),
-    input(t('Mam czasu (min)'),'minutes',45,'type="number" min="5" max="600" required')+
-    '<label>'+t('Nastrój')+'<select name="mood"><option value="">'+t('Dowolny')+'</option>'+
-    Object.entries(moods).map(([id,label])=>'<option value="'+id+'">'+t(label)+'</option>').join('')+'</select></label>'+
+    '<label>'+t('Źródło losowania')+'<select name="draw-mode"><option value="library">'+t('Z mojej biblioteki')+
+    '</option><option value="catalogue">'+t('Dowolna gra z katalogu')+'</option></select></label>'+
     '<label>'+t('Platforma')+'<select name="platform"><option value="">'+t('Dowolna')+'</option>'+
-    options(systems,preferences.profile?.platform)+'</select></label>',()=>{});
+    options(systems,preferences.profile?.platform)+'</select></label>'+
+    '<div id="evening-constraints">'+input(t('Mam czasu (min)'),'minutes',45,'type="number" min="5" max="600" required')+
+    '<label>'+t('Nastrój')+'<select name="mood"><option value="">'+t('Dowolny')+'</option>'+
+    Object.entries(moods).map(([id,label])=>'<option value="'+id+'">'+t(label)+'</option>').join('')+'</select></label></div>',()=>{});
+  const mode=form.elements['draw-mode'];
+  mode.onchange=()=>{
+    const catalogue=mode.value==='catalogue';
+    document.querySelector('#evening-constraints').hidden=catalogue;
+    form.elements.minutes.disabled=catalogue;
+  };
   form.onsubmit=event=>{
     event.preventDefault();
     const data=new FormData(form);
-    const picks=eveningPicks(Number(data.get('minutes')),data.get('mood'),data.get('platform'));
     dialog.close();
     const result=document.querySelector('#evening-results');
     if(!result)return;
-    result.innerHTML=picks.length ? picks.map(({game,hint,timing,score})=>
-      '<button class="entry evening-pick" data-game="'+esc(game.id)+'">'+
-        '<span><strong>'+esc(game.title)+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+
-        (hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony'))+' · '+
-        (Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony'))+'</small>'+
-        (timing?'<small>'+t('Dopasowanie do sesji')+' · '+timing+' / 10</small>':'')+
-        (score?startBadge(score):'')+gamePassNotice(game)+'</span></button>').join('') :
-      '<p class="muted">'+t('Brak pasujących gier. Zmień kryteria lub przypnij gry do kolejki.')+'</p>';
+    const ticket=++drawRequest;
+    if(data.get('draw-mode')==='catalogue')renderCataloguePicks(result,data.get('platform'),ticket);
+    else renderLibraryPicks(result,Number(data.get('minutes')),data.get('mood'),data.get('platform'));
   };
 }
 
