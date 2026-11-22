@@ -1,0 +1,6 @@
+name = "checkpoint-steam"
+main = "worker.mjs"
+compatibility_date = "2026-11-22"
+
+[vars]
+APP_ORIGIN = "https://y33bau.github.io"
