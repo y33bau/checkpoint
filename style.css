@@ -569,3 +569,25 @@ main {flex:1 0 auto;padding-bottom:0}
 .last-import div{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:4px}
 .last-import dt{color:var(--soft)}
 .last-import dd{margin:0;text-align:right}
+
+/* Game picker: queue and playing now */
+.featured-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+.featured-bar .featured-choice{margin:0}
+.featured-bar>button{margin-inline-start:auto}
+.shelf-heading{flex-wrap:wrap}
+.shelf-heading h2{white-space:nowrap}
+.shelf-heading .actions{flex-wrap:wrap;justify-content:flex-end;margin-inline-start:auto}
+.picker-tabs{clear:both;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0 4px}
+.picker-tabs button{padding-inline:8px;line-height:1.2}
+.picker-tabs [aria-pressed=true]{color:#ffe4ed;background:var(--rose);border-color:#995f83}
+.picker-note{margin:10px 0 0}
+.picker-list{max-height:min(320px,42dvh);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:9px;background:#181423}
+.picker-option{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:7px 10px;border:0;border-radius:0;background:transparent;text-align:left;font-weight:400}
+.picker-option+.picker-option{border-top:1px solid var(--line)}
+.picker-option:hover,.picker-option:focus-visible{background:var(--rose);color:#ffe5e2}
+.picker-option span:last-child{display:grid;min-width:0}
+.picker-option strong{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.picker-thumb{flex:none;display:grid;place-items:center;width:46px;height:34px;border-radius:4px;overflow:hidden;background:#2d2538;color:var(--soft);font-weight:700}
+.picker-thumb img{width:100%;height:100%;object-fit:cover}
+.picker-status{margin:8px 0 0}
+.picker-status:empty{display:none}

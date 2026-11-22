@@ -30,7 +30,7 @@ function youtubeGuide(game) {
 function gameShelf(list) {
   const label = t('Moja kolejka');
   const header = '<div class="section shelf-heading"><h2 id="shelf-title">'+label+'</h2>'+
-    '<a class="button" href="#library">'+t('Biblioteka')+'</a></div>';
+    '<div class="actions">'+btn(t('＋ Dodaj do kolejki'),'pick:queue')+'<a class="button" href="#library">'+t('Biblioteka')+'</a></div></div>';
   const cases = list.map(game=>{
     const title = esc(game.title);
     const platforms = esc(Object.keys(game.runs).join(' · '));
@@ -40,7 +40,7 @@ function gameShelf(list) {
       '<span class="cover" aria-hidden="true"><b>'+title+'</b>'+coverImage(game)+'</span>'+
       '</span></span><span class="shelf-caption"><strong>'+title+'</strong><small>'+platforms+'</small>'+gamePassNotice(game)+'</span></button>';
   }).join('');
-  const contents = cases || '<p class="shelf-empty">'+t('Przypnij gry w Bibliotece, aby pojawiły się na półce.')+'</p>';
+  const contents = cases || '<p class="shelf-empty">'+t('Dodaj gry do kolejki, aby pojawiły się na półce.')+'</p>';
   return '<section aria-labelledby="shelf-title">'+header+
     '<div class="game-shelf"><div class="shelf-track">'+contents+'</div></div></section>';
 }
@@ -52,9 +52,9 @@ function featuredGame() {
 
 function featuredGameSelect(game) {
   const playing=games.filter(item=>item.status==='Gram');
-  if(playing.length<2)return '';
-  return '<label class="featured-choice">'+t('Gra na pulpicie')+'<select id="featured-game">'+playing.map(item=>
+  const choice=playing.length<2?'':'<label class="featured-choice">'+t('Gra na pulpicie')+'<select id="featured-game">'+playing.map(item=>
     '<option value="'+esc(item.id)+'" '+(item===game?'selected':'')+'>'+esc(item.title)+'</option>').join('')+'</select></label>';
+  return '<div class="featured-bar">'+choice+btn(t('＋ Dodaj do ogrywanych'),'pick:playing')+'</div>';
 }
 
 function featureArtwork(game) {
@@ -203,7 +203,7 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
  else if(view==='rank'){app.innerHTML=renderRankings()}
  else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
- else{const current=featuredGame();app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?featuredGameSelect(current)+banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div><p id="media-status" role="status"></p>',true):'<div class="panel">'+t('Wybierz w karcie gry status „Gram”.')+'</div>')+eveningPanel()+gameShelf(queuedGames(current))}
+ else{const current=featuredGame();app.innerHTML=pageHeading(t('Gram teraz'),btn(t('＋ Dodaj grę'),'add'))+(current?featuredGameSelect(current)+banner(current,'<p>'+esc(current.runs[current.system].goal||t('Następny cel czeka na zapisanie.'))+'</p><div class="actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+'<button data-game="'+current.id+'">'+t('Karta gry')+'</button>'+voiceButton()+'</div><p id="media-status" role="status"></p>',true):'<div class="panel row"><p>'+t('Nie ogrywasz teraz żadnej gry.')+'</p>'+btn(t('＋ Dodaj do ogrywanych'),'pick:playing','primary')+'</div>')+eveningPanel()+gameShelf(queuedGames(current))}
  paintMedia(g);
  if(g && currentGameTab==='ratings')attachCriticScores([g]);
  document.querySelector('.account-link').setAttribute('aria-current',view==='settings'?'page':'false');
@@ -215,7 +215,7 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
 const input=(label,name,val='',attr='')=>'<label>'+label+'<input name="'+name+'" value="'+esc(val)+'" '+attr+'></label>';
 const select=(label,name,arr,val,optionLabel)=>'<label>'+label+'<select name="'+name+'">'+options(arr,val,optionLabel)+'</select></label>';
 let saveAction;
-function openForm(title,body,action){fields.innerHTML='<h2 id="dialog-title">'+title+'</h2>'+body;const save=document.querySelector('#save');save.textContent=t('Zapisz');save.disabled=false;saveAction=action;form.onsubmit=submitForm;dialog.showModal()}
+function openForm(title,body,action){fields.innerHTML='<h2 id="dialog-title">'+title+'</h2>'+body;const save=document.querySelector('#save');save.textContent=t('Zapisz');save.disabled=false;save.hidden=false;saveAction=action;form.onsubmit=submitForm;dialog.showModal()}
 document.querySelector('#close').onclick=()=>dialog.close();
 const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persist();dialog.close();render()}catch(err){alert(err.message)}};
 function action(act){
@@ -245,6 +245,7 @@ function action(act){
  if(act==='critics-retry' && game){attachCriticScores([game]);return}
  if(act.startsWith('draw-add:')){const choice=drawnCatalogue[Number(act.slice(9))];if(choice)openGameForm(null,choice);return}
  if(act==='evening'){openEvening();return}
+ if(act==='pick:queue'||act==='pick:playing'){openGamePicker(act.slice(5));return}
  if(act==='edit-hint' && game){editSessionHint(game);return}
  if(act==='edit-return' && game){editReturn(game);return}
  if(act.startsWith('pin-goal:') && game){toggleGoalPin(game,Number(act.slice(9)));return}
