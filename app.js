@@ -238,7 +238,6 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
  paintMedia(g||(view==='now'?featuredGame():null));
  syncSessionVoice();
  if(g && currentGameTab==='ratings')attachCriticScores([g]);
- document.querySelector('.account-link').setAttribute('aria-current',view==='settings'?'page':'false');
  for(const link of document.querySelectorAll('nav a')) {
    if(link.classList.contains('active')) link.setAttribute('aria-current','page');
    else link.removeAttribute('aria-current');
