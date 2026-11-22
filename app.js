@@ -270,7 +270,11 @@ function action(act){
  if(act==='edit-start' && game){editStartRating(game);return}
  if(act==='critics-retry' && game){attachCriticScores([game]);return}
  if(act.startsWith('draw-add:')){const choice=drawnCatalogue[Number(act.slice(9))];if(choice)openGameForm(null,choice);return}
- if(act==='evening'){openEvening();return}
+ if(act.startsWith('evening:')){
+   const duration=act.slice('evening:'.length);
+   if(Object.hasOwn(eveningDurations,duration))openEvening(duration);
+   return;
+ }
  if(act==='pick:queue'||act==='pick:playing'){openGamePicker(act.slice(5));return}
  if(act==='edit-hint' && game){editSessionHint(game);return}
  if(act==='edit-return' && game){editReturn(game);return}
@@ -349,6 +353,9 @@ function openGameForm(existing,suggestion) {
     '<div id="catalog-results" class="catalog-results" role="listbox" aria-label="'+t('Podpowiedzi gier')+'" hidden></div>' +
     '<p id="catalog-status" class="muted" role="status"></p>' +
     input(t('Katalog'),'catalog',existing?.catalog||'Moje gry','required') +
+    '<label>'+t('Gatunek')+'<select name="genre"><option value="">'+
+    (existing?.genre?t('Automatyczny')+' · '+t(existing.genre):t('Automatyczny'))+'</option>'+
+    options(gameGenres,existing?.genreOverride,t)+'</select></label>'+
     select(t('Status'),'status',statuses,existing?.status,t), data=>{
       const typedTitle = data.get('title').trim();
       if (!typedTitle) throw Error(t('Wpisz tytuł.'));
@@ -358,7 +365,10 @@ function openGameForm(existing,suggestion) {
       const renamed = item.title!==typedTitle;
       Object.assign(item,{title:typedTitle,system:store,status:data.get('status'),catalog:data.get('catalog').trim()||'Moje gry'});
       item.runs[store] ??= run();
-      if(renamed){delete item.criticScores;delete item.catalogVersions}
+      if(renamed){delete item.criticScores;delete item.catalogVersions;delete item.genre}
+      const selectedGenre=data.get('genre');
+      if(gameGenres.includes(selectedGenre))item.genreOverride=selectedGenre;
+      else if(existing)delete item.genreOverride;
       if (renamed && !item.steamAppId) {
         item.cover='';
         item.coverFallback='';
@@ -453,9 +463,10 @@ app.onchange=event=>{
   if(target.id==='backup-file'){importBackup(target.files?.[0]);target.value='';return}
   if(target.id==='chronicle-file'){saveScreenshot(active(),target.files?.[0]);target.value='';return}
   if(target.id==='app-language'){changeAppLanguage(target.value);return}
-  if(['catalog','platform','library-sort','library-source'].includes(target.id)){
+  if(['catalog','platform','library-sort','library-source','library-genre'].includes(target.id)){
     if(target.id==='catalog') collection=target.value;
     if(target.id==='library-source')librarySource=target.value;
+    if(target.id==='library-genre')libraryGenre=target.value;
     if(target.id==='platform') platform=target.value;
     if(target.id==='library-sort' && Object.hasOwn(librarySorts,target.value)) updateLibrarySetting('sort',target.value);
     libraryLimit=libraryPageSize;
@@ -498,7 +509,7 @@ window.addEventListener('pointerup',event=>{
   featuredSwipe=undefined;
   if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.4)stepFeatured(dx<0?1:-1);
 });
-applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();loadGamePass();
+applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();loadGamePass();attachGenres(games);
 
 resumeSteamLogin();
 resumeXboxLogin();

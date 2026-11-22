@@ -658,3 +658,6 @@ summary{cursor:pointer}
   @keyframes featured-slide{from{opacity:.75;transform:translateX(var(--slide-origin))}}
 }
 .library-covers .tile:focus-visible{outline-offset:-3px}
+
+.evening-durations{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.evening-durations button{flex:1 0 auto;min-height:44px;padding-inline:9px;white-space:nowrap}

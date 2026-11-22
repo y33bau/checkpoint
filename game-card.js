@@ -58,7 +58,7 @@ function renderGameCard(game) {
     ratings:()=>gameRatings(game),
   };
   return pageHeading(t('Karta gry'),btn(t('Edytuj'),'edit'))+
-    banner(game,'<p>'+esc(game.catalog)+'</p><div class="actions">'+btn(t('Zapisz sesję'),'session','primary')+
+    banner(game,'<p>'+esc(game.catalog)+(gameGenre(game)?' · '+esc(t(gameGenre(game))):'')+'</p><div class="actions">'+btn(t('Zapisz sesję'),'session','primary')+
       '</div><details class="extra-options"><summary>'+t('Opcje gry')+'</summary><div class="actions">'+youtubeGuide(game)+playingToggle(game)+queueToggle(game)+'</div></details>')+
     '<div class="game-tabs" role="group" aria-label="'+t('Sekcje karty gry')+'">'+tabs+'</div>'+
     views[currentGameTab]();

@@ -9,6 +9,7 @@ const librarySorts = {
 };
 let libraryStatus = '';
 let librarySource = '';
+let libraryGenre = '';
 let libraryLimit = libraryPageSize;
 
 function librarySettings() {
@@ -55,6 +56,7 @@ function visibleLibraryGames() {
     if ((query && !catalogText(game.title).includes(query)) ||
         (libraryStatus && (libraryStatus==='queue' ? !game.pinnedAt : game.status!==libraryStatus)) ||
         (librarySource && !(game.importSources?.[librarySource] || (librarySource==='steam' && game.steamAppId))) ||
+        (libraryGenre && (gameGenre(game)||'unknown')!==libraryGenre) ||
         (collection && collection!==game.catalog) ||
         (platform && !game.runs[platform])) return [];
     return [{game,index,...(sort==='recent'||sort==='hours'?libraryMetrics(game):{})}];
@@ -84,17 +86,32 @@ function renderLibrary() {
       '<div class="library-view" role="group" aria-label="'+t('Widok biblioteki')+'">'+
       libraryPressed('Półka','library-view:covers',view==='covers')+libraryPressed('Indeks','library-view:list',view==='list')+
       libraryPressed('Kolekcje','library-view:groups',view==='groups')+'</div>'+
-      '<details class="library-options" '+(collection||platform||libraryStatus||librarySource?'open':'')+'><summary>'+t('Filtry i sortowanie')+'</summary>'+
+      '<details class="library-options" '+(collection||platform||libraryStatus||librarySource||libraryGenre?'open':'')+'><summary>'+t('Filtry i sortowanie')+'</summary>'+
       '<div class="library-chips" aria-label="'+t('Status')+'">'+filters.map(([id,label])=>libraryPressed(label,'library-filter:'+id,libraryStatus===id)).join('')+'</div>'+
       '<div class="filters">'+
         '<select id="catalog" aria-label="'+t('Katalog')+'"><option value="">'+t('Wszystkie katalogi')+'</option>'+options([...new Set(games.map(game=>game.catalog))],collection)+'</select>'+
         '<select id="platform" aria-label="'+t('Filtr platformy')+'"><option value="">'+t('Wszystkie platformy')+'</option>'+options(systems,platform)+'</select>'+
         '<select id="library-source" aria-label="'+t('Źródło importu')+'"><option value="">'+t('Wszystkie źródła')+
         '</option>'+Object.entries({steam:{name:'Steam'},...librarySources}).map(([id,provider])=>'<option value="'+id+'" '+(librarySource===id?'selected':'')+'>'+provider.name+'</option>').join('')+'</select>'+
+        '<select id="library-genre" aria-label="'+t('Gatunek')+'">'+genreFilterOptions()+'</select>'+
         '<select id="library-sort" aria-label="'+t('Sortowanie')+'">'+sortOptions+'</select>'+
         btn(t('Import Steam JSON'),'import')+
       '</div>'+
     '</details></div><div id="results"></div>';
+}
+
+function genreFilterOptions() {
+  const genres=[...new Set(games.map(gameGenre).filter(Boolean))].sort((a,b)=>libraryCollator.compare(t(a),t(b)));
+  if(libraryGenre && libraryGenre!=='unknown' && !genres.includes(libraryGenre))genres.push(libraryGenre);
+  return '<option value="">'+t('Wszystkie gatunki')+'</option>'+
+    options([...genres,'unknown'],libraryGenre,genre=>t(genre==='unknown'?'Bez gatunku':genre));
+}
+
+function refreshGenreFilter() {
+  const select=app.querySelector('#library-genre');
+  if(!select)return;
+  select.innerHTML=genreFilterOptions();
+  renderLibraryResults();
 }
 
 function queueToggle(game, compact=false) {

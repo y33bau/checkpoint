@@ -34,10 +34,13 @@ function gamePassNotice(game,link=false) {
     '<small class="pass-notice">'+text+'</small>';
 }
 
+const eveningDurations = {30:'30 min',60:'1 h',120:'2 h',180:'3 h',unlimited:'NO LIMIT'};
+
 function eveningPanel() {
-  return '<section class="panel feature-panel evening-panel"><div class="row"><div><h2>'+t('Mam 45 minut')+'</h2>'+
-    '<p class="muted">'+t('Losuj z biblioteki albo odkryj grę z katalogu.')+'</p></div>'+
-    btn(t('Wybierz grę na wieczór'),'evening')+'</div><div id="evening-results"></div></section>';
+  const choices=Object.entries(eveningDurations).map(([id,label])=>btn(label,'evening:'+id)).join('');
+  return '<section class="panel feature-panel evening-panel"><h2>'+t('Mam czas na grę')+'</h2>'+
+    '<div class="evening-durations" role="group" aria-label="'+t('Czas na grę')+'">'+choices+
+    '</div><div id="evening-results"></div></section>';
 }
 
 function eveningPicks(minutes,mood,platform) {
@@ -80,20 +83,21 @@ async function renderCataloguePicks(result,platform,ticket) {
     btn(t('Dodaj grę'),'draw-add:'+index)+'</div>').join(''):'<p class="muted">'+t('Katalog chwilowo niedostępny. Spróbuj ponownie.')+'</p>';
 }
 
-function openEvening() {
-  openForm(t('Mam 45 minut'),
+function openEvening(duration) {
+  openForm(t('Wybierz grę na wieczór'),
     '<label>'+t('Źródło losowania')+'<select name="draw-mode"><option value="library">'+t('Z mojej biblioteki')+
     '</option><option value="catalogue">'+t('Dowolna gra z katalogu')+'</option></select></label>'+
     '<label>'+t('Platforma')+'<select name="platform"><option value="">'+t('Dowolna')+'</option>'+
     options(systems,preferences.profile?.platform)+'</select></label>'+
-    '<div id="evening-constraints">'+input(t('Mam czasu (min)'),'minutes',45,'type="number" min="5" max="600" required')+
+    '<div id="evening-constraints"><label>'+t('Czas na grę')+'<select name="duration">'+
+    options(Object.keys(eveningDurations),duration,id=>eveningDurations[id])+'</select></label>'+
     '<label>'+t('Nastrój')+'<select name="mood"><option value="">'+t('Dowolny')+'</option>'+
     Object.entries(moods).map(([id,label])=>'<option value="'+id+'">'+t(label)+'</option>').join('')+'</select></label></div>',()=>{});
   const mode=form.elements['draw-mode'];
   mode.onchange=()=>{
     const catalogue=mode.value==='catalogue';
     document.querySelector('#evening-constraints').hidden=catalogue;
-    form.elements.minutes.disabled=catalogue;
+    form.elements.duration.disabled=catalogue;
   };
   form.onsubmit=event=>{
     event.preventDefault();
@@ -103,7 +107,7 @@ function openEvening() {
     if(!result)return;
     const ticket=++drawRequest;
     if(data.get('draw-mode')==='catalogue')renderCataloguePicks(result,data.get('platform'),ticket);
-    else renderLibraryPicks(result,Number(data.get('minutes')),data.get('mood'),data.get('platform'));
+    else renderLibraryPicks(result,data.get('duration')==='unlimited'?null:Number(data.get('duration')),data.get('mood'),data.get('platform'));
   };
 }
 
