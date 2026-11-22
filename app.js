@@ -77,7 +77,7 @@ const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-fea
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
   { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Zaloguj się przez Steam i wybierz gry do importu. Możesz też wkleić listę JSON.' },
-  { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zapisz gamertag i wracaj do swojego konta Xbox.' },
+  { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zaloguj się kontem Microsoft i wybierz gry z historii grania Xbox do importu.' },
   { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Zapisz swój identyfikator PSN i wracaj do konta PlayStation.' },
   { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
   { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Skrót do Wand. Mapy przypinasz bezpośrednio do kart gier.' },
@@ -90,6 +90,7 @@ try {
 }
 let steamBusy = false;
 let steamMessage = '';
+let xboxBusy = false;
 function renderConnections() {
   return pageHeading(t('Połączenia')) + renderConnectionGuide() + '<div class="platform-grid">' + providers.map(provider => {
     const saved = connections[provider.id];
@@ -103,9 +104,9 @@ function renderConnections() {
     return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t((saved?.librarySyncedAt||saved?.syncedAt)?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?.lastImport?'Biblioteka wczytana':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
       '<p class="muted">' + t(provider.description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
-      '<div class="actions">' + (isSteam ? steamConnectButton(saved) : btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action')) +
+      '<div class="actions">' + (isSteam ? steamConnectButton(saved) : provider.id==='xbox' ? xboxConnectButton(saved) : btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action')) +
       '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+(provider.id==='nintendo'?t('Zaloguj się na Nintendo'):t('Otwórz')+' '+provider.name) + '</a>' +
-      (isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam')+btn(t('Import Steam JSON'),'import')+(saved?btn(t('Odłącz Steam'),'steam-unlink'):''):'')+
+      (provider.id==='xbox'&&saved?.profile?btn(t('Odłącz Xbox'),'xbox-unlink'):'')+(isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam')+btn(t('Import Steam JSON'),'import')+(saved?btn(t('Odłącz Steam'),'steam-unlink'):''):'')+
       (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
       '</div>' + (isSteam && !steamServerAddress() ? '<small>'+t(steamErrorMessage('not_configured'))+'</small>' : '') +
       (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
@@ -128,6 +129,10 @@ function editConnection(provider) {
     }
     localStorage.setItem(connectionKey,JSON.stringify(connections));
   });
+}
+function xboxConnectButton(saved) {
+  const label=xboxBusy?'Łączę konto Xbox…':saved?.profile?'Odśwież z Xbox':'Połącz Xbox';
+  return '<button class="primary provider-action" data-act="xbox-sync"'+(xboxBusy||!steamServerAddress()?' disabled':'')+'>'+t(label)+'</button>';
 }
 function steamConnectButton(saved) {
   const label=steamBusy?'Łączę konto Steam…':saved?'Odśwież bibliotekę':'Połącz Steam';
@@ -287,6 +292,8 @@ function action(act){
  if(provider){editConnection(provider);return}
  if(act==='steam-sync'){syncSteam();return}
  if(act==='steam-unlink'){unlinkSteam();return}
+ if(act==='xbox-sync'){syncXbox();return}
+ if(act==='xbox-unlink'){unlinkXbox();return}
  let g=active();if(act==='quick')g=featuredGame();
  if(['add','edit'].includes(act)){openGameForm(g);return}
  if(act==='import'){
@@ -423,3 +430,4 @@ app.onchange=event=>{
 window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();else loadWeather();loadGamePass();
 
 resumeSteamLogin();
+resumeXboxLogin();
