@@ -739,7 +739,7 @@ body[data-view="now"] .featured-carousel{
 .featured-note,.featured-goal{color:var(--soft)}
 .featured-goal strong{color:var(--ink);margin-inline-end:.25em}
 .featured-main-actions,.featured-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.featured-tools{grid-template-columns:repeat(4,minmax(0,1fr))}
+.featured-tools{grid-template-columns:repeat(5,minmax(0,1fr))}
 .featured-tools :is(button,.button){padding-inline:4px}
 .featured-game :is(#media-status,#featured-voice):empty{display:none}
 .featured-carousel .featured-pager{display:grid;grid-template-columns:44px minmax(52px,auto) 44px;gap:10px;justify-content:center;text-align:center;border-top:1px solid var(--line);padding-top:10px;margin:0 var(--space) 12px}
@@ -759,6 +759,7 @@ body[data-view="now"] .featured-carousel{
   body[data-view="now"] .app-credit{display:none}
   body[data-view="now"] nav{position:static;transform:none;flex:none;width:min(var(--frame),100% - 2 * var(--gutter));margin:5px auto max(8px,env(safe-area-inset-bottom))}
   .featured-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .featured-tools .youtube-guide{grid-column:1/-1}
   .featured-tools :is(button,.button){font-size:.9rem}
   .evening-durations button{font-size:.85rem}
 }

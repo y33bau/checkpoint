@@ -20,11 +20,13 @@ function coverImage(game) {
   return '<img loading="lazy" alt="" src="'+esc(main || fallback)+'" data-cover-fallback="'+esc(main!==fallback ? fallback : '')+'">';
 }
 const pageHeading=(title,action='')=>'<div class="top"><h1>'+esc(title)+'</h1>'+action+'</div>';
-function youtubeGuide(game) {
+function youtubeGuide(game,compact=false) {
   const url = new URL('https://www.youtube.com/results');
-  url.searchParams.set('search_query', game.title + ' ' + t('poradnik'));
-  return '<a class="button youtube-guide" href="'+esc(url.href)+'" target="_blank" rel="noopener noreferrer">'+
-    '<span class="youtube-play" aria-hidden="true"></span>'+t('Znajdź solucję na YouTube')+'</a>';
+  const keyword=compact&&appLanguage()==='en'?'solution':t('poradnik');
+  url.searchParams.set('search_query', game.title + ' ' + keyword);
+  const label=t('Znajdź solucję na YouTube');
+  return '<a class="button youtube-guide" href="'+esc(url.href)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(label)+'">'+
+    '<span class="youtube-play" aria-hidden="true"></span>'+(compact?'YouTube':label)+'</a>';
 }
 
 function gameShelf(list) {
@@ -66,7 +68,7 @@ function featuredPanel(game) {
     (lastNote?'<p class="featured-note">'+esc(lastNote)+'</p>':'')+
     '<div class="featured-main-actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
     '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button></div>'+
-    '<div class="featured-tools">'+quickResources(game)+voiceButton()+'</div>'+
+    '<div class="featured-tools">'+quickResources(game)+voiceButton()+youtubeGuide(game,true)+'</div>'+
     '<div id="featured-voice"></div><p id="media-status" role="status"></p></article>'+pager+'</section>';
 }
 
