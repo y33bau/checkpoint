@@ -1,0 +1,1 @@
+const checkpointFirebaseConfig = null;

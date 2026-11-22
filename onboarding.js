@@ -42,12 +42,34 @@ function finishOnboarding(language,addStarter=false) {
   render();
 }
 
+const guideSections=[
+  ['now','Gram teraz','Wybierz ogrywaną grę, zapisz sesję i zostaw sobie następny cel.'],
+  ['library','Biblioteka','Dodawaj i filtruj gry. W karcie gry znajdziesz cele, mapy i oceny.'],
+  ['news','Newsy','Wybierz źródło, aby przeglądać wiadomości o grach.'],
+  ['connections','Połączenia','Zaimportuj gry ze swoich platform lub skorzystaj z instrukcji.'],
+  ['settings','Ustawienia','Zmień język i zrób kopię zapasową biblioteki.'],
+];
+
+function guideContent(label) {
+  return '<ul class="quick-guide">'+guideSections.map(([icon,title,description])=>
+    '<li><span class="nav-icon nav-icon-'+icon+'" aria-hidden="true"></span><div><strong>'+label(title)+'</strong>'+
+    '<p>'+label(description)+'</p></div></li>').join('')+'</ul>';
+}
+
+function showQuickGuide() {
+  openForm(t('Krótki przewodnik'),guideContent(t),()=>{});
+  const close=document.querySelector('#save');
+  close.textContent=t('Zamknij');
+  form.onsubmit=event=>{event.preventDefault();dialog.close()};
+}
+
 function openOnboarding() {
   if(!needsOnboarding(preferences))return;
   const modal=document.querySelector('#first-run');
   const form=modal.querySelector('form');
   let language='pl';
   const label=key=>language==='en' && Object.hasOwn(english,key)?english[key]:key;
+  const focusTitle=()=>form.querySelector('h2').focus();
 
   function paintWelcome() {
     form.lang=language;
@@ -55,9 +77,7 @@ function openOnboarding() {
       '<label>'+label('Język aplikacji')+'<select name="language">'+
       '<option value="pl" '+(language==='pl'?'selected':'')+'>Polski</option>'+
       '<option value="en" '+(language==='en'?'selected':'')+'>English</option></select></label>'+
-      (games.length?'<button class="primary" type="submit">'+label('Rozpocznij')+'</button>':
-        '<button class="primary" type="submit" value="starter">'+label('Dodaj 9 gier na start')+'</button>'+
-        '<button type="submit" value="empty">'+label('Zacznij od zera')+'</button>');
+      '<button class="primary" type="submit">'+label('Dalej')+'</button>';
     form.elements.language.onchange=event=>{
       language=event.target.value;
       paintWelcome();
@@ -65,28 +85,53 @@ function openOnboarding() {
     };
     form.onsubmit=event=>{
       event.preventDefault();
+      paintGuide();
+    };
+  }
+
+  function paintGuide() {
+    form.innerHTML='<h2 id="first-run-title" tabindex="-1">'+label('Krótki przewodnik')+'</h2>'+
+      guideContent(label)+
+      '<div class="actions"><button class="primary" type="submit">'+label('Dalej')+'</button>'+
+      '<button type="button" data-onboarding-back>'+label('Wróć')+'</button></div>';
+    form.querySelector('[data-onboarding-back]').onclick=()=>{
+      paintWelcome();
+      form.elements.language.focus();
+    };
+    form.onsubmit=event=>{
+      event.preventDefault();
+      if(games.length)finishOnboarding(language);
+      else paintLibraryChoice();
+    };
+    focusTitle();
+  }
+
+  function paintLibraryChoice() {
+    form.innerHTML='<h2 id="first-run-title" tabindex="-1">'+label('Twoja biblioteka')+'</h2>'+
+      '<button class="primary" type="submit" value="starter">'+label('Dodaj 9 gier na start')+'</button>'+
+      '<button type="submit" value="empty">'+label('Zacznij od zera')+'</button>';
+    form.onsubmit=event=>{
+      event.preventDefault();
       if(event.submitter?.value==='starter')paintStarter();
       else finishOnboarding(language);
     };
+    focusTitle();
   }
 
   function paintStarter() {
     const featured=starterGames[0];
-    form.innerHTML='<h2 id="first-run-title">'+label('Twój zestaw startowy')+'</h2>'+
+    form.innerHTML='<h2 id="first-run-title" tabindex="-1">'+label('Twój zestaw startowy')+'</h2>'+
       '<div class="starter-preview"><img src="'+esc(featured.cover)+'" alt="">'+
       '<div><p class="eyebrow">'+label('Gram teraz')+'</p><strong>'+esc(featured.title)+'</strong>'+
       '<small>'+label('Mapa Leonidy i solucja Eurogamera są już podpięte.')+'</small></div></div>'+
       '<button class="primary" type="submit">'+label('Dodaj zestaw i rozpocznij')+'</button>'+
       '<button type="button" data-onboarding-back>'+label('Wróć')+'</button>';
-    form.querySelector('[type="submit"]').focus();
-    form.querySelector('[data-onboarding-back]').onclick=()=>{
-      paintWelcome();
-      form.querySelector('[value="starter"]')?.focus();
-    };
+    form.querySelector('[data-onboarding-back]').onclick=paintLibraryChoice;
     form.onsubmit=event=>{
       event.preventDefault();
       finishOnboarding(language,true);
     };
+    focusTitle();
   }
 
   modal.addEventListener('cancel',event=>event.preventDefault());

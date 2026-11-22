@@ -27,6 +27,11 @@ function renderSettings() {
         <small>${[profile.age ? profile.age + ' ' + t('lat') : '', profile.platform || ''].filter(Boolean).map(esc).join(' · ')}</small>
         <div class="actions">${btn(t('Edytuj profil'),'edit-account','primary')}</div>
       </article>
+      ${googlePanel()}
+      <article class="panel settings-card">
+        <h2>${t('Krótki przewodnik')}</h2>
+        <div class="actions">${btn(t('Pokaż przewodnik'),'show-guide')}</div>
+      </article>
       <article class="panel settings-card">
         <h2>${t('Kopia zapasowa')}</h2>
         <p class="muted">${t('Zawiera gry, postępy, własne okładki, nagrania i ustawienia. Limit pliku to 64 MB.')}</p>
@@ -246,6 +251,7 @@ async function clearLocalData() {
   if(!window.confirm(message))return;
   deviceBusy=true;
   try {
+    pauseGoogleSync();
     await replaceDeviceData(null,null,null,[]);
     location.reload();
   } catch {backupStatus('Nie udało się wyczyścić danych.')}

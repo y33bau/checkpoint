@@ -7,7 +7,7 @@ const steamHeader=id=>'https://shared.akamai.steamstatic.com/store_item_assets/s
 const run=()=>({progress:0,goal:'',sessions:[]});
 function game(title,system,cover='',catalog='Moje gry'){return {id:crypto.randomUUID(),addedAt:Date.now(),title,system,cover,catalog,status:'W kolejce',runs:{[system]:run()},scores:[],maps:[],tasks:[]}}
 const key='checkpoint-diary-v1';let games=JSON.parse(localStorage.getItem(key)||'null')??[],filter='',collection='',platform='';
-function persist(){localStorage.setItem(key,JSON.stringify(games))}
+function persist(){localStorage.setItem(key,JSON.stringify(games));scheduleGoogleSync()}
 persist();
 const score=g=>{const a=g.scores.filter(Number.isFinite);return a.length?(a.reduce((a,b)=>a+b,0)/a.length):null};
 const btn=(label,act,cls='')=>'<button class="'+cls+'" data-act="'+act+'">'+label+'</button>';
@@ -247,7 +247,7 @@ function render(){
    history.replaceState(history.state,'','#library');
  }
  const g=active(),view=location.hash.slice(1)||'now';document.body.dataset.view=g?'game':view;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
- if(view==='settings'){app.innerHTML=renderSettings()}
+ if(view==='settings'){app.innerHTML=renderSettings();initializeGoogleSync()}
  else if(view==='news'){app.innerHTML=renderNews();loadNews()}
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
@@ -278,6 +278,8 @@ const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persi
 function action(act){
  const game=active();
  if(deviceBusy)return;
+ if(act==='show-guide'){showQuickGuide();return}
+ if(act.startsWith('google-')){googleAction(act);return}
  if(act==='upload-cover'&&game){openCoverUpload(game);return}
  if(act==='refresh-cover'&&game){openCoverRefresh([game]);return}
  if(act==='refresh-all-covers'){openCoverRefresh(games.filter(item=>!item.archived),true);return}
@@ -585,3 +587,4 @@ applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();loadGa
 
 resumeSteamLogin();
 resumeXboxLogin();
+if(googleSyncState)initializeGoogleSync();

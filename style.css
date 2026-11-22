@@ -907,3 +907,8 @@ body[data-view="now"] .featured-carousel{
   .news-source-select select{width:100%}
   .library-view button{padding-inline:4px;font-size:.82rem}
 }
+
+.quick-guide{display:grid;gap:8px;padding:0;margin:2px 0 10px;list-style:none}
+.quick-guide li{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:start;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.quick-guide .nav-icon{margin:3px auto 0;color:var(--coral)}
+.quick-guide p{margin:2px 0 0;color:var(--soft);font-size:.88rem}

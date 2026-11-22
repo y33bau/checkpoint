@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /checkpointLibraries/{uid} {
+      function ownsLibrary() {
+        return request.auth != null && request.auth.uid == uid;
+      }
+      function validLibrary() {
+        return request.resource.data.keys().hasAll(['revision', 'payload'])
+          && request.resource.data.keys().hasOnly(['revision', 'payload'])
+          && request.resource.data.revision is int
+          && request.resource.data.payload is string
+          && request.resource.data.payload.size() <= 921600;
+      }
+      allow get: if ownsLibrary();
+      allow create: if ownsLibrary() && validLibrary()
+        && request.resource.data.revision == 1;
+      allow update: if ownsLibrary() && validLibrary()
+        && request.resource.data.revision == resource.data.revision + 1;
+    }
+  }
+}

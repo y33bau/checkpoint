@@ -254,6 +254,7 @@ async function importBackup(file) {
       return {...metadata,blob:new Blob([decoded],{type})};
     });
     if(!window.confirm(t('Zastąpić lokalne dane danymi z kopii zapasowej?')))return;
+    pauseGoogleSync();
     await replaceDeviceData(data.games,data.preferences,data.connections,media);
     location.reload();
   } catch {backupStatus('Nie udało się wczytać kopii. Sprawdź plik JSON Checkpoint.')}
