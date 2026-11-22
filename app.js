@@ -452,6 +452,7 @@ app.addEventListener('load',event=>{
     frame.style.setProperty('--shelf-artwork',preserveArtwork?'url('+JSON.stringify(image.currentSrc||image.src)+')':'none');
   }
   if(!image.matches?.('.feature-art .feature-image'))return;
+  image.dataset.artShape=image.naturalWidth/image.naturalHeight>=1.35?'landscape':'portrait';
   image.dataset.artReady='yes';
   const imageUrl=JSON.stringify(image.currentSrc||image.src);
   image.closest('.featured-cover')?.style.setProperty('--featured-image','url('+imageUrl+')');
