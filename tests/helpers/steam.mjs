@@ -51,6 +51,10 @@ export function installSteamFetch({ valid = true, library = { response: { game_c
   globalThis.fetch = async (input, init = {}) => {
     const url = new URL(typeof input === 'string' ? input : input.url ?? input.href);
     calls.push({ url, init });
+    // Like the Cloudflare Workers runtime, which rejects redirect: 'error'.
+    if (init.redirect !== undefined && init.redirect !== 'follow' && init.redirect !== 'manual') {
+      throw new TypeError('Invalid redirect value, must be one of "follow" or "manual"');
+    }
     if (url.href === 'https://steamcommunity.com/openid/login') {
       const body = new URLSearchParams(String(init.body));
       const ok = valid && body.get('openid.mode') === 'check_authentication';
