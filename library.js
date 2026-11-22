@@ -132,7 +132,8 @@ function libraryRow(game, covers) {
   const title = esc(game.title);
   const initials=game.title.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('');
   const cover = '<span class="cover" aria-hidden="true"><b>'+esc(initials)+'</b>'+coverImage(game)+'</span>';
-  const metadata = '<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
+  const fullTitle=covers?'<span class="cover-title-preview" aria-hidden="true">'+title+'</span>':'';
+  const metadata = '<span class="info"><strong>'+title+'</strong>'+fullTitle+'<small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
   return '<div class="library-item"><button type="button" class="'+(covers?'tile':'library-row')+'" data-game="'+esc(game.id)+'">'+cover+metadata+'</button><span class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</span></div>';
 }
 

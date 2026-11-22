@@ -447,14 +447,8 @@ app.addEventListener('load',event=>{
   const image=event.target;
   if(image.matches?.('.library-covers .cover img')){
     const frame=image.parentElement;
-    const imageRatio=image.naturalWidth/image.naturalHeight;
-    const frameRatio=frame.clientWidth/frame.clientHeight;
-    const cropFraction=1-Math.min(imageRatio/frameRatio,frameRatio/imageRatio);
-    const preserveArtwork=cropFraction>0.12;
-    frame.dataset.artwork=preserveArtwork?'full':'cover';
-    frame.dataset.artworkAxis=imageRatio<frameRatio?'horizontal':'vertical';
-    frame.style.setProperty('--shelf-art-size',(1-cropFraction)*100+'%');
-    frame.style.setProperty('--shelf-artwork',preserveArtwork?'url('+JSON.stringify(image.currentSrc||image.src)+')':'none');
+    frame.dataset.artwork='ready';
+    frame.style.setProperty('--shelf-artwork','url('+JSON.stringify(image.currentSrc||image.src)+')');
   }
   if(!image.matches?.('.feature-art .feature-image'))return;
   image.dataset.artShape=image.naturalWidth/image.naturalHeight>=1.35?'landscape':'portrait';
