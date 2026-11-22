@@ -253,3 +253,36 @@ async function prepareChronicle(game) {
     chronicleStatus(art&&!cover?'Karta gotowa. Sklep nie udostępnił okładki do eksportu.':'Karta gotowa.');
   }catch{chronicleStatus('Nie udało się przygotować karty.')}
 }
+
+function openSessionForm(game, quick) {
+  const run=game.runs[game.system];
+  const minutes=input(t('Czas gry (min)'),'minutes',30,'type="number" min="1" max="1440" required');
+  const progress=input(t('Postęp (%)'),'progress',run.progress,'type="number" min="0" max="100" required');
+  const notes=input(t('Co udało się zrobić?'),'note')+input(t('Następny cel'),'goal',run.goal);
+  const presets=[15,30,60].map(value=>'<button type="button" data-minutes="'+value+'" aria-pressed="'+(value===30)+'">'+value+' min</button>').join('');
+  const extras=quick?'<details><summary>'+t('Dodaj szczegóły')+'</summary>'+notes+'</details>':notes;
+  openForm(t('Zapisz sesję'),(quick?'<p>'+esc(game.title)+'</p><div class="session-presets">'+presets+'</div>':'')+
+    minutes+progress+(quick?'<div class="session-voice">'+voiceButton()+'</div><p data-session-media-status role="status"></p>':'')+extras,data=>{
+      const playedAt=Date.now();
+      const note=data.get('note').trim();
+      run.sessions.push({playedAt,date:new Date(playedAt).toLocaleDateString(appLocale()),minutes:Number(data.get('minutes')),note});
+      run.goal=data.get('goal');
+      if(note)run.resumeNote=note;
+      run.progress=Number(data.get('progress'));
+    });
+  if(!quick)return;
+  dialog.classList.add('quick-sheet');
+  const duration=form.elements.minutes;
+  const buttons=[...fields.querySelectorAll('[data-minutes]')];
+  const markDuration=()=>buttons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.minutes===duration.value)));
+  duration.addEventListener('input',markDuration);
+  for(const button of buttons)button.onclick=()=>{duration.value=button.dataset.minutes;markDuration()};
+  fields.querySelector('.session-voice button').onclick=()=>toggleVoice(game);
+}
+
+function syncSessionVoice() {
+  const target=fields.querySelector('.session-voice button');
+  if(!dialog.open||!target)return;
+  target.textContent=t(voiceLabel());
+  target.disabled=Boolean(recording&&recording.state!=='recording');
+}

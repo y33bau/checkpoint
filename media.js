@@ -46,12 +46,18 @@ function replaceMedia(items) {
 function mediaStatus(label) {
   const status=document.querySelector('#media-status');
   if(status) status.textContent=t(label);
+  const sessionStatus=dialog.open&&fields.querySelector('[data-session-media-status]');
+  if(sessionStatus)sessionStatus.textContent=t(label);
+}
+
+function voiceLabel() {
+  const state=recording?.state;
+  return state==='recording'?'Zatrzymaj i zapisz':state==='saving'?'Zapisuję nagranie…':state?'Przygotowuję mikrofon…':'Nagraj notatkę';
 }
 
 function voiceButton() {
   const state=recording?.state;
-  const label=state==='recording'?'Zatrzymaj i zapisz':state==='saving'?'Zapisuję nagranie…':state?'Przygotowuję mikrofon…':'Nagraj notatkę';
-  return '<button class="voice-button" data-act="voice-toggle"'+(state && state!=='recording'?' disabled':'')+'>'+t(label)+'</button>';
+  return '<button type="button" class="voice-button" data-act="voice-toggle"'+(state && state!=='recording'?' disabled':'')+'>'+t(voiceLabel())+'</button>';
 }
 
 function voicePanel() {
@@ -64,12 +70,18 @@ async function paintMedia(game) {
   for(const url of mediaUrls) URL.revokeObjectURL(url);
   mediaUrls=[];
   if(!game) return;
+  const latest=document.querySelector('#featured-voice');
   const list=document.querySelector('#voice-list');
   const screenshot=document.querySelector('#chronicle-screenshot');
   try {
     const media=await gameMedia(game.id);
-    if(ticket!==mediaPaint || active()?.id!==game.id) return;
+    if(ticket!==mediaPaint)return;
     const voices=media.filter(item=>item.kind==='voice').sort((a,b)=>b.created-a.created);
+    if(latest&&voices.length){
+      const url=URL.createObjectURL(voices[0].blob);
+      mediaUrls.push(url);
+      latest.innerHTML='<details><summary>'+t('Odsłuchaj ostatnią notatkę')+'</summary><audio controls preload="none" src="'+esc(url)+'"></audio></details>';
+    }
     if(list) list.innerHTML=voices.map(item=>{
       const url=URL.createObjectURL(item.blob);mediaUrls.push(url);
       return '<div class="voice-row"><small>'+esc(new Date(item.created).toLocaleString(appLocale()))+'</small>'+

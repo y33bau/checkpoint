@@ -105,10 +105,9 @@ function recordLastImport(provider,count,added,mode) {
 function lastImportMarkup(saved) {
   const record=saved?.lastImport;
   if(!record || !Number.isInteger(record.count)||!Number.isInteger(record.added))return '';
-  const modes={sync:'Synchronizacja',file:'Plik JSON',list:'Wklejona lista'};
-  return '<dl class="last-import"><div><dt>'+t('Gry wczytane')+'</dt><dd>'+record.count+'</dd></div><div><dt>'+t('Nowe gry')+'</dt><dd>'+record.added+'</dd></div><div><dt>'+t('Ostatni import')+'</dt><dd>'+
-    esc(new Date(record.at).toLocaleString(appLocale()))+'</dd></div><div><dt>'+t('Źródło danych')+'</dt><dd>'+
-    t(Object.hasOwn(modes,record.mode)?modes[record.mode]:'Import')+'</dd></div></dl>';
+  const date=new Date(record.at);
+  const timestamp=Number.isFinite(date.valueOf())?date.toLocaleDateString(appLocale()):'';
+  return '<p class="last-import-summary">'+t('Ostatni import')+': '+esc([timestamp,new Intl.NumberFormat(appLocale()).format(record.count)+' '+t('gier')].filter(Boolean).join(' · '))+'</p>';
 }
 
 function steamGameRows(data) {

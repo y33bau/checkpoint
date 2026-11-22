@@ -1,4 +1,6 @@
 const english = {
+  "Poprzednia gra": "Previous game", "Następna gra": "Next game",
+  "Dodaj szczegóły": "Add details", "Odsłuchaj ostatnią notatkę": "Play last voice note",
   "Wybierz ogrywaną grę": "Choose a game to play",
   "Półka": "Shelf", "Indeks": "Index", "Kolekcje": "Collections",
   "Opcje połączenia": "Connection options", "Filtry i sortowanie": "Filter and sort",
