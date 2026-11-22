@@ -12,7 +12,8 @@ const sourceGuide = 'https://github.com/y33bau/checkpoint/tree/main/integrations
 function sourceConnectionButtons(provider,saved) {
   const input=btn(t(provider==='wand'?'Wklej listę gier':'Importuj plik'),'source-file:'+provider);
   const view=btn(t('Pokaż zaimportowane gry'),'source-view:'+provider);
-  if(provider==='wand')return input+view;
+  if(provider==='wand')return view;
+  if(provider==='ps')return input+view+(saved?.libraryUrl?btn(t('Ustawienia połączenia'),'source-connect:ps'):'');
   return input+view+btn(t(saved?.libraryUrl?'Ustawienia połączenia':'Podłącz bibliotekę'),'source-connect:'+provider)+
     (saved?.libraryUrl?btn(t('Synchronizuj bibliotekę'),'source-sync:'+provider):'');
 }

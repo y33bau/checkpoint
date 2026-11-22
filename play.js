@@ -44,7 +44,7 @@ function eveningPanel() {
 }
 
 function eveningPicks(minutes,mood,platform) {
-  const candidates=games.filter(game=>!platform||game.runs[platform]).flatMap(game=>{
+  const candidates=games.filter(game=>!game.archived&&(!platform||game.runs[platform])).flatMap(game=>{
     const saved=game.sessionHint || {};
     const hint={minutes:Number.isFinite(saved.minutes)?saved.minutes:0,mood:Object.hasOwn(moods,saved.mood)?saved.mood:''};
     const timing=estimateTimeFit(minutes,hint.minutes);
@@ -154,7 +154,7 @@ function featuredReturnPanel(game,run) {
 function returnPanel(game,run) {
   const recent=run.sessions.at(-1);
   const pinned=game.tasks.map((task,index)=>({task,index})).filter(({task})=>task.pinned&&!task.done).slice(0,3);
-  return '<section class="panel feature-panel"><div class="row"><h2>'+t('Co dalej?')+'</h2>'+
+  return '<section class="panel feature-panel"><div class="row"><h2>'+t('Wróć do gry')+'</h2>'+
     btn(t('Edytuj kartę powrotu'),'edit-return')+'</div>'+
     '<div class="return-grid"><div><small>'+t('Gdzie skończyłem')+'</small><p>'+esc(run.resumeNote||recent?.note||t('Dodaj krótką notatkę o ostatniej sesji.'))+'</p></div>'+
     '<div><small>'+t('Następny cel')+'</small><p>'+esc(run.goal||t('Zapisz kolejny cel po sesji.'))+'</p></div></div>'+

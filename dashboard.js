@@ -27,22 +27,26 @@ function renderSettings() {
         <small>${[profile.age ? profile.age + ' ' + t('lat') : '', profile.platform || ''].filter(Boolean).map(esc).join(' · ')}</small>
         <div class="actions">${btn(t('Edytuj profil'),'edit-account','primary')}</div>
       </article>
-      <details class="panel settings-tools"><summary>${t('Dane aplikacji')}</summary><div class="settings-grid">
-      <article class="panel settings-card"><h2>${t('Aktualizacja aplikacji')}</h2>
+      <article class="panel settings-card">
+        <h2>${t('Kopia zapasowa')}</h2>
+        <p class="muted">${t('Zawiera gry, postępy, własne okładki, nagrania i ustawienia. Limit pliku to 64 MB.')}</p>
+        <div class="actions">${btn(t('Pobierz kopię'),'backup-export','primary')}${btn(t('Wczytaj kopię'),'backup-import')}</div>
+        <input type="file" id="backup-file" accept=".json,application/json" hidden>
+        <p class="muted" id="backup-status" role="status"></p>
+      </article>
+      <article class="panel settings-card">
+        <h2>${t('Aktualizacja aplikacji')}</h2>
         <p class="muted">${t('Pobierz ponownie pliki aplikacji z serwera.')}</p>
         <div class="actions">${btn(t('Wymuś aktualizację'),'force-update')}</div>
         <p id="update-status" role="status"></p>
       </article>
-      <article class="panel settings-card"><h2>${t('Dane na urządzeniu')}</h2>
+      <details class="panel settings-tools"><summary>${t('Dane na urządzeniu')}</summary>
         <p class="muted">${t('Ustawienia i profil zapisują się w tej przeglądarce.')}</p>
         <div class="actions">${btn(t('Zapisz ustawienia lokalnie'),'save-local-settings')}
         ${btn(t('Wyczyść dane'),'clear-local-data','danger')}</div>
         <p class="muted" id="local-settings-status" role="status"></p>
-        <div class="actions">${btn(t('Pobierz kopię'),'backup-export')}${btn(t('Wczytaj kopię'),'backup-import')}</div>
-        <input type="file" id="backup-file" accept=".json,application/json" hidden>
-        <p class="muted" id="backup-status" role="status"></p>
-      </article>
-    </div></details></div>`;
+      </details>
+    </div>`;
 }
 
 function editAccount() {
@@ -136,6 +140,7 @@ let newsSource = 'all';
 let newsData;
 let newsLoading = false;
 let newsError = false;
+let newsUsingFallback = false;
 
 function changeAppLanguage(language) {
   if ((language !== 'pl' && language !== 'en') || appLanguage() === language) return;
@@ -150,8 +155,11 @@ function changeAppLanguage(language) {
 
 function renderNews() {
   const sources = newsSources[appLanguage()];
-  const filters = Object.entries({all:t('Wszystkie'), ...sources}).map(([id,name]) =>
-    '<button data-act="news-source-'+id+'" aria-pressed="'+(newsSource===id)+'">'+name+'</button>').join('');
+  const sourceLabels={all:t('Wszystkie'),...sources};
+  const filters = Object.entries(sourceLabels).map(([id,name]) =>
+    '<button data-act="news-source-'+id+'" aria-pressed="'+(newsSource===id)+'">'+esc(name)+'</button>').join('');
+  const sourceSelect='<label class="news-source-select">'+t('Źródło wiadomości')+
+    '<select id="news-source">'+options(Object.keys(sourceLabels),newsSource,id=>sourceLabels[id])+'</select></label>';
   const articles = (newsData || []).filter(item=>
     Object.hasOwn(sources,item.source) && (newsSource==='all'||newsSource===item.source));
   let content = '<p role="status" class="muted">'+t('Pobieram nagłówki…')+'</p>';
@@ -163,8 +171,16 @@ function renderNews() {
       return '<a class="news-story panel" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer"><span class="news-source '+esc(item.source)+'">'+esc(sources[item.source])+'</span> <small>'+esc(date)+'</small><h2>'+esc(item.title)+'</h2></a>';
     }).join('') : '<p role="status" class="muted">'+t('Brak dostępnych wiadomości dla tego źródła.')+'</p>';
   }
-  return pageHeading(t('Newsy'),btn(t('Odśwież'),'refresh-news')) + '<div class="news-filters" aria-label="'+t('Źródła')+'">'+filters+
-    '</div>'+(newsError?'<p class="muted" role="status">'+t('Nie udało się odświeżyć wiadomości.')+'</p>':'')+
+  const newest=Date.parse(articles[0]?.publishedAt);
+  const stale=Number.isFinite(newest) && Date.now()-newest>7*86400000;
+  const status=newsLoading?(newsData?t('Odświeżam wiadomości…'):''):
+    newsError?t('Nie udało się odświeżyć wiadomości.'):
+    newsUsingFallback?t('Wyświetlam zapisaną kopię wiadomości.'):'';
+  const freshness=stale?'<p class="muted news-freshness">'+t('Najnowszy wpis w tym źródle')+' · '+
+    esc(new Date(newest).toLocaleDateString(appLocale()))+'</p>':'';
+  return pageHeading(t('Newsy'),'<button data-act="refresh-news" '+(newsLoading?'aria-disabled="true"':'')+'>'+t('Odśwież')+'</button>')+
+    '<div class="news-filters" role="group" aria-label="'+t('Źródła')+'">'+filters+'</div>'+sourceSelect+
+    '<p id="news-status" class="muted" role="status">'+status+'</p>'+freshness+
     '<div class="news-grid">'+content+'</div>'+
     (articles.length>newsLimit?btn(t('Pokaż kolejne'),'more-news'):'');
 }
@@ -172,6 +188,9 @@ function renderNews() {
 async function loadNews(force=false) {
   if (newsLoading || (newsData && !force)) return;
   newsLoading = true;
+  app.querySelector('[data-act="refresh-news"]')?.setAttribute('aria-disabled','true');
+  const status=app.querySelector('#news-status');
+  if(status && newsData)status.textContent=t('Odświeżam wiadomości…');
   const urls = ['https://raw.githubusercontent.com/y33bau/checkpoint/news-data/news.json','assets/news.json?v=afterglow7'];
   try {
     const results = await Promise.allSettled(urls.map(async url=>{
@@ -182,6 +201,7 @@ async function loadNews(force=false) {
       return data.articles;
     }));
     const [latest, fallback] = results.map(result=>result.status==='fulfilled' ? result.value : []);
+    newsUsingFallback=!latest.length && fallback.length>0;
     const available = new Set(latest.map(item=>item.source));
     const articles = [...latest,...fallback.filter(item=>!available.has(item.source))];
     if (articles.length) {
@@ -190,16 +210,23 @@ async function loadNews(force=false) {
     newsError = !articles.length;
   } finally {
     newsLoading = false;
-    if (location.hash==='#news') app.innerHTML = renderNews();
+    if (location.hash==='#news'){
+      const focused=document.activeElement;
+      const controls=focused?.id==='news-source'?'#news-source':
+        focused?.dataset.act?.startsWith('news-source-')||focused?.dataset.act==='refresh-news'
+          ? '[data-act="'+focused.dataset.act+'"]':'';
+      app.innerHTML = renderNews();
+      if(controls)app.querySelector(controls)?.focus({preventScroll:true});
+    }
   }
 }
 
-function selectNewsSource(source) {
+function selectNewsSource(source,control) {
   if (source !== 'all' && !Object.hasOwn(newsSources[appLanguage()],source)) return;
   newsLimit = 6;
   newsSource = source;
   app.innerHTML = renderNews();
-  app.querySelector('[aria-pressed="true"]')?.focus();
+  app.querySelector(control==='select'?'#news-source':'.news-filters [aria-pressed="true"]')?.focus({preventScroll:true});
 }
 
 function saveLocalSettings() {

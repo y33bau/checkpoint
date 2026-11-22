@@ -10,6 +10,16 @@ const librarySorts = {
 let libraryStatus = '';
 let librarySource = '';
 let libraryGenre = '';
+let libraryMode = '';
+
+function clearLibraryFilters() {
+  filter=collection=platform=libraryStatus=librarySource=libraryGenre='';
+  libraryLimit=libraryPageSize;
+}
+
+function libraryFiltersActive() {
+  return Boolean(filter||collection||platform||libraryStatus||librarySource||libraryGenre);
+}
 let libraryLimit = libraryPageSize;
 
 function librarySettings() {
@@ -50,10 +60,12 @@ function libraryMetrics(game) {
 }
 
 function visibleLibraryGames() {
-  const {sort} = librarySettings();
+  const sort = libraryMode==='rated'?'rating':librarySettings().sort;
   const query = catalogText(filter);
   const prepared = games.flatMap((game,index)=>{
-    if ((query && !catalogText(game.title).includes(query)) ||
+    if (Boolean(game.archived)!==(libraryMode==='archive') ||
+        (libraryMode==='rated' && score(game)===null) ||
+        (query && !catalogText(game.title).includes(query)) ||
         (libraryStatus && (libraryStatus==='queue' ? !game.pinnedAt : game.status!==libraryStatus)) ||
         (librarySource && !(game.importSources?.[librarySource] || (librarySource==='steam' && game.steamAppId))) ||
         (libraryGenre && (gameGenre(game)||'unknown')!==libraryGenre) ||
@@ -80,13 +92,14 @@ function renderLibrary() {
   const filters = [['','Wszystkie'],['Gram','W trakcie'],['W kolejce','Do ogrania'],['Ukończona','Ukończone'],['queue','Moja kolejka']];
   const sortOptions = Object.entries(librarySorts).map(([id,label])=>
     '<option value="'+id+'" '+(sort===id?'selected':'')+'>'+t(label)+'</option>').join('');
-  const refresh=games.length?btn(t('Odśwież wszystkie okładki'),'refresh-all-covers'):'';
+  const refresh=games.some(game=>!game.archived)?btn(t('Odśwież okładki'),'refresh-all-covers'):'';
+  const groupView=view==='groups' && libraryMode!=='rated';
   return pageHeading(t('Biblioteka'),'<div class="actions">'+refresh+btn(t('＋ Dodaj grę'),'add','primary')+'</div>') +
     '<div class="library-controls">'+
       '<input id="search" type="search" aria-label="'+t('Szukaj gry')+'" placeholder="'+t('Szukaj gry…')+'" value="'+esc(filter)+'">'+
       '<div class="library-view" role="group" aria-label="'+t('Widok biblioteki')+'">'+
-      libraryPressed('Półka','library-view:covers',view==='covers')+libraryPressed('Indeks','library-view:list',view==='list')+
-      libraryPressed('Kolekcje','library-view:groups',view==='groups')+'</div>'+
+      libraryPressed('Półka','library-view:covers',(view==='covers'||(view==='groups'&&libraryMode==='rated')))+libraryPressed('Indeks','library-view:list',view==='list')+
+      libraryPressed('Według statusu','library-view:groups',groupView)+'</div>'+
       '<details class="library-options" '+(collection||platform||libraryStatus||librarySource||libraryGenre?'open':'')+'><summary>'+t('Filtry i sortowanie')+'</summary>'+
       '<div class="library-chips" aria-label="'+t('Status')+'">'+filters.map(([id,label])=>libraryPressed(label,'library-filter:'+id,libraryStatus===id)).join('')+'</div>'+
       '<div class="filters">'+
@@ -95,7 +108,8 @@ function renderLibrary() {
         '<select id="library-source" aria-label="'+t('Źródło importu')+'"><option value="">'+t('Wszystkie źródła')+
         '</option>'+Object.entries({steam:{name:'Steam'},...librarySources}).map(([id,provider])=>'<option value="'+id+'" '+(librarySource===id?'selected':'')+'>'+provider.name+'</option>').join('')+'</select>'+
         '<select id="library-genre" aria-label="'+t('Gatunek')+'">'+genreFilterOptions()+'</select>'+
-        '<select id="library-sort" aria-label="'+t('Sortowanie')+'">'+sortOptions+'</select>'+
+        (libraryMode==='rated'?'<span class="muted">'+t('Najwyżej oceniane')+'</span>':
+        '<select id="library-sort" aria-label="'+t('Sortowanie')+'">'+sortOptions+'</select>')+
         btn(t('Import Steam JSON'),'import')+
       '</div>'+
     '</details></div><div id="results"></div>';
@@ -128,27 +142,28 @@ function playingToggle(game, compact=false) {
     (compact?'<span class="play-glyph" aria-hidden="true"></span>':label)+'</button>';
 }
 
-function gameTile(game,{actions=true,details='',badge=''}={}) {
+function gameTile(game,{actions=true,details='',badge='',description=''}={}) {
   const title=esc(game.title);
   const initials=game.title.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('');
   const genre=gameGenre(game);
   const metadata=[...Object.keys(game.runs),genre?t(genre):'',t(game.status)].filter(Boolean).map(esc).join(' · ');
   return '<div class="library-item"><div class="library-tile-face">'+
-    '<div class="tile-poster"><button type="button" class="tile" data-game="'+esc(game.id)+'" aria-label="'+title+'">'+
+    '<div class="tile-poster"><button type="button" class="tile" data-game="'+esc(game.id)+'" aria-label="'+title+(description?' · '+esc(description):'')+'">'+
     '<span class="cover" aria-hidden="true"><b>'+esc(initials)+'</b>'+coverImage(game)+'</span>'+
     '<strong class="tile-caption" aria-hidden="true">'+title+'</strong></button>'+badge+
     '<button type="button" class="tile-disclosure" aria-label="'+esc(t('Pokaż szczegóły')+' · '+game.title)+'" aria-expanded="false" data-act="tile-details">＋</button></div>'+
     '<div class="tile-expansion"><div class="tile-detail"><strong>'+title+'</strong><small>'+metadata+'</small>'+
-    details+gamePassNotice(game)+(actions?'<div class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</div>':'')+
+    details+gamePassNotice(game)+(actions&&!game.archived?'<div class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</div>':'')+
     '</div></div></div></div>';
 }
 
-function libraryRow(game) {
+function libraryRow(game, rating) {
   const title=esc(game.title);
   const cover='<span class="cover" aria-hidden="true">'+coverImage(game)+'</span>';
   const metadata='<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
   return '<div class="library-item"><button type="button" class="library-row" data-game="'+esc(game.id)+'">'+cover+metadata+
-    '</button><span class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</span></div>';
+    (rating?'<span class="library-row-score">'+esc(rating)+'</span>':'')+'</button>'+
+    (game.archived?'':'<span class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</span>')+'</div>';
 }
 
 function toggleTileDetails(button) {
@@ -167,13 +182,23 @@ function toggleTileDetails(button) {
   }
 }
 
+function ratedLibraryTile(game, covers) {
+  const formatted=score(game).toLocaleString(appLocale(),{minimumFractionDigits:1,maximumFractionDigits:1})+' / 10';
+  const categories=game.scores.filter(Number.isFinite).length+' / '+criteria.length+' '+t('ocenionych kategorii');
+  return covers
+    ? gameTile(game,{badge:'<span class="tile-rank">'+esc(formatted)+'</span>',details:'<small>'+esc(categories)+'</small>',description:formatted+' · '+categories})
+    : libraryRow(game,formatted+' · '+categories);
+}
+
 function renderLibraryResults() {
   const results = visibleLibraryGames();
-  const covers = librarySettings().view==='covers';
+  const view = librarySettings().view;
+  const rated = libraryMode==='rated';
+  const covers = view==='covers'||(rated&&view==='groups');
   const shown = results.slice(0,libraryLimit);
   const number = new Intl.NumberFormat(appLocale());
   const summary = number.format(shown.length)+' / '+number.format(results.length)+' '+t('wyników');
-  const groups=librarySettings().view==='groups';
+  const groups=view==='groups'&&!rated;
   const container=document.querySelector('#results');
   const expanded=new Map([...container.querySelectorAll('details[data-section]')].map(el=>[el.dataset.section,el.open]));
   const sections=groups?statuses.map(status=>{
@@ -184,16 +209,24 @@ function renderLibraryResults() {
       list.slice(0,libraryLimit).map(game=>gameTile(game)).join('')+'</div></details>';
   }).join(''):'';
   const visibleCount=groups?statuses.reduce((sum,status)=>sum+Math.min(libraryLimit,results.filter(g=>g.status===status).length),0):shown.length;
+  const canReset=libraryFiltersActive();
+  const archive=games.some(game=>game.archived)||libraryMode==='archive'
+    ? libraryPressed('Archiwum','library-mode:archive',libraryMode==='archive'):'';
+  const emptyMessage=canReset?'Brak gier dla tego wyboru.':rated?'Oceń grę, aby pojawiła się w tym widoku.':libraryMode==='archive'?'Archiwum jest puste.':'Brak gier dla tego wyboru.';
   container.innerHTML =
-    '<p class="library-count muted" role="status">'+(groups?number.format(visibleCount)+' / '+number.format(results.length)+' '+t('wyników'):summary)+'</p>'+
-    (sections|| (shown.length?'<div class="'+(covers?'grid library-covers':'library-list')+'">'+shown.map(game=>covers?gameTile(game):libraryRow(game)).join('')+'</div>':
-      '<p class="panel">'+t('Brak gier dla tego wyboru.')+'</p>'))+
+    '<div class="library-result-header"><p class="library-count muted" role="status">'+
+    (groups?number.format(visibleCount)+' / '+number.format(results.length)+' '+t('wyników'):summary)+'</p>'+
+    '<div class="library-modes library-chips" role="group" aria-label="'+t('Szybkie filtry')+'">'+
+    libraryPressed('Moje oceny','library-mode:rated',rated)+archive+
+    (canReset?btn(t('Wyczyść filtry'),'library-reset'):'')+'</div></div>'+
+    (sections|| (shown.length?'<div class="'+(covers?'grid library-covers':'library-list')+'">'+shown.map(game=>rated?ratedLibraryTile(game,covers):covers?gameTile(game):libraryRow(game)).join('')+'</div>':
+      '<p class="panel">'+t(emptyMessage)+'</p>'))+
     (results.length>visibleCount?'<div class="library-more">'+btn(t('Pokaż kolejne'),'library-more')+'</div>':'');
 }
 
 function toggleQueue(id) {
   const game = games.find(item=>item.id===id);
-  if (!game) return;
+  if (!game||game.archived) return;
   if (game.pinnedAt) delete game.pinnedAt;
   else game.pinnedAt = Date.now();
   persist();
@@ -205,7 +238,7 @@ function toggleQueue(id) {
 
 function togglePlaying(id) {
   const game = games.find(item=>item.id===id);
-  if (!game) return;
+  if (!game||game.archived) return;
   if (game.status==='Gram') {
     game.status = 'W kolejce';
     if (preferences.featuredGameId===id) {
@@ -225,5 +258,5 @@ function togglePlaying(id) {
 }
 
 function queuedGames(current) {
-  return games.filter(game=>game.pinnedAt && game!==current).sort((a,b)=>a.pinnedAt-b.pinnedAt);
+  return games.filter(game=>!game.archived && game.pinnedAt && game!==current).sort((a,b)=>a.pinnedAt-b.pinnedAt);
 }

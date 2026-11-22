@@ -38,12 +38,12 @@ function gameShelf(list) {
 }
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
 function featuredGame() {
-  const activeGames=games.filter(game=>game.status==='Gram');
+  const activeGames=games.filter(game=>!game.archived&&game.status==='Gram');
   return activeGames.find(game=>game.id===preferences.featuredGameId)||activeGames[0];
 }
 
 function featuredPanel(game) {
-  const playing=games.filter(item=>item.status==='Gram');
+  const playing=games.filter(item=>!item.archived&&item.status==='Gram');
   const run=game.runs[game.system];
   const pager=playing.length<2?'':'<div class="featured-pager">'+
     '<button type="button" data-act="featured-prev" aria-label="'+t('Poprzednia gra')+'">‹</button>'+
@@ -52,17 +52,17 @@ function featuredPanel(game) {
   return '<section class="panel featured-carousel" data-swipe="'+(playing.length>1)+'">'+
     '<article class="featured-game"><div class="featured-identity">'+
     '<div class="featured-cover" aria-hidden="true">'+featureArtwork(game)+'</div>'+
-    '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+'</span><h2>'+esc(game.title)+'</h2></div></div>'+
+    '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+'</span><h2>'+esc(game.title)+'</h2></div></div>'+pager+
     (run.progress>0?'<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>':'')+
-    featuredReturnPanel(game,run)+
     '<div class="featured-main-actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
     '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button></div>'+
+    featuredReturnPanel(game,run)+
     '<div class="featured-tools">'+quickResources(game)+voiceButton()+youtubeGuide(game,true)+'</div>'+
-    '<p id="media-status" role="status"></p></article>'+pager+'</section>';
+    '<p id="media-status" role="status"></p></article></section>';
 }
 
 function stepFeatured(direction, focusAction) {
-  const playing=games.filter(game=>game.status==='Gram');
+  const playing=games.filter(game=>!game.archived&&game.status==='Gram');
   if(playing.length<2||recording)return;
   const current=playing.indexOf(featuredGame());
   preferences.featuredGameId=playing[(current+direction+playing.length)%playing.length].id;
@@ -93,9 +93,9 @@ const connectionKey = 'checkpoint-connections-v1';
 const providers = [
   { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Zaloguj się przez Steam i wybierz gry do importu. Możesz też wkleić listę JSON.' },
   { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zaloguj się kontem Microsoft i wybierz gry z historii grania Xbox do importu.' },
-  { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Zapisz swój identyfikator PSN i wracaj do konta PlayStation.' },
+  { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Wczytaj bibliotekę i historię grania przez Checkpoint Bridge.' },
   { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
-  { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Skrót do Wand. Mapy przypinasz bezpośrednio do kart gier.' },
+  { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Wklej listę gier i linki do map z Wand.' },
 ];
 let connections = {};
 try {
@@ -106,6 +106,18 @@ try {
 let steamBusy = false;
 let steamMessage = '';
 let xboxBusy = false;
+function connectionPrimary(provider,saved) {
+  switch(provider.id){
+    case 'steam': return steamConnectButton(saved);
+    case 'xbox': return xboxConnectButton(saved);
+    case 'ps': return saved?.libraryUrl
+      ? btn(t('Odśwież bibliotekę PS'),'source-sync:ps','primary provider-action')
+      : btn(t('Podłącz przez Bridge'),'source-connect:ps','primary provider-action');
+    case 'nintendo': return '<a class="button provider-action" href="'+provider.url+'" target="_blank" rel="noopener noreferrer">'+t('Otwórz konto Nintendo')+'</a>';
+    case 'wand': return btn(t('Wklej listę gier'),'source-file:wand','primary provider-action');
+  }
+}
+
 function renderConnections() {
   return pageHeading(t('Połączenia')) + renderConnectionGuide() + '<div class="platform-grid">' + providers.map(provider => {
     const saved = connections[provider.id];
@@ -119,9 +131,10 @@ function renderConnections() {
     return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t((saved?.librarySyncedAt||saved?.syncedAt)?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?.lastImport?'Biblioteka wczytana':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
       '<p class="muted">' + t(provider.description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
-      '<div class="actions">' + (isSteam ? steamConnectButton(saved) : provider.id==='xbox' ? xboxConnectButton(saved) : btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action')) +
+      '<div class="actions">' + connectionPrimary(provider,saved) +
       '</div><details class="extra-options"><summary>'+t('Opcje połączenia')+'</summary><div class="actions">' +
-      '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+(provider.id==='nintendo'?t('Zaloguj się na Nintendo'):t('Otwórz')+' '+provider.name) + '</a>' +
+      (provider.id==='nintendo'?'':'<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+t('Otwórz')+' '+provider.name + '</a>') +
+      (isSteam||provider.id==='xbox'?'':btn(saved?.profile?t('Edytuj profil'):t('Dodaj profil'),'profile-'+provider.id)) +
       (provider.id==='xbox'&&saved?.profile?btn(t('Odłącz Xbox'),'xbox-unlink'):'')+(isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam')+btn(t('Import Steam JSON'),'import')+(saved?btn(t('Odłącz Steam'),'steam-unlink'):''):'')+
       (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
       '</div>' + (isSteam && !steamServerAddress() ? '<small>'+t(steamErrorMessage('not_configured'))+'</small>' : '') +
@@ -130,6 +143,22 @@ function renderConnections() {
       (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') + '</article>';
   }).join('') + '</div>';
 }
+function toggleGameArchive(game) {
+  const archived=Boolean(game.archived);
+  if(archived)delete game.archived;
+  else game.archived=true;
+  try {persist()}
+  catch {
+    if(archived)game.archived=true;
+    else delete game.archived;
+    window.alert(t('Nie udało się zapisać zmiany.'));
+    return;
+  }
+  render();
+  const nextAction=app.querySelector(archived?'[data-act="session"]':'[data-act="archive-game"]');
+  nextAction?.focus();
+}
+
 function editConnection(provider) {
   const saved=connections[provider.id];
   openForm(provider.name,input(t(provider.label),'profile',saved?.profile,'maxlength="80"')+
@@ -147,11 +176,11 @@ function editConnection(provider) {
   });
 }
 function xboxConnectButton(saved) {
-  const label=xboxBusy?'Łączę konto Xbox…':saved?.profile?'Odśwież z Xbox':'Połącz Xbox';
+  const label=xboxBusy?'Łączę konto Xbox…':saved?.profile?'Odśwież historię Xbox':'Importuj historię Xbox';
   return '<button class="primary provider-action" data-act="xbox-sync"'+(xboxBusy||!steamServerAddress()?' disabled':'')+'>'+t(label)+'</button>';
 }
 function steamConnectButton(saved) {
-  const label=steamBusy?'Łączę konto Steam…':saved?'Odśwież bibliotekę':'Połącz Steam';
+  const label=steamBusy?'Łączę konto Steam…':saved?'Odśwież bibliotekę':'Importuj bibliotekę Steam';
   return '<button class="primary provider-action" data-act="steam-sync"'+(steamBusy||!steamServerAddress()?' disabled':'')+'>'+t(label)+'</button>';
 }
 // Uses the import token while it is valid, otherwise signs in through Steam again.
@@ -211,13 +240,18 @@ function importSteamGames(data) {
   return valid.length;
 }
 
-function render(){const g=active(),view=location.hash.slice(1)||'now';document.body.dataset.view=g?'game':view;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
+function render(){
+ if(location.hash==='#rank'){
+   clearLibraryFilters();
+   libraryMode='rated';
+   history.replaceState(history.state,'','#library');
+ }
+ const g=active(),view=location.hash.slice(1)||'now';document.body.dataset.view=g?'game':view;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
  if(view==='settings'){app.innerHTML=renderSettings()}
  else if(view==='news'){app.innerHTML=renderNews();loadNews()}
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
- else if(view==='rank'){app.innerHTML=renderRankings()}
  else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
  else{
    const current=featuredGame();
@@ -246,7 +280,8 @@ function action(act){
  if(deviceBusy)return;
  if(act==='upload-cover'&&game){openCoverUpload(game);return}
  if(act==='refresh-cover'&&game){openCoverRefresh([game]);return}
- if(act==='refresh-all-covers'){openCoverRefresh([...games],true);return}
+ if(act==='refresh-all-covers'){openCoverRefresh(games.filter(item=>!item.archived),true);return}
+ if(act==='archive-game' && game){toggleGameArchive(game);return}
  if(['wand-maps','stuck','resource-paste'].includes(act)){
    const resourceGame=game||featuredGame();
    if(!resourceGame)return;
@@ -259,7 +294,9 @@ function action(act){
  const [sourceAction,providerId]=act.split(':');
  if(providerId==='steam'||Object.hasOwn(librarySources,providerId)){
    if(sourceAction==='source-view'){
-     librarySource=providerId;libraryStatus='';filter='';collection='';platform='';libraryLimit=libraryPageSize;
+     clearLibraryFilters();
+     librarySource=providerId;
+     libraryMode='';
      location.hash='library';return;
    }
    if(sourceAction==='source-file' && providerId!=='steam'){openLibraryFile(providerId);return}
@@ -314,6 +351,20 @@ function action(act){
    app.querySelectorAll('.library-item [data-game]')[previous]?.focus();
    return;
  }
+ if(act==='library-reset'){
+   clearLibraryFilters();
+   render();
+   app.querySelector('#search')?.focus();
+   return;
+ }
+ if(act==='library-mode:rated'||act==='library-mode:archive'){
+   const mode=act.split(':')[1];
+   libraryMode=libraryMode===mode?'':mode;
+   libraryLimit=libraryPageSize;
+   render();
+   (app.querySelector('[data-act="'+act+'"]')||app.querySelector('#search'))?.focus({preventScroll:true});
+   return;
+ }
  if(act.startsWith('library-filter:')){
    libraryStatus=act.slice('library-filter:'.length);
    libraryLimit=libraryPageSize;
@@ -322,6 +373,7 @@ function action(act){
    return;
  }
  if(['library-view:list','library-view:covers','library-view:groups'].includes(act)){
+   if(act==='library-view:groups'&&libraryMode==='rated')libraryMode='';
    updateLibrarySetting('view',act.slice('library-view:'.length));
    render();
    app.querySelector('.library-view [aria-pressed="true"]')?.focus({preventScroll:true});
@@ -333,7 +385,7 @@ function action(act){
  if(act==='force-update'){forceUpdate();return}
  if(act==='refresh-news'){loadNews(true);return}
  if(act==='more-news'){newsLimit+=6;app.innerHTML=renderNews();app.querySelectorAll('.news-story')[newsLimit-6]?.focus();return}
- if(act.startsWith('news-source-')){selectNewsSource(act.slice(12));return}
+ if(act.startsWith('news-source-')){selectNewsSource(act.slice(12),'button');return}
  const provider=providers.find(p=>act==='profile-'+p.id);
  if(provider){editConnection(provider);return}
  if(act==='steam-sync'){syncSteam();return}
@@ -377,6 +429,7 @@ function openGameForm(existing,suggestion) {
       const item = existing || games.find(entry=>entry.title.toLowerCase()===typedTitle.toLowerCase()) || game(typedTitle,store);
       const renamed = item.title!==typedTitle;
       Object.assign(item,{title:typedTitle,system:store,status:data.get('status'),catalog:data.get('catalog').trim()||'Moje gry'});
+      if(!existing)delete item.archived;
       item.runs[store] ??= run();
       if(renamed){delete item.criticScores;delete item.catalogVersions;delete item.genre}
       const selectedGenre=data.get('genre');
@@ -478,6 +531,7 @@ app.onchange=event=>{
   if(target.id==='backup-file'){importBackup(target.files?.[0]);target.value='';return}
   if(target.id==='chronicle-file'){saveScreenshot(active(),target.files?.[0]);target.value='';return}
   if(target.id==='app-language'){changeAppLanguage(target.value);return}
+  if(target.id==='news-source'){selectNewsSource(target.value,'select');return}
   if(['catalog','platform','library-sort','library-source','library-genre'].includes(target.id)){
     if(target.id==='catalog') collection=target.value;
     if(target.id==='library-source')librarySource=target.value;

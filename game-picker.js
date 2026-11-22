@@ -8,7 +8,7 @@ const pickerTargets = {
 const pickerListLimit = 80;
 
 function pickerEligible(target, game) {
-  return target==='queue' ? !game.pinnedAt && game!==featuredGame() : game.status!=='Gram';
+  return !game.archived && (target==='queue' ? !game.pinnedAt && game!==featuredGame() : game.status!=='Gram');
 }
 
 function pickerThumb(cover, fallback='') {
@@ -18,6 +18,7 @@ function pickerThumb(cover, fallback='') {
 }
 
 function placeGame(target, item) {
+  delete item.archived;
   if(target==='queue') item.pinnedAt=Date.now();
   else {
     item.status='Gram';
@@ -37,7 +38,7 @@ function finishPick(target, item) {
 
 function pickLibraryGame(target, id) {
   const item=games.find(entry=>entry.id===id);
-  if(!item || deviceBusy)return;
+  if(!item || deviceBusy || !pickerEligible(target,item))return;
   placeGame(target,item);
   finishPick(target,item);
 }

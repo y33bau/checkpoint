@@ -61,20 +61,13 @@ function renderGameCard(game) {
     goals:()=>mapsAndGoals(game),
     ratings:()=>gameRatings(game),
   };
+  const upload=btn(t('Wgraj okładkę'),'upload-cover');
+  const hasCover=Boolean(gameCoverSource(game)||web(game.coverFallback||''));
+  const archiveLabel=game.archived?'Przywróć do biblioteki':'Archiwizuj grę';
   return pageHeading(t('Karta gry'),btn(t('Edytuj'),'edit'))+
-    banner(game,'<p>'+esc(game.catalog)+(gameGenre(game)?' · '+esc(t(gameGenre(game))):'')+'</p><div class="actions">'+btn(t('Zapisz sesję'),'session','primary')+btn(t('Wgraj okładkę'),'upload-cover')+primaryGuideLink(game)+
-      '</div><details class="extra-options"><summary>'+t('Opcje gry')+'</summary><div class="actions">'+youtubeGuide(game)+playingToggle(game)+queueToggle(game)+btn(t('Odśwież okładkę'),'refresh-cover')+'</div></details>')+
+    banner(game,'<p>'+esc(game.catalog)+(gameGenre(game)?' · '+esc(t(gameGenre(game))):'')+'</p><div class="actions">'+(game.archived?btn(t(archiveLabel),'archive-game','primary'):btn(t('Zapisz sesję'),'session','primary'))+(!hasCover?upload:'')+primaryGuideLink(game)+
+      '</div><details class="extra-options"><summary>'+t('Opcje gry')+'</summary><div class="actions">'+youtubeGuide(game)+(game.archived?'':playingToggle(game)+queueToggle(game))+
+      (hasCover?upload:'')+btn(t('Odśwież okładkę'),'refresh-cover')+(!game.archived?btn(t(archiveLabel),'archive-game'):'')+'</div></details>')+
     '<div class="game-tabs" role="group" aria-label="'+t('Sekcje karty gry')+'">'+tabs+'</div>'+
     views[currentGameTab]();
-}
-
-function renderRankings() {
-  const ranked=games.filter(game=>score(game)!==null).sort((a,b)=>score(b)-score(a));
-  const number=new Intl.NumberFormat(appLocale(),{minimumFractionDigits:1,maximumFractionDigits:1});
-  return pageHeading(t('Ranking'))+(ranked.length? '<div class="grid library-covers">'+ranked.map((game,index)=>{
-    const badge='<span class="tile-rank">'+(index+1)+' · '+number.format(score(game))+' / 10</span>';
-    return gameTile(game,{actions:false,badge});
-  }).join('')+'</div>':
-    '<div class="panel empty-library"><h2>'+t('Jaką grę oceniasz najwyżej?')+'</h2><p>'+t('Wybierz grę z biblioteki i oceń ją, aby rozpocząć ranking.')+
-    '</p><a href="#library" class="button primary">'+t('Wybierz grę')+'</a></div>');
 }
