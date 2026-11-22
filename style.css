@@ -612,19 +612,35 @@ summary{cursor:pointer}
 }
 .cover-title-preview{display:none}
 @media(hover:hover) and (pointer:fine){
-  .library-covers .library-item{transition:border-color 180ms ease-out}
-  .library-covers .library-item:hover{border-color:#b97d9f}
-  .library-covers .tile:hover .cover[data-artwork]::before,
-  .library-covers .tile:hover .cover[data-artwork]::after{opacity:1;transform:none}
+  .library-covers .library-tile-face{
+    transition:transform 230ms cubic-bezier(.2,.75,.25,1),border-color 180ms ease-out,box-shadow 200ms ease-out;
+    transform-origin:center bottom;
+  }
+  .library-covers .library-item:is(:hover,:has(:focus-visible)){
+    z-index:2;
+  }
+  .library-covers .library-item:is(:hover,:has(:focus-visible)) .library-tile-face{
+    overflow:visible;border-color:#dc8aa8;
+    box-shadow:0 14px 32px #0a0514b8,0 0 0 1px #bc759744;
+  }
+  .library-covers .library-item:hover .cover[data-artwork]::before,
+  .library-covers .library-item:hover .cover[data-artwork]::after,
+  .library-covers .library-item:has(:focus-visible) .cover[data-artwork]::before,
+  .library-covers .library-item:has(:focus-visible) .cover[data-artwork]::after{opacity:1;transform:none}
+  @media(prefers-reduced-motion:no-preference){
+    .library-covers .library-tile-face{transform:translateY(0) scale(1)}
+    .library-covers .library-item:is(:hover,:has(:focus-visible)) .library-tile-face{
+      transform:translateY(-5px) scale(1.075);
+    }
+  }
   .library-covers .tile .info{position:relative;width:100%}
   .library-covers .info strong{
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
     min-height:2.4em;line-height:1.2;overflow:hidden;
   }
-  .library-covers .library-item:has(.tile:hover,.tile:focus-visible){z-index:2;overflow:visible}
-  .library-covers .tile:is(:hover,:focus-visible){overflow:visible}
+  .library-covers .library-item:is(:hover,:has(:focus-visible)) .tile{overflow:visible}
   .library-covers .cover{border-radius:15px 15px 0 0;flex:none}
-  .library-covers .tile:is(:hover,:focus-visible) .cover-title-preview{
+  .library-covers .library-item:is(:hover,:has(:focus-visible)) .cover-title-preview{
     position:absolute;inset:0 0 auto;z-index:3;display:block;
     min-height:calc(12px + 2.4em);padding:12px 12px 0;pointer-events:none;
     background:var(--surface);font-weight:700;line-height:1.2;
@@ -633,7 +649,7 @@ summary{cursor:pointer}
 @media(prefers-reduced-motion:reduce){
   .library-covers .cover[data-artwork]::before,
   .library-covers .cover[data-artwork]::after,
-  .library-covers .library-item{transition:none}
+  .library-covers .library-tile-face{transition:none}
 }
 
 .featured-carousel{position:relative}
@@ -651,7 +667,8 @@ summary{cursor:pointer}
 .session-voice{margin:12px 0}
 .quick-sheet details{margin-bottom:12px}
 .last-import-summary{font-size:.9rem;color:var(--muted)}
-.library-covers .library-item{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.library-covers .library-item{display:flex}
+.library-covers .library-tile-face{display:flex;flex:1;min-width:0;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
 .library-covers .tile{height:auto;flex:1;border:0;border-radius:0}
 .library-covers .library-actions{position:static;justify-content:flex-end;padding:0 10px 10px}
 @media(max-width:620px){
