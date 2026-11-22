@@ -1,4 +1,5 @@
 const english = {
+  "Pokaż szczegóły": "Show details",
   "Twój zestaw startowy": "Your starter pack",
   "Mapa Leonidy i solucja Eurogamera są już podpięte.": "The Leonida map and Eurogamer walkthrough are ready to open.",
   "Wgraj okładkę": "Upload cover",

@@ -62,14 +62,14 @@ let drawRequest=0;
 function renderLibraryPicks(result,minutes,mood,platform) {
   drawnCatalogue=[];
   const picks=eveningPicks(minutes,mood,platform);
-  result.innerHTML=picks.length ? picks.map(({game,hint,timing,score})=>
-    '<button class="entry evening-pick" data-game="'+esc(game.id)+'">'+
-      '<span><strong>'+esc(game.title)+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+
-      (hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony'))+' · '+
-      (Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony'))+'</small>'+
+  result.innerHTML=picks.length?'<div class="grid library-covers">'+picks.map(({game,hint,timing,score})=>{
+    const duration=hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony');
+    const mood=Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony');
+    const details='<small>'+duration+' · '+mood+'</small>'+
       (timing?'<small>'+t('Dopasowanie do sesji')+' · '+timing+' / 10</small>':'')+
-      (score?startBadge(score):'')+gamePassNotice(game)+'</span></button>').join('') :
-    '<p class="muted">'+t('Brak pasujących gier w bibliotece. Zmień kryteria.')+'</p>';
+      (score?startBadge(score):'');
+    return gameTile(game,{actions:false,details});
+  }).join('')+'</div>':'<p class="muted">'+t('Brak pasujących gier w bibliotece. Zmień kryteria.')+'</p>';
 }
 
 async function renderCataloguePicks(result,platform,ticket) {

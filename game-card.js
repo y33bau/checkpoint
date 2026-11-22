@@ -71,11 +71,10 @@ function renderGameCard(game) {
 function renderRankings() {
   const ranked=games.filter(game=>score(game)!==null).sort((a,b)=>score(b)-score(a));
   const number=new Intl.NumberFormat(appLocale(),{minimumFractionDigits:1,maximumFractionDigits:1});
-  return pageHeading(t('Ranking'))+(ranked.length?'<div class="rank-list">'+ranked.map((game,index)=>
-    '<button class="entry rank-row" data-game="'+esc(game.id)+'"><span class="rank-place">'+(index+1)+'</span>'+
-    '<span class="cover" aria-hidden="true">'+coverImage(game)+'</span>'+
-    '<span class="rank-title"><strong>'+esc(game.title)+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+'</small></span>'+
-    '<span class="rank-score"><strong>'+number.format(score(game))+'</strong> / 10</span></button>').join('')+'</div>':
+  return pageHeading(t('Ranking'))+(ranked.length? '<div class="grid library-covers">'+ranked.map((game,index)=>{
+    const badge='<span class="tile-rank">'+(index+1)+' · '+number.format(score(game))+' / 10</span>';
+    return gameTile(game,{actions:false,badge});
+  }).join('')+'</div>':
     '<div class="panel empty-library"><h2>'+t('Jaką grę oceniasz najwyżej?')+'</h2><p>'+t('Wybierz grę z biblioteki i oceń ją, aby rozpocząć ranking.')+
     '</p><a href="#library" class="button primary">'+t('Wybierz grę')+'</a></div>');
 }

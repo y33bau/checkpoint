@@ -128,15 +128,43 @@ function playingToggle(game, compact=false) {
     (compact?'<span class="play-glyph" aria-hidden="true"></span>':label)+'</button>';
 }
 
-function libraryRow(game, covers) {
-  const title = esc(game.title);
+function gameTile(game,{actions=true,details='',badge=''}={}) {
+  const title=esc(game.title);
   const initials=game.title.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('');
-  const cover = '<span class="cover" aria-hidden="true"><b>'+esc(initials)+'</b>'+coverImage(game)+'</span>';
-  const fullTitle=covers?'<span class="cover-title-preview" aria-hidden="true">'+title+'</span>':'';
-  const metadata = '<span class="info"><strong>'+title+'</strong>'+fullTitle+'<small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
-  const card='<button type="button" class="'+(covers?'tile':'library-row')+'" data-game="'+esc(game.id)+'">'+cover+metadata+
-    '</button><span class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</span>';
-  return '<div class="library-item">'+(covers?'<div class="library-tile-face">'+card+'</div>':card)+'</div>';
+  const genre=gameGenre(game);
+  const metadata=[...Object.keys(game.runs),genre?t(genre):'',t(game.status)].filter(Boolean).map(esc).join(' · ');
+  return '<div class="library-item"><div class="library-tile-face">'+
+    '<div class="tile-poster"><button type="button" class="tile" data-game="'+esc(game.id)+'" aria-label="'+title+'">'+
+    '<span class="cover" aria-hidden="true"><b>'+esc(initials)+'</b>'+coverImage(game)+'</span>'+
+    '<strong class="tile-caption" aria-hidden="true">'+title+'</strong></button>'+badge+
+    '<button type="button" class="tile-disclosure" aria-label="'+esc(t('Pokaż szczegóły')+' · '+game.title)+'" aria-expanded="false" data-act="tile-details">＋</button></div>'+
+    '<div class="tile-expansion"><div class="tile-detail"><strong>'+title+'</strong><small>'+metadata+'</small>'+
+    details+gamePassNotice(game)+(actions?'<div class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</div>':'')+
+    '</div></div></div></div>';
+}
+
+function libraryRow(game) {
+  const title=esc(game.title);
+  const cover='<span class="cover" aria-hidden="true">'+coverImage(game)+'</span>';
+  const metadata='<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
+  return '<div class="library-item"><button type="button" class="library-row" data-game="'+esc(game.id)+'">'+cover+metadata+
+    '</button><span class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</span></div>';
+}
+
+function toggleTileDetails(button) {
+  const tile=button.closest('.library-item');
+  const opening=!tile.classList.contains('tile-expanded');
+  for(const expanded of app.querySelectorAll('.tile-expanded')){
+    expanded.classList.remove('tile-expanded');
+    const disclosure=expanded.querySelector('.tile-disclosure');
+    disclosure.setAttribute('aria-expanded','false');
+    disclosure.textContent='＋';
+  }
+  if(opening){
+    tile.classList.add('tile-expanded');
+    button.setAttribute('aria-expanded','true');
+    button.textContent='−';
+  }
 }
 
 function renderLibraryResults() {
@@ -152,13 +180,13 @@ function renderLibraryResults() {
     const list=results.filter(game=>game.status===status);
     if(!list.length)return '';
     const open=expanded.get(status)??(Boolean(filter)||status===(results.some(g=>g.status===statuses[0])?statuses[0]:results[0]?.status));
-    return '<details class="collection-section" data-section="'+esc(status)+'" '+(open?'open':'')+'><summary>'+t(status)+' <small>'+number.format(list.length)+'</small></summary><div class="library-list">'+
-      list.slice(0,libraryLimit).map(game=>libraryRow(game,false)).join('')+'</div></details>';
+    return '<details class="collection-section" data-section="'+esc(status)+'" '+(open?'open':'')+'><summary>'+t(status)+' <small>'+number.format(list.length)+'</small></summary><div class="grid library-covers">'+
+      list.slice(0,libraryLimit).map(game=>gameTile(game)).join('')+'</div></details>';
   }).join(''):'';
   const visibleCount=groups?statuses.reduce((sum,status)=>sum+Math.min(libraryLimit,results.filter(g=>g.status===status).length),0):shown.length;
   container.innerHTML =
     '<p class="library-count muted" role="status">'+(groups?number.format(visibleCount)+' / '+number.format(results.length)+' '+t('wyników'):summary)+'</p>'+
-    (sections|| (shown.length?'<div class="'+(covers?'grid library-covers':'library-list')+'">'+shown.map(game=>libraryRow(game,covers)).join('')+'</div>':
+    (sections|| (shown.length?'<div class="'+(covers?'grid library-covers':'library-list')+'">'+shown.map(game=>covers?gameTile(game):libraryRow(game)).join('')+'</div>':
       '<p class="panel">'+t('Brak gier dla tego wyboru.')+'</p>'))+
     (results.length>visibleCount?'<div class="library-more">'+btn(t('Pokaż kolejne'),'library-more')+'</div>':'');
 }

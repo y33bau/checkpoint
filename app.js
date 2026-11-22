@@ -33,17 +33,8 @@ function gameShelf(list) {
   const label = t('Moja kolejka');
   const header = '<div class="now-section-heading"><h2 id="shelf-title">'+label+'</h2>'+
     btn(t('＋ Dodaj do kolejki'),'pick:queue')+'</div>';
-  const cases = list.map(game=>{
-    const title = esc(game.title);
-    const platforms = esc(Object.keys(game.runs).join(' · '));
-    return '<button class="shelf-game" data-game="'+game.id+'">'+
-      '<span class="case-stage"><span class="game-case">'+
-      '<span class="case-edge" aria-hidden="true">'+title+'</span>'+
-      '<span class="cover" aria-hidden="true"><b>'+title+'</b>'+coverImage(game)+'</span>'+
-      '</span></span><span class="shelf-caption"><strong>'+title+'</strong><small>'+platforms+'</small>'+gamePassNotice(game)+'</span></button>';
-  }).join('');
   return '<section class="panel now-queue" aria-labelledby="shelf-title">'+header+
-    (cases?'<div class="game-shelf"><div class="shelf-track">'+cases+'</div></div>':'')+'</section>';
+    (list.length?'<div class="grid library-covers">'+list.map(game=>gameTile(game)).join('')+'</div>':'')+'</section>';
 }
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
 function featuredGame() {
@@ -450,6 +441,9 @@ app.addEventListener('load',event=>{
   if(image.matches?.('.library-covers .cover img')){
     const frame=image.parentElement;
     frame.dataset.artwork='ready';
+    const artId=/steamstatic\.com.*?\/apps\/(\d+)\//.exec(image.currentSrc||image.src)?.[1];
+    const focus={730:'78% 46%',1551360:'72% 46%',1091500:'73% 46%',292030:'76% 46%',271590:'72% 46%',374320:'69% 46%'};
+    if(focus[artId])image.style.objectPosition=focus[artId];
     frame.style.setProperty('--shelf-artwork','url('+JSON.stringify(image.currentSrc||image.src)+')');
   }
   if(!image.matches?.('.feature-art .feature-image'))return;
@@ -466,6 +460,7 @@ app.onclick=event=>{
     if(button.closest('#results'))libraryReturnGame=button.dataset.game;
     location.hash='game-'+button.dataset.game;
   }
+  else if(button?.dataset.act==='tile-details')toggleTileDetails(button);
   else if(button?.dataset.act) action(button.dataset.act);
 };
 app.oninput=event=>{
