@@ -259,7 +259,7 @@ function action(act){
  if(act==='import'){openForm(t('Import biblioteki Steam'),'<label>'+t('Wklej JSON z listą gier Steam (GetOwnedGames)')+'<textarea name="json" required rows="6"></textarea></label>',d=>importSteamGames(JSON.parse(d.get('json'))));return}
  if(!g)return;const r=g.runs[g.system];
  if(['session','quick'].includes(act))openForm(t('Zapisz sesję'),input(t('Czas gry (min)'),'minutes',30,'type="number" min="1" max="1440" required')+input(t('Postęp (%)'),'progress',r.progress,'type="number" min="0" max="100" required')+input(t('Co udało się zrobić?'),'note')+input(t('Następny cel'),'goal',r.goal),d=>{const playedAt=Date.now();r.sessions.push({playedAt,date:new Date(playedAt).toLocaleDateString(appLocale()),minutes:Number(d.get('minutes')),note:d.get('note')});r.goal=d.get('goal');if(d.get('note').trim())r.resumeNote=d.get('note').trim();r.progress=Number(d.get('progress'));if(act==='quick')location.hash='game-'+g.id});
- if(act==='rate')openForm(t('Oceń grę'),'<p class="muted">'+t('Skala 1–10. Puste kategorie pomijamy w średniej.')+'</p>'+criteria.map((c,i)=>input(t(c),'c'+i,g.scores[i]??'','type="number" min="1" max="10"')).join(''),d=>g.scores=criteria.map((_,i)=>d.get('c'+i)?Number(d.get('c'+i)):null));
+ if(act==='rate')openGameScores(g);
  if(act==='map')openForm(t('Przypnij mapę'),input(t('Nazwa mapy'),'name',t('Mapa Wand'),'required')+input(t('Link do mapy Wand lub innej strony'),'url','','type="url" required'),d=>{const url=web(d.get('url'));if(!url)throw Error(t('Wpisz adres https lub http.'));g.maps.push({name:d.get('name'),url})});
  if(act==='task')openForm(t('Nowy cel'),input(t('Co chcesz zrobić?'),'name','','required'),d=>g.tasks.push({name:d.get('name'),done:false}))}
 function openGameForm(existing) {

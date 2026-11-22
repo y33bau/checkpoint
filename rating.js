@@ -84,3 +84,33 @@ function changeStartPreview(game,value) {
   else startPreviews.delete(game.id);
   document.querySelector('#start-result').innerHTML=startResult(game,startPreviews.get(game.id));
 }
+
+function openGameScores(game) {
+  const numbers=[1,2,3,4,5,6,7,8,9,10];
+  const categories=criteria.map((criterion,index)=>{
+    const label=t(criterion);
+    return '<fieldset class="score-group"><legend>'+label+'</legend>'+
+      '<div class="score-scale">'+numbers.map(number=>
+        '<label class="score-option"><input type="radio" name="c'+index+'" value="'+number+'"'+
+        (game.scores[index]===number?' checked':'')+'><span>'+number+'</span></label>').join('')+'</div>'+
+      '<button type="button" class="score-clear" data-score-clear="'+index+'" aria-label="'+esc(t('Wyczyść ocenę')+' · '+label)+'"'+
+      (Number.isFinite(game.scores[index])?'':' disabled')+'>'+t('Wyczyść ocenę')+'</button></fieldset>';
+  }).join('');
+  openForm(t('Oceń grę'),'<p class="muted">'+t('Skala 1–10. Puste kategorie pomijamy w średniej.')+'</p>'+categories,data=>{
+    game.scores=criteria.map((_,index)=>{
+      const score=Number(data.get('c'+index));
+      return numbers.includes(score)?score:null;
+    });
+  });
+  for(const group of fields.querySelectorAll('.score-group')){
+    const reset=group.querySelector('.score-clear');
+    group.onchange=()=>{reset.disabled=false};
+    reset.onclick=()=>{
+      const selected=group.querySelector('input:checked');
+      if(!selected)return;
+      selected.checked=false;
+      selected.focus();
+      reset.disabled=true;
+    };
+  }
+}

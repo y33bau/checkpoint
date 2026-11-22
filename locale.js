@@ -1,4 +1,5 @@
 const english = {
+  'Wyczyść ocenę': 'Clear rating',
   "Dokładnie tego szukam": "Exactly what I want",
   "Daje mi coś konkretnego": "Offers something I value",
   "Może być": "It is okay",
