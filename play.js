@@ -121,6 +121,36 @@ function editSessionHint(game) {
   });
 }
 
+function lastPlayedMarkup(run) {
+  const imported=Number.isFinite(run.importedPlayedAt)?run.importedPlayedAt:0;
+  const timestamp=Math.max(imported,run.sessions.reduce((latest,session)=>Math.max(latest,historicalSessionTime(session)),0));
+  const date=new Date(timestamp);
+  if(timestamp<=0||!Number.isFinite(date.valueOf()))return '';
+  const today=new Date();
+  const calendarDay=value=>Date.UTC(value.getFullYear(),value.getMonth(),value.getDate());
+  const days=Math.max(0,Math.round((calendarDay(today)-calendarDay(date))/86400000));
+  const label=new Intl.RelativeTimeFormat(appLocale(),{numeric:'auto'}).format(-days,'day');
+  return '<p class="resume-last-played">'+t('Ostatnio grane')+' · <time datetime="'+date.toISOString()+
+    '" title="'+esc(date.toLocaleDateString(appLocale()))+'">'+esc(label)+'</time></p>';
+}
+
+function resumeNote(run) {
+  return run.resumeNote||run.sessions.findLast(session=>session.note?.trim())?.note||'';
+}
+
+function featuredReturnPanel(game,run) {
+  const note=resumeNote(run);
+  const goal=run.goal||game.tasks.find(task=>task.pinned&&!task.done)?.name;
+  const noteItem=note?'<div><dt>'+t('Gdzie skończyłem')+'</dt><dd>'+esc(note)+'</dd></div>':'';
+  const goalItem=goal?'<div><dt>'+t('Następny cel')+'</dt><dd>'+esc(goal)+'</dd></div>':'';
+  return '<section class="featured-resume" aria-labelledby="featured-resume-title">'+
+    '<div class="row"><h3 id="featured-resume-title">'+t('Wróć do gry')+'</h3>'+
+    '<button type="button" class="resume-edit" data-act="edit-return" aria-label="'+esc(t('Edytuj kartę powrotu'))+'">'+t('Edytuj')+'</button></div>'+
+    lastPlayedMarkup(run)+
+    (noteItem||goalItem?'<dl class="resume-details">'+noteItem+goalItem+'</dl>':'')+
+    '<div id="featured-voice"></div></section>';
+}
+
 function returnPanel(game,run) {
   const recent=run.sessions.at(-1);
   const pinned=game.tasks.map((task,index)=>({task,index})).filter(({task})=>task.pinned&&!task.done).slice(0,3);
@@ -135,7 +165,7 @@ function returnPanel(game,run) {
 function editReturn(game) {
   const run=game.runs[game.system];
   openForm(t('Karta powrotu'),
-    '<label>'+t('Gdzie skończyłem')+'<textarea name="resume" rows="3" maxlength="1000">'+esc(run.resumeNote||run.sessions.at(-1)?.note||'')+'</textarea></label>'+
+    '<label>'+t('Gdzie skończyłem')+'<textarea name="resume" rows="3" maxlength="1000">'+esc(resumeNote(run))+'</textarea></label>'+
     input(t('Następny cel'),'goal',run.goal,'maxlength="180"'),data=>{
       run.resumeNote=data.get('resume').trim();
       run.goal=data.get('goal').trim();

@@ -45,7 +45,6 @@ function featuredGame() {
 function featuredPanel(game) {
   const playing=games.filter(item=>item.status==='Gram');
   const run=game.runs[game.system];
-  const lastNote=run.resumeNote||run.sessions.at(-1)?.note;
   const pager=playing.length<2?'':'<div class="featured-pager">'+
     '<button type="button" data-act="featured-prev" aria-label="'+t('Poprzednia gra')+'">‹</button>'+
     '<span aria-live="polite">'+(playing.indexOf(game)+1)+' / '+playing.length+'</span>'+
@@ -55,12 +54,11 @@ function featuredPanel(game) {
     '<div class="featured-cover" aria-hidden="true">'+featureArtwork(game)+'</div>'+
     '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+'</span><h2>'+esc(game.title)+'</h2></div></div>'+
     (run.progress>0?'<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>':'')+
-    (run.goal?'<p class="featured-goal"><strong>'+t('Następny cel')+'</strong> '+esc(run.goal)+'</p>':'')+
-    (lastNote?'<p class="featured-note">'+esc(lastNote)+'</p>':'')+
+    featuredReturnPanel(game,run)+
     '<div class="featured-main-actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
     '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button></div>'+
     '<div class="featured-tools">'+quickResources(game)+voiceButton()+youtubeGuide(game,true)+'</div>'+
-    '<div id="featured-voice"></div><p id="media-status" role="status"></p></article>'+pager+'</section>';
+    '<p id="media-status" role="status"></p></article>'+pager+'</section>';
 }
 
 function stepFeatured(direction, focusAction) {
@@ -288,7 +286,11 @@ function action(act){
  }
  if(act==='pick:queue'||act==='pick:playing'){openGamePicker(act.slice(5));return}
  if(act==='edit-hint' && game){editSessionHint(game);return}
- if(act==='edit-return' && game){editReturn(game);return}
+ if(act==='edit-return'){
+   const selected=game||featuredGame();
+   if(selected)editReturn(selected);
+   return;
+ }
  if(act.startsWith('pin-goal:') && game){toggleGoalPin(game,Number(act.slice(9)));return}
  if(act==='voice-toggle'){toggleVoice(game || featuredGame());return}
  if(act.startsWith('voice-remove:')){removeAttachment(act.slice(13),'voice',game);return}
