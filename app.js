@@ -230,7 +230,7 @@ function render(){const g=active(),view=location.hash.slice(1)||'now';document.b
  else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
  else{
    const current=featuredGame();
-   const addPlaying=btn(t('＋ Do ogrywanych'),'pick:playing');
+   const addPlaying=btn(t('＋ Do ogrywanych'),'pick:playing','now-add-playing');
    app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+
      (current?featuredPanel(current):'<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>')+
      eveningPanel()+gameShelf(queuedGames(current));

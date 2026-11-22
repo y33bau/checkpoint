@@ -641,7 +641,15 @@ summary{cursor:pointer}
 body[data-view="now"] main > .panel{margin:0 0 12px}
 body[data-view="now"] .top{flex-wrap:nowrap;gap:8px;padding-block:20px 12px}
 body[data-view="now"] .top h1{font-size:clamp(30px,7vw,52px)}
-body[data-view="now"] .top button{flex:none;padding-inline:9px}
+.now-add-playing{
+  flex:none;display:inline-flex;align-items:center;justify-content:center;
+  padding:5px clamp(8px,2vw,14px);min-height:44px;
+  border-color:#805772;border-radius:var(--control-radius);
+  background:linear-gradient(135deg,#3a263d,#241c30);
+  color:#ffcfcd;font-family:var(--font-display);font-size:clamp(16px,4.3vw,24px);
+  font-style:italic;font-weight:800;line-height:1;text-transform:uppercase;white-space:nowrap;
+}
+.now-add-playing:hover{background:#452d47;border-color:#bd819b}
 .featured-game{display:grid;gap:12px}
 body[data-view="now"] .featured-carousel{
   overflow:hidden;padding:0;border-color:#76536f;
@@ -709,6 +717,8 @@ body[data-view="now"] .featured-carousel{
 @media(max-width:620px){
   body[data-view="now"]{height:100dvh;overflow:hidden}
   body[data-view="now"] .masthead{flex:none}
+  html, main#app{scrollbar-width:none}
+  html::-webkit-scrollbar, main#app::-webkit-scrollbar{display:none}
   body[data-view="now"] main{flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain}
   body[data-view="now"] .app-credit{display:none}
   body[data-view="now"] nav{position:static;transform:none;flex:none;width:min(var(--frame),100% - 2 * var(--gutter));margin:5px auto max(8px,env(safe-area-inset-bottom))}
