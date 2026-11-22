@@ -7,8 +7,8 @@ function playthroughPanel(game) {
     '<select aria-label="'+t('Platforma przejścia')+'" id="system">'+options(Object.keys(game.runs),game.system)+'</select></div>'+
     '<div class="game-progress"><strong>'+locale.format(run.progress)+'%</strong>'+bar(run.progress)+'</div>'+
     '<p class="muted">'+locale.format(minutes)+' '+t('min zapisanych')+
-    (Number.isFinite(run.importedMinutes)?' · '+locale.format(run.importedMinutes)+' '+t('min w Steam'):'')+'</p>'+
-    (notice?'<div class="gamepass-banner">'+notice+'</div>':'')+'</section>';
+    (Number.isFinite(run.importedMinutes)?' · '+locale.format(run.importedMinutes)+' '+t('min z platformy')+' '+esc(game.system):'')+'</p>'+
+    (notice?'<div class="gamepass-banner">'+notice+'</div>':'')+activityPanel(run)+xboxAchievementsButton(game)+'</section>';
 }
 
 function sessionLog(run) {

@@ -1,5 +1,5 @@
 const app=document.querySelector('#app'), dialog=document.querySelector('#modal'),form=document.querySelector('#form'),fields=document.querySelector('#fields');
-const systems=['Xbox','Steam','PlayStation','Nintendo'],statuses=['Gram','W kolejce','Ukończona'],criteria=['Grywalność','Klimat','Dźwięk','Fabuła','Technikalia'];
+const systems=['Xbox','Steam','PlayStation','Nintendo','PC'],statuses=['Gram','W kolejce','Ukończona'],criteria=['Grywalność','Klimat','Dźwięk','Fabuła','Technikalia'];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 function web(s){try{const u=new URL(s);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
 const cdn=id=>'https://cdn.cloudflare.steamstatic.com/steam/apps/'+id+'/library_600x900.jpg';
@@ -78,7 +78,7 @@ const connectionKey = 'checkpoint-connections-v1';
 const providers = [
   { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
   { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zapisz gamertag i wracaj do swojego konta Xbox.' },
-  { id: 'steam', name: 'Steam', label: 'SteamID64', url: 'https://steamcommunity.com/my/', description: 'Zapisz SteamID64, aby odświeżać bibliotekę z podłączonego serwera.' },
+  { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Importuj gry przez serwer Steam lub wklej gotową listę JSON.' },
   { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Skrót do Wand. Mapy przypinasz bezpośrednio do kart gier.' },
   { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Zapisz swój identyfikator PSN i wracaj do konta PlayStation.' },
 ];
@@ -94,19 +94,22 @@ function renderConnections() {
   return pageHeading(t('Połączenia')) + '<div class="platform-grid">' + providers.map(provider => {
     const saved = connections[provider.id];
     const isSteam = provider.id === 'steam';
+    const hasLibrary=Object.hasOwn(librarySources,provider.id);
     const steamStatus = isSteam && saved?.syncedAt
       ? '<small>'+t('Ostatnia synchronizacja')+': ' + esc(new Date(saved.syncedAt).toLocaleString(appLocale())) + '</small>'
       : '';
     const mark=provider.id==='nintendo'?'<span class="provider-mark" aria-hidden="true">N</span>':
       '<span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span>';
-    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+(saved?t('Profil zapisany'):t('Do skonfigurowania'))+'</span></div></div>' +
+    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t(saved?.librarySyncedAt?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
       '<p class="muted">' + t(provider.description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
       '<div class="actions">' + btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action') +
       '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+(provider.id==='nintendo'?t('Zaloguj się na Nintendo'):t('Otwórz')+' '+provider.name) + '</a>' +
       (isSteam && saved?.server ? '<button class="primary" data-act="steam-sync"' + (steamBusy ? ' disabled' : '') + '>'+t('Odśwież bibliotekę')+'</button>' : '') +
-      '</div>' + (isSteam && !saved?.server ? '<small>'+t('Import online wymaga adresu serwera Steam.')+'</small>' : '') +
-      (!isSteam ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus +
+      (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
+      '</div>' + (isSteam ? '<a class="text-link" href="https://github.com/y33bau/checkpoint/tree/main/integrations/steam" target="_blank" rel="noopener noreferrer">'+t('Jak podłączyć Steam?')+'</a>' : '') +
+      (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
+      (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus +
       (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') + '</article>';
   }).join('') + '</div>';
 }
@@ -115,16 +118,18 @@ function editConnection(provider) {
   const isSteam = provider.id === 'steam';
   const nameRules = isSteam ? 'required inputmode="numeric" pattern="[0-9]{17}"' : 'maxlength="80"';
   openForm(provider.name, input(t(provider.label), 'profile', saved?.profile, nameRules) +
-    (isSteam ? input(t('Adres serwera Steam'), 'server', saved?.server, 'type="url" placeholder="https://…"') : '') +
+    (isSteam ? '<a class="text-link" href="https://help.steampowered.com/pl/faqs/view/2816-be67-5b69-0fec" target="_blank" rel="noopener noreferrer">'+t('Gdzie znaleźć ID Steam?')+'</a>'+input(t('Adres serwera Steam'), 'server', saved?.server, 'type="url" placeholder="https://…"') : '') +
     (saved ? '<label><span><input type="checkbox" name="unlink"> '+t('Usuń zapisany profil')+'</span></label>' : ''), data => {
       if (data.has('unlink')) {
         delete connections[provider.id];
+        sourceKeys.delete(provider.id);
+        sourceMessages.delete(provider.id);
       } else {
         const profile = data.get('profile').trim();
         if (!profile && !['wand','nintendo'].includes(provider.id)) throw Error(t('Wpisz identyfikator profilu.'));
         const server = data.get('server')?.trim() || '';
         if (server && !web(server).startsWith('https://')) throw Error(t('Adres serwera musi zaczynać się od https://.'));
-        connections[provider.id] = { profile, server, syncedAt: saved?.profile === profile && saved?.server === server ? saved.syncedAt : null };
+        connections[provider.id] = {...saved, profile, server, syncedAt: saved?.profile === profile && saved?.server === server ? saved.syncedAt : null };
       }
       localStorage.setItem(connectionKey, JSON.stringify(connections));
       steamMessage = '';
@@ -210,6 +215,17 @@ const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persi
 function action(act){
  const game=active();
  if(deviceBusy)return;
+ const [sourceAction,providerId]=act.split(':');
+ if(Object.hasOwn(librarySources,providerId)){
+   if(sourceAction==='source-view'){
+     librarySource=providerId;libraryStatus='';filter='';collection='';platform='';libraryLimit=libraryPageSize;
+     location.hash='library';return;
+   }
+   if(sourceAction==='source-file'){openLibraryFile(providerId);return}
+   if(sourceAction==='source-connect' && providerId!=='wand'){editLibrarySource(providerId,true);return}
+   if(sourceAction==='source-sync' && providerId!=='wand'){syncLibrarySource(providerId);return}
+ }
+ if(act==='xbox-achievements' && game){showXboxAchievements(game);return}
  if(act.startsWith('game-tab:') && game){
    const tab=act.slice('game-tab:'.length);
    if(!Object.hasOwn(gameTabs,tab))return;
@@ -378,8 +394,9 @@ app.onchange=event=>{
   if(target.id==='backup-file'){importBackup(target.files?.[0]);target.value='';return}
   if(target.id==='chronicle-file'){saveScreenshot(active(),target.files?.[0]);target.value='';return}
   if(target.id==='app-language'){changeAppLanguage(target.value);return}
-  if(['catalog','platform','library-sort'].includes(target.id)){
+  if(['catalog','platform','library-sort','library-source'].includes(target.id)){
     if(target.id==='catalog') collection=target.value;
+    if(target.id==='library-source')librarySource=target.value;
     if(target.id==='platform') platform=target.value;
     if(target.id==='library-sort' && Object.hasOwn(librarySorts,target.value)) updateLibrarySetting('sort',target.value);
     libraryLimit=libraryPageSize;

@@ -3,6 +3,7 @@ const criticProject = 'https://github.com/StadynR/metacritic-reviews-dataset';
 const criticPlatforms = {
   Xbox:['Xbox Series X','Xbox One','Xbox 360','Xbox'],
   Steam:['PC'],
+  PC:['PC'],
   PlayStation:['PlayStation 5','PlayStation 4','PlayStation 3','PlayStation 2','PlayStation'],
   Nintendo:['Nintendo Switch 2','Nintendo Switch','Wii U','Wii','GameCube','Nintendo 64','3DS','DS','Game Boy Advance'],
 };

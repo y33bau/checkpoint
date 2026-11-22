@@ -511,3 +511,6 @@ main {flex:1 0 auto;padding-bottom:0}
   }
   .brand-mark{width:40px;height:40px;border-radius:10px}
 }
+
+.source-activity{color:var(--soft);border-top:1px solid var(--line);padding-top:8px}
+#xbox-achievements-list:empty,#source-file-status:empty{display:none}
