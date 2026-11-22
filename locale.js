@@ -1,4 +1,11 @@
 const english = {
+  "Dodaj 9 gier na start": "Add 9 starter games",
+  "Zacznij od zera": "Start from scratch",
+  "W co grasz teraz?": "What are you playing?",
+  "Pokaż na banerze": "Show on the banner",
+  "Wybiorę później": "I'll choose later",
+  "Dodaj zestaw i rozpocznij": "Add games and get started",
+
   "Dostępna nowa wersja": "A new version is available",
   "AKTUALIZUJ": "UPDATE",
   "Poczekaj na zakończenie operacji.": "Wait for the current operation to finish.",
