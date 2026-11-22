@@ -76,7 +76,7 @@ const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-fea
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
-  { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Importuj gry przez serwer Steam lub wklej gotową listę JSON.' },
+  { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Zaloguj się przez Steam i wybierz gry do importu. Możesz też wkleić listę JSON.' },
   { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zapisz gamertag i wracaj do swojego konta Xbox.' },
   { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Zapisz swój identyfikator PSN i wracaj do konta PlayStation.' },
   { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
@@ -103,19 +103,17 @@ function renderConnections() {
     return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t((saved?.librarySyncedAt||saved?.syncedAt)?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?.lastImport?'Biblioteka wczytana':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
       '<p class="muted">' + t(provider.description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
-      '<div class="actions">' + btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action') +
+      '<div class="actions">' + (isSteam ? steamConnectButton(saved) : btn(saved ? t('Edytuj profil') : t('Dodaj profil'), 'profile-' + provider.id, 'provider-action')) +
       '<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+(provider.id==='nintendo'?t('Zaloguj się na Nintendo'):t('Otwórz')+' '+provider.name) + '</a>' +
-      (isSteam && saved?.server ? '<button class="primary" data-act="steam-sync"' + (steamBusy ? ' disabled' : '') + '>'+t('Odśwież bibliotekę')+'</button>' : '') +
-      (isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam'):'')+
+      (isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam')+btn(t('Import Steam JSON'),'import')+(saved?btn(t('Odłącz Steam'),'steam-unlink'):''):'')+
       (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
-      '</div>' + (isSteam ? '<a class="text-link" href="https://github.com/y33bau/checkpoint/tree/main/integrations/steam" target="_blank" rel="noopener noreferrer">'+t('Jak podłączyć Steam?')+'</a>' : '') +
+      '</div>' + (isSteam && !steamServerAddress() ? '<small>'+t(steamErrorMessage('not_configured'))+'</small>' : '') +
       (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
       (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus + (saved?.lastImport?lastImportMarkup(saved):'') +
       (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') + '</article>';
   }).join('') + '</div>';
 }
 function editConnection(provider) {
-  if(provider.id==='steam'){openSteamWizard();return}
   const saved=connections[provider.id];
   openForm(provider.name,input(t(provider.label),'profile',saved?.profile,'maxlength="80"')+
     (saved?'<label><span><input type="checkbox" name="unlink"> '+t('Usuń zapisany profil')+'</span></label>':''),data=>{
@@ -131,30 +129,30 @@ function editConnection(provider) {
     localStorage.setItem(connectionKey,JSON.stringify(connections));
   });
 }
+function steamConnectButton(saved) {
+  const label=steamBusy?'Łączę konto Steam…':saved?'Odśwież bibliotekę':'Połącz Steam';
+  return '<button class="primary provider-action" data-act="steam-sync"'+(steamBusy||!steamServerAddress()?' disabled':'')+'>'+t(label)+'</button>';
+}
+// Uses the import token while it is valid, otherwise signs in through Steam again.
 async function syncSteam() {
-  const saved = connections.steam;
-  if (!saved?.server || steamBusy) return;
+  if (steamBusy) return;
+  if (!steamSessionValid()) {
+    try { await beginSteamLogin(); }
+    catch (error) { steamMessage = t(steamErrorMessage(error.code)); render(); }
+    return;
+  }
   steamBusy = true;
   steamMessage = t('Pobieram bibliotekę…');
   if (location.hash === '#connections') render();
   try {
-    const url = new URL(saved.server);
-    url.searchParams.set('steamid', saved.profile);
-    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    const data = await response.json().catch(()=>null);
-    if(!response.ok){
-      const problems={
-        library_unavailable:'Steam nie udostępnia szczegółów gier tego profilu.',
-        profile_not_configured:'Ten identyfikator Steam nie jest skonfigurowany na serwerze.',
-        server_not_configured:'Serwer Steam wymaga klucza API i identyfikatora.',
-      };
-      throw Error(t(problems[data?.error] || 'Serwer Steam jest niedostępny.'));
-    }
-    if (deviceBusy || connections.steam !== saved) return;
-    steamMessage='';
-    previewSteam(data,'sync');
+    const data = await loadSteamLibrary();
+    if (deviceBusy) return;
+    connections.steam = { ...connections.steam, profile: data.steamId, syncedAt: Date.now() };
+    localStorage.setItem(connectionKey, JSON.stringify(connections));
+    steamMessage = '';
+    previewSteam(data, 'sync');
   } catch (error) {
-    steamMessage = error.name==='TypeError'||error.name==='TimeoutError'?t('Serwer Steam jest niedostępny.'):error.message||t('Nie udało się pobrać gier.');
+    steamMessage = t(steamErrorMessage(error.code));
   } finally {
     steamBusy = false;
     if (['#connections', '#library', '#now', ''].includes(location.hash)) render();
@@ -288,6 +286,7 @@ function action(act){
  const provider=providers.find(p=>act==='profile-'+p.id);
  if(provider){editConnection(provider);return}
  if(act==='steam-sync'){syncSteam();return}
+ if(act==='steam-unlink'){unlinkSteam();return}
  let g=active();if(act==='quick')g=featuredGame();
  if(['add','edit'].includes(act)){openGameForm(g);return}
  if(act==='import'){
@@ -423,4 +422,4 @@ app.onchange=event=>{
 };
 window.onhashchange=()=>{render();window.scrollTo(0,0)};applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();else loadWeather();loadGamePass();
 
-resumeSteamIdentity();
+resumeSteamLogin();

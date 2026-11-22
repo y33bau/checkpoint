@@ -1,14 +1,52 @@
-# Synchronizacja Steam
+# Wspólny serwer Steam Checkpointa
 
-Checkpoint zapisuje SteamID64 i adres serwera. Odśwież bibliotekę w menu Połączenia, aby zobaczyć podgląd. Aplikacja zapisze tylko zaznaczone gry po potwierdzeniu.
+Jeden serwer (Cloudflare Worker) obsługuje logowanie Steam dla wszystkich użytkowników aplikacji. Użytkownik wybiera **Połącz Steam**, loguje się na oficjalnej stronie Steam i po powrocie widzi podgląd gier do importu. Nie podaje klucza API, adresu serwera ani SteamID64.
 
-1. Ustaw Szczegóły gier jako publiczne w ustawieniach prywatności Steam.
-2. W katalogu tego pliku uruchom npx wrangler deploy.
-3. Dodaj klucz Steam Web API poleceniem npx wrangler secret put STEAM_WEB_API_KEY.
-4. Dodaj swój SteamID64 poleceniem npx wrangler secret put STEAM_ID64.
-5. Otwórz Połączenia → Steam. Podaj adres HTTPS serwera. Wybierz Zaloguj przez Steam, aby uzupełnić identyfikator, lub wpisz swój SteamID64.
-6. Sprawdź połączenie i zatwierdź wybrane gry w podglądzie.
+## Jak to działa
 
-Jeśli serwer był już wdrożony, ponownie uruchom npx wrangler deploy, aby dodać obsługę logowania Steam OpenID. Logowanie uzupełnia ID. Import biblioteki nadal korzysta z klucza API i identyfikatora skonfigurowanego jako sekret serwera.
+1. Aplikacja tworzy losowy `verifier`, zapisuje go w `sessionStorage` i wysyła do serwera tylko jego skrót SHA-256 (`challenge`) oraz adres powrotu.
+2. `GET /auth/steam/start` sprawdza adres powrotu z listy `APP_URLS`, zapisuje jednorazowy `state` w D1, ustawia ciasteczko `__Host-checkpoint-steam` i przekierowuje na `steamcommunity.com/openid/login`.
+3. `GET /auth/steam/callback` zużywa `state`, porównuje go z ciasteczkiem, weryfikuje odpowiedź Steam przez `check_authentication`, blokuje ponowne użycie `response_nonce` i odsyła do aplikacji jednorazowy kod (`?steam_code=`, ważny 2 minuty). SteamID nie trafia do adresu URL.
+4. `POST /api/steam/token` przyjmuje `{ code, verifier }` tylko z dozwolonego `Origin`. Zwraca token importu ważny 10 minut i SteamID64.
+5. `GET /api/steam/library` z nagłówkiem `Authorization: Bearer <token>` wywołuje `GetOwnedGames` z kluczem przechowywanym jako sekret serwera.
 
-Klucz API wpisz do promptu Wrangler. Serwer zwraca publiczną bibliotekę jednego profilu. Każdy, kto zna adres serwera i SteamID64, może pobrać ten publiczny zestaw danych.
+Logowanie jest niezależne od odczytu biblioteki. Jeśli profil ukrywa „Szczegóły gier”, aplikacja zapisuje połączenie i pokazuje komunikat o ustawieniach prywatności.
+
+Wszystkie odpowiedzi mają `Cache-Control: no-store`. CORS odpowiada wyłącznie originom z `APP_URLS`. Limity (na adres IP, okno 10 minut): 10 startów logowania, 20 wymian kodu, 20 odczytów biblioteki. Kody i tokeny są w D1 tylko jako skróty SHA-256.
+
+## Konfiguracja przez właściciela aplikacji (raz)
+
+W katalogu `integrations/steam`:
+
+```sh
+npm install
+npx wrangler login
+npx wrangler d1 create checkpoint-steam          # wpisz zwrócony database_id do wrangler.toml
+npx wrangler d1 migrations apply DB --remote --env=""
+npx wrangler secret put STEAM_WEB_API_KEY --env=""   # klucz z https://steamcommunity.com/dev/apikey
+npm run deploy
+```
+
+Następnie wpisz adres Workera (np. `https://checkpoint-steam.<subdomena>.workers.dev`) w `steam-config.js` w katalogu głównym repozytorium, podbij wersję `steam-config.js` w `index.html` i opublikuj GitHub Pages.
+
+Zmienne:
+
+| Nazwa | Rodzaj | Opis |
+| --- | --- | --- |
+| `STEAM_WEB_API_KEY` | sekret | Klucz Steam Web API. Nigdy nie trafia do przeglądarki. |
+| `APP_URLS` | zmienna | Adresy aplikacji (origin + ścieżka) rozdzielone przecinkami. Produkcja: `https://y33bau.github.io/checkpoint/`. |
+| `DB` | wiązanie D1 | Baza `checkpoint-steam` z migracjami z `migrations/`. |
+
+Sekret `STEAM_ID64` z poprzedniej wersji nie jest już używany i można go usunąć (`npx wrangler secret delete STEAM_ID64`).
+
+## Test lokalny
+
+```sh
+printf 'STEAM_WEB_API_KEY=twoj-klucz\n' > .dev.vars
+npm run dev                                  # Worker na http://localhost:8787
+cd ../.. && python3 -m http.server 8080      # aplikacja na http://localhost:8080
+```
+
+Otwórz `http://localhost:8080/?steam_server=http://localhost:8787#connections`. Nadpisanie adresu serwera działa tylko, gdy aplikacja jest otwarta na `localhost` lub `127.0.0.1`.
+
+Testy automatyczne (bez sieci, Steam jest symulowany): `npm test` w katalogu głównym repozytorium.

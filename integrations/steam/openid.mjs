@@ -1,66 +1,52 @@
-const steamOpenId = 'https://steamcommunity.com/openid/login';
+// Steam OpenID 2.0: identity only. The library is read separately with the Web API.
+export const steamOpenId = 'https://steamcommunity.com/openid/login';
 const protocol = 'http://specs.openid.net/auth/2.0';
 const selector = protocol + '/identifier_select';
-const stateCookie = '__Host-checkpoint-steam';
-const statePattern = /^[a-f0-9]{32}$/;
+const requiredSigned = ['op_endpoint', 'claimed_id', 'identity', 'return_to', 'response_nonce', 'assoc_handle'];
+export const nonceWindow = 10 * 60 * 1000;
 
-function redirect(location, cookie) {
-  return new Response(null, {
-    status:303,
-    headers:{ Location:location, 'Set-Cookie':cookie, 'Cache-Control':'no-store', 'Referrer-Policy':'no-referrer' },
+export function steamAuthorizeUrl(callback) {
+  const callbackUrl = new URL(callback);
+  const authorize = new URL(steamOpenId);
+  authorize.search = new URLSearchParams({
+    'openid.ns': protocol,
+    'openid.mode': 'checkid_setup',
+    'openid.return_to': callbackUrl.href,
+    'openid.realm': callbackUrl.origin + '/',
+    'openid.identity': selector,
+    'openid.claimed_id': selector,
   });
+  return authorize.href;
 }
 
-function cookie(state,maxAge) {
-  return stateCookie+'='+state+'; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age='+maxAge;
-}
-
-export async function steamIdentity(request, env) {
-  const url=new URL(request.url);
-  const state=url.searchParams.get('state') || '';
-  if(!env.APP_ORIGIN || !statePattern.test(state) || url.protocol!=='https:')return new Response(null,{status:400});
-  const app=new URL('/checkpoint/',env.APP_ORIGIN);
-  app.hash='connections';
-  const callback=new URL('/auth/steam/callback',url.origin);
-  callback.searchParams.set('state',state);
-
-  if(url.pathname==='/auth/steam/start'){
-    const authorize=new URL(steamOpenId);
-    authorize.search=new URLSearchParams({
-      'openid.ns':protocol,
-      'openid.mode':'checkid_setup',
-      'openid.return_to':callback.href,
-      'openid.realm':url.origin+'/',
-      'openid.identity':selector,
-      'openid.claimed_id':selector,
-    });
-    return redirect(authorize.href,cookie(state,600));
+// Returns { steamId, nonce } after Steam itself confirms the signature, otherwise
+// { error } with 'cancelled' or 'invalid'.
+export async function verifySteamAssertion(query, callback, { fetcher = fetch, now = Date.now() } = {}) {
+  const mode = query.get('openid.mode');
+  if (mode === 'cancel') return { error: 'cancelled' };
+  if (mode !== 'id_res') return { error: 'invalid' };
+  const keys = [...query.keys()].filter(key => key.startsWith('openid.'));
+  if (new Set(keys).size !== keys.length) return { error: 'invalid' };
+  const signed = (query.get('openid.signed') || '').split(',');
+  if (!requiredSigned.every(field => signed.includes(field))) return { error: 'invalid' };
+  const claimed = query.get('openid.claimed_id') || '';
+  const steamId = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d{17})$/.exec(claimed)?.[1];
+  const nonce = query.get('openid.response_nonce') || '';
+  const nonceTime = Date.parse(nonce.slice(0, 20));
+  if (!steamId || nonce.length > 256 || !Number.isFinite(nonceTime) || Math.abs(now - nonceTime) > nonceWindow ||
+      query.get('openid.ns') !== protocol || query.get('openid.identity') !== claimed ||
+      query.get('openid.op_endpoint') !== steamOpenId || query.get('openid.return_to') !== callback) {
+    return { error: 'invalid' };
   }
-
-  const supplied=request.headers.get('Cookie')?.match(/(?:^|;\s*)__Host-checkpoint-steam=([a-f0-9]{32})(?=;|$)/)?.[1];
-  if(supplied!==state)return new Response(null,{status:403});
-  app.searchParams.set('steam_state',state);
-  const fail=()=>{app.searchParams.set('steam_error','1');return redirect(app.href,cookie('',0))};
-  const proof=url.searchParams;
-  const mode=proof.get('openid.mode');
-  if(mode!=='id_res')return fail();
-  const signed=(proof.get('openid.signed')||'').split(',');
-  if(!['op_endpoint','claimed_id','identity','return_to','response_nonce','assoc_handle'].every(field=>signed.includes(field)))return fail();
-  const claimed=proof.get('openid.claimed_id') || '';
-  const id=/^https?:\/\/steamcommunity\.com\/openid\/id\/(\d{17})$/.exec(claimed)?.[1];
-  const nonce=proof.get('openid.response_nonce') || '';
-  const nonceTime=Date.parse(nonce.slice(0,20));
-  if(!id || !Number.isFinite(nonceTime) || Math.abs(Date.now()-nonceTime)>600000 ||
-      proof.get('openid.ns')!==protocol || proof.get('openid.identity')!==claimed ||
-      proof.get('openid.op_endpoint')!==steamOpenId || proof.get('openid.return_to')!==callback.href)return fail();
-
-  const params=new URLSearchParams([...proof].filter(([key])=>key.startsWith('openid.')));
-  if(new Set(params.keys()).size!==[...params.keys()].length)return fail();
-  params.set('openid.mode','check_authentication');
+  const params = new URLSearchParams(keys.map(key => [key, query.get(key)]));
+  params.set('openid.mode', 'check_authentication');
   try {
-    const verification=await fetch(steamOpenId,{method:'POST',body:params,redirect:'error',signal:AbortSignal.timeout(10000)});
-    if(!verification.ok || !/^is_valid:true\r?$/m.test(await verification.text()))return fail();
-    app.searchParams.set('steam_id',id);
-    return redirect(app.href,cookie('',0));
-  }catch{return fail()}
+    const verification = await fetcher(steamOpenId, {
+      method: 'POST', body: params, redirect: 'error', signal: AbortSignal.timeout(10000),
+    });
+    if (!verification.ok || !/^is_valid:true\r?$/m.test(await verification.text())) return { error: 'invalid' };
+  } catch {
+    return { error: 'invalid' };
+  }
+  return { steamId, nonce };
 }

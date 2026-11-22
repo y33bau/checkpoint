@@ -1,6 +1,23 @@
 name = "checkpoint-steam"
 main = "worker.mjs"
 compatibility_date = "2026-11-22"
+workers_dev = true
 
 [vars]
-APP_ORIGIN = "https://y33bau.github.io"
+# Comma separated app addresses (origin + path) allowed to receive a Steam login.
+APP_URLS = "https://y33bau.github.io/checkpoint/"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "checkpoint-steam"
+database_id = "7b19c577-28db-4327-baab-77a3ec40a022"
+migrations_dir = "migrations"
+
+[env.local.vars]
+APP_URLS = "http://localhost:8080/,http://127.0.0.1:8080/"
+
+[[env.local.d1_databases]]
+binding = "DB"
+database_name = "checkpoint-steam-local"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
