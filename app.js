@@ -76,11 +76,11 @@ const banner=(g,inner,feature=false)=>'<article class="hero'+(feature?' hero-fea
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
-  { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
-  { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zapisz gamertag i wracaj do swojego konta Xbox.' },
   { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Importuj gry przez serwer Steam lub wklej gotową listę JSON.' },
-  { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Skrót do Wand. Mapy przypinasz bezpośrednio do kart gier.' },
+  { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zapisz gamertag i wracaj do swojego konta Xbox.' },
   { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Zapisz swój identyfikator PSN i wracaj do konta PlayStation.' },
+  { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
+  { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Skrót do Wand. Mapy przypinasz bezpośrednio do kart gier.' },
 ];
 let connections = {};
 try {
@@ -91,7 +91,7 @@ try {
 let steamBusy = false;
 let steamMessage = '';
 function renderConnections() {
-  return pageHeading(t('Połączenia')) + '<div class="platform-grid">' + providers.map(provider => {
+  return pageHeading(t('Połączenia')) + renderConnectionGuide() + '<div class="platform-grid">' + providers.map(provider => {
     const saved = connections[provider.id];
     const isSteam = provider.id === 'steam';
     const hasLibrary=Object.hasOwn(librarySources,provider.id);

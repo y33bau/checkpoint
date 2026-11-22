@@ -514,3 +514,32 @@ main {flex:1 0 auto;padding-bottom:0}
 
 .source-activity{color:var(--soft);border-top:1px solid var(--line);padding-top:8px}
 #xbox-achievements-list:empty,#source-file-status:empty{display:none}
+
+.connection-guide{
+  margin:0 0 var(--space);
+  padding:0;
+  border-color:#76526e;
+  background:linear-gradient(120deg,#342237,var(--surface) 70%);
+}
+.connection-guide summary{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px var(--space);cursor:pointer;list-style:none;border-radius:var(--radius)
+}
+.connection-guide summary::-webkit-details-marker{display:none}
+.connection-guide summary::after{
+  content:"";width:9px;height:9px;border:solid var(--coral);border-width:0 2px 2px 0;
+  transform:rotate(45deg);margin:0 4px 4px;flex:none
+}
+.connection-guide details[open]>summary::after,.connection-guide[open]>summary::after{
+  transform:rotate(225deg);margin-block:4px 0
+}
+.connection-guide>summary strong{display:block;font:700 30px/1 var(--font-display);color:var(--coral)}
+.connection-guide>summary small{display:block;margin-top:5px}
+.connection-guide-body{padding:0 var(--space) 14px}
+.connection-guide-section{border-top:1px solid var(--line)}
+.connection-guide-section>summary{padding:10px 2px;min-height:44px;font-weight:700}
+.connection-guide-section p,.connection-guide-section ol{margin:0 0 12px}
+.connection-guide-section ol{padding-inline-start:22px}
+.connection-guide-section li+li{margin-top:5px}
+.connection-guide-links{display:flex;flex-wrap:wrap;gap:8px 16px;padding-bottom:10px}
+.connection-guide code{overflow-wrap:anywhere}
