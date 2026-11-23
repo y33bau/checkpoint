@@ -728,7 +728,11 @@ body[data-view="now"] .featured-carousel{
 .update-banner button{flex:none;font-size:.85rem}
 
 /* Checkpoint wordmark and six-tab navigation */
-.masthead{container-type:inline-size;border-bottom:1px solid var(--line)}
+.masthead{display:flex;align-items:center;gap:4px;container-type:inline-size;border-bottom:1px solid var(--line)}
+.masthead .brand{flex:1;min-width:0;width:auto}
+#ambient-toggle{width:42px;height:42px;flex:none;padding:0;font-size:1.4rem}
+#ambient-toggle[aria-pressed=true]{background:#55304e;border-color:#dc91bd;color:#ffe2eb}
+@media(max-width:560px){.masthead .brand-wordmark{font-size:clamp(25px,10cqw,56px)}}
 .brand{
   position:relative;isolation:isolate;display:flex;width:100%;min-height:64px;
   align-items:center;justify-content:center;gap:clamp(9px,2.4cqw,22px);

@@ -241,6 +241,7 @@ function importSteamGames(data) {
 }
 
 function render(){
+ adjustAmbient();
  if(location.hash==='#rank'){
    clearLibraryFilters();
    libraryMode='rated';
@@ -602,7 +603,7 @@ window.addEventListener('pointerup',event=>{
   featuredSwipe=undefined;
   if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.4)stepFeatured(dx<0?1:-1);
 });
-applyLanguage();render();if(needsOnboarding(preferences))openOnboarding();loadGamePass();attachGenres(games);
+applyLanguage();initializeAmbient();render();if(needsOnboarding(preferences))openOnboarding();loadGamePass();attachGenres(games);
 
 resumeSteamLogin();
 resumeXboxLogin();

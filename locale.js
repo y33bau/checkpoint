@@ -1,4 +1,5 @@
 const english = {
+  "Muzyka ambient 432 Hz": "432 Hz ambient music",
   "Profile gracza": "Player profiles",
   "Gry w bibliotece": "Library games",
   "Czas gry": "Play time",
