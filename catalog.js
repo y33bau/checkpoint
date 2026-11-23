@@ -41,11 +41,12 @@ function catalogEntry(entry,store) {
   };
 }
 
-async function drawCatalogueGames(platform) {
-  const stores=Object.hasOwn(storeCatalogs,platform)?[platform]:Object.keys(storeCatalogs);
+async function drawCatalogueGames(platform,rate) {
+  const stores=rate&&platform==='PC'?['Steam']:Object.hasOwn(storeCatalogs,platform)?[platform]:Object.keys(storeCatalogs);
   const letters='abcdefghijklmnopqrstuvwxyz_';
   const savedTitles=new Set(games.map(game=>catalogText(game.title)));
   const choices=new Map();
+  if(rate)return drawRatedCatalogueGames(stores,letters,savedTitles,rate);
   for(let attempt=0;attempt<3&&choices.size<3;attempt++){
     const store=stores[Math.floor(Math.random()*stores.length)];
     const letter=letters[Math.floor(Math.random()*letters.length)];
@@ -60,6 +61,32 @@ async function drawCatalogueGames(platform) {
     }catch{continue}
   }
   return [...choices.values()];
+}
+
+async function drawRatedCatalogueGames(stores,letters,savedTitles,rate) {
+  const requests=stores.flatMap(store=>{
+    const available=[...letters];
+    return Array.from({length:2},()=>{
+      const [letter]=available.splice(Math.floor(Math.random()*available.length),1);
+      return catalogBucket(store,letter).then(entries=>({entries,store}));
+    });
+  });
+  const batches=(await Promise.allSettled(requests)).filter(batch=>batch.status==='fulfilled');
+  if(!batches.length)throw Error('Game catalogue unavailable');
+  const choices=new Map();
+  for(const {value:{entries,store}} of batches){
+    for(const entry of entries){
+      const item=catalogEntry(entry,store);
+      if(!item)continue;
+      const title=catalogText(item.title);
+      if(savedTitles.has(title))continue;
+      const rating=rate(item,store);
+      if(!rating)continue;
+      const previous=choices.get(title);
+      if(!previous||compareEveningRatings(rating,previous.rating)<0)choices.set(title,{...item,rating});
+    }
+  }
+  return [...choices.values()].sort((a,b)=>compareEveningRatings(a.rating,b.rating)).slice(0,3);
 }
 
 async function findCatalogGames(title, store, exact=false) {
