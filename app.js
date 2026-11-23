@@ -78,12 +78,12 @@ function featureArtwork(game) {
   const legacySteamId=/steamstatic\.com\/steam\/apps\/(\d+)\//.exec(cover)?.[1];
   const steamId=game.steamAppId||legacySteamId;
   const sources=[
-    ...(!validCustomCover(game.customCover)&&/^\d+$/.test(steamId)?[{mode:'wide',url:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+steamId+'/library_hero.jpg'}]:[]),
-    ...[cover,fallback].filter((url,index,list)=>url&&list.indexOf(url)===index).map(url=>({mode:'poster',url})),
-  ];
+    ...(!validCustomCover(game.customCover)&&/^\d+$/.test(steamId)?['https://cdn.cloudflare.steamstatic.com/steam/apps/'+steamId+'/library_hero.jpg']:[]),
+    cover,fallback,
+  ].filter((url,index,list)=>url&&list.indexOf(url)===index);
   if(!sources.length)return '';
   const [first,...rest]=sources;
-  return '<div class="feature-art" aria-hidden="true"><img class="feature-image" alt="" src="'+esc(first.url)+'" data-art-mode="'+first.mode+'" data-art-next="'+
+  return '<div class="feature-art" aria-hidden="true"><img class="feature-image" alt="" src="'+esc(first)+'" data-art-next="'+
     esc(JSON.stringify(rest))+'"></div>';
 }
 
@@ -491,9 +491,8 @@ app.addEventListener('error',event=>{
     const [next,...rest]=JSON.parse(image.dataset.artNext || '[]');
     if(!next){image.parentElement.remove();return}
     image.dataset.artReady='';
-    image.dataset.artMode=next.mode;
     image.dataset.artNext=JSON.stringify(rest);
-    image.src=next.url;
+    image.src=next;
     return;
   }
   if(image.matches?.('.achievement img')){

@@ -396,7 +396,6 @@ button.danger { color:#ffb3b5;border-color:#81515b; }
 .feature-art{position:absolute;inset:0;z-index:-2;pointer-events:none;background:transparent}
 .feature-art img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:65% 50%;opacity:0;transition:opacity .25s}
 .feature-art img[data-art-ready=yes]{opacity:1}
-.feature-art:has(img[data-art-mode=poster][data-art-ready=yes]){background:radial-gradient(ellipse at 85% 42%,#523152,#191323 70%)}
 @media(prefers-reduced-motion:reduce){.feature-art img{transition:none}}
 
 .score-group{margin:15px 0 0;padding:0;border:0;min-width:0}
@@ -661,22 +660,21 @@ body[data-view="now"] .featured-carousel{
 }
 .featured-cover{position:absolute;inset:0;z-index:-2;pointer-events:none}
 .featured-cover .feature-art{z-index:0}
-.featured-cover:has(.feature-image[data-art-ready=yes]){background:#2d1a31}
-.featured-cover .feature-image[data-art-mode=wide]{object-position:center 42%}
-.featured-cover:has(.feature-image[data-art-mode=poster][data-art-ready=yes])::before{
-  content:"";position:absolute;inset:-12px;
-  background:linear-gradient(90deg,#46233a88,#1e12265c),var(--featured-image) center / cover;
-  filter:blur(20px) saturate(1.15);opacity:.72;
+/* Wide art fills the banner. A tall cover keeps its focal area over a soft extension. */
+.featured-cover .feature-image{object-position:58% 43%}
+.featured-cover:has(.feature-image[data-art-shape=portrait][data-art-ready=yes])::before{
+  content:"";position:absolute;inset:-18px;
+  background:var(--featured-image) center 38% / cover;
+  filter:blur(24px) saturate(1.12);opacity:.68;
 }
-.featured-cover .feature-art:has(img[data-art-mode=poster][data-art-ready=yes]){background:none}
-.featured-cover .feature-image[data-art-mode=poster]{
-  top:0;right:4%;bottom:auto;left:auto;width:58%;height:96%;
-  object-fit:contain;object-position:center 42%;
-  mask-image:linear-gradient(#000 62%,transparent 100%);
+.featured-cover .feature-image[data-art-shape=portrait]{
+  inset:-5% 0 auto auto;width:auto;height:113%;max-width:66%;
+  object-position:center 35%;
+  mask-image:linear-gradient(90deg,transparent,#000 28%),linear-gradient(#000 66%,transparent 100%);
+  mask-composite:intersect;
 }
 @media(max-width:620px){
-  .featured-cover .feature-image[data-art-mode=poster]{right:5%;width:69%;height:88%}
-  .featured-cover .feature-image[data-art-mode=wide]{object-position:58% 42%}
+  .featured-cover .feature-image[data-art-shape=portrait]{height:110%;max-width:74%}
 }
 .featured-game .featured-progress{max-width:none;margin:0}
 .featured-main-actions,.featured-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
@@ -776,22 +774,11 @@ body[data-view="now"] .featured-carousel{
 
 
 @media(min-width:621px){
-  .featured-cover .feature-image[data-art-shape="landscape"]{
-    inset:0;width:100%;height:100%;object-fit:cover;object-position:center 44%;
-    mask-image:none;background:none;
-  }
-  .featured-cover .feature-image[data-art-shape="portrait"][data-art-mode="poster"]{
-    top:0;right:3%;width:55%;height:100%;
-    mask-image:linear-gradient(90deg,transparent,#000 22%,#000 84%,transparent),
-      linear-gradient(#000 68%,transparent);
-    mask-composite:intersect;
-  }
   .featured-identity::after{
-    background:linear-gradient(0deg,#130e1bec 0%,#130e1b22 60%,transparent 86%),
-      linear-gradient(90deg,#130e1bbb 0%,#130e1b57 34%,transparent 73%);
+    background:linear-gradient(0deg,#130e1bee 0%,#130e1b38 46%,transparent 84%),
+      linear-gradient(90deg,#130e1b88 0%,transparent 68%);
   }
 }
-
 
 .starter-preview{
   display:grid;grid-template-columns:70px minmax(0,1fr);gap:13px;align-items:center;
