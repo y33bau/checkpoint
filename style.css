@@ -944,6 +944,8 @@ body[data-view="now"] .featured-carousel{
 .home-player-profiles{margin:16px 0}
 .home-player-profiles h2{margin:0 0 8px}
 .home-player-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.home-player-grid[data-count="1"]{grid-template-columns:1fr}
+.home-player-grid[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
 .player-platform-card{
   display:flex;flex-direction:column;gap:9px;min-width:0;padding:12px;border:1px solid #64758c;
   border-radius:13px;background:linear-gradient(140deg,#263f58,#172135 74%);
@@ -965,5 +967,5 @@ body[data-view="now"] .featured-carousel{
 .player-card-actions :is(button,.button){min-height:36px;padding:4px 8px;font-size:.79rem}
 @media(max-width:560px){
   .home-player-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .player-platform-card.ps{grid-column:1/-1}
+  .home-player-grid[data-count="3"] .player-platform-card.ps{grid-column:1/-1}
 }
