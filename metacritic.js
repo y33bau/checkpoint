@@ -87,7 +87,7 @@ function parseCriticSnapshot(csv) {
     if(critics===null && users===null)continue;
     if(!index.has(clean))index.set(clean,new Map());
     const versions=index.get(clean);
-    if(!versions.has(platform))versions.set(platform,{critics,users,platform});
+    if(!versions.has(platform))versions.set(platform,{critics,users,platform,title});
   }
   return index;
 }
@@ -130,7 +130,7 @@ async function attachCriticScores(entries) {
     for(const {game,system,title} of candidates){
       if(!games.includes(game)||game.title!==title||game.criticScores?.[system])continue;
       const match=matchCriticScore(index,title,system,game.catalogVersions?.[system]||[]);
-      game.criticScores={...game.criticScores,[system]:match||{unavailable:true}};
+      game.criticScores={...game.criticScores,[system]:match?{critics:match.critics,users:match.users,platform:match.platform}:{unavailable:true}};
       changed=true;
     }
     if(changed){

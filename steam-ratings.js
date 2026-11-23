@@ -19,10 +19,11 @@ function parseSteamReviewSnapshot(csv) {
     const [,id,name,positive,negative]=match;
     const reviews=Number(positive)+Number(negative);
     if(!Number.isSafeInteger(reviews)||reviews===0)continue;
-    const rating={value:Number(positive)/reviews,reviews};
-    byId.set(Number(id),rating);
-    const title=catalogText(name.replace(/^"|"$/g,'').replaceAll('""','"'));
-    if(title)byTitle.set(title,byTitle.has(title)?null:rating);
+    const title=name.replace(/^"|"$/g,'').replaceAll('""','"');
+    const rating={value:Number(positive)/reviews,reviews,title,id:Number(id)};
+    byId.set(rating.id,rating);
+    const key=catalogText(title);
+    if(key)byTitle.set(key,byTitle.has(key)?null:rating);
   }
   if(!byId.size)throw Error('Empty Steam review snapshot');
   return {byId,byTitle};

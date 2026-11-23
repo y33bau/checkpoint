@@ -1,4 +1,13 @@
 const english = {
+  "Wybierz czas. Znajdź grę.": "Pick a duration. Find a game.",
+  "Szukam najlepszych gier…": "Finding the best games…",
+  "Masz zapisany następny cel": "You have a next goal saved",
+  "Z Twojej kolejki": "From your queue",
+  "opinii": "reviews",
+  "Brak wysoko ocenionych gier dla tych filtrów.": "No highly rated games match these filters.",
+  "Jedno lub więcej źródeł ocen jest niedostępnych.": "One or more rating sources are unavailable.",
+  "Zobacz całą kolejkę": "See the full queue",
+  "Wybierz grę na 30 min": "Find a game for 30 minutes",
   "Sprawdź nowy punkt na mapie Leonidy.": "Check the new marker on the Leonida map.",
   "Zapis przy kryjówce w Vice City.": "Saved next to the Vice City hideout.",
   "Wybierz grę dopasowaną do czasu, który dziś masz.": "Find a game that fits the time you have today.",

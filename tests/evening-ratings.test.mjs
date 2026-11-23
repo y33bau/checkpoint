@@ -58,25 +58,46 @@ test('the evening draw ranks matching library games and keeps missing ratings la
   assert.equal(eveningPicks(30,'action','Steam').length,3);
 });
 
-test('Metacritic ranking respects catalogue platform and version',async()=>{
+test('Metacritic ranking respects catalogue platform and version',()=>{
   const csv='title,platform,date,critics,users,other\nOne,PC,2024,90,7.0,\nOne,Xbox Series X,2024,92,7.0,\nOne,Xbox One,2024,87,7.0,';
-  const {eveningRatingLookup}=loadApp({fetch:async()=>({ok:true,text:async()=>csv})});
-  const rate=await eveningRatingLookup('metacritic');
+  const {eveningRatingLookup,parseCriticSnapshot}=loadApp();
+  const rate=eveningRatingLookup({critics:parseCriticSnapshot(csv)},'metacritic');
   assert.equal(rate({title:'One'},'Steam').value,90);
   assert.equal(rate({title:'One',versions:['Xbox One']},'Xbox').value,87);
-  assert.equal(rate({title:'One',criticScores:{Xbox:{critics:80}}},'Xbox').value,80);
+  assert.equal(rate({title:'One',criticScores:{Xbox:{critics:89}}},'Xbox').value,89);
   assert.equal(rate({title:'One'},'PlayStation'),undefined);
 });
 
-test('the rated catalogue ranks the full draw pool before taking three results',async()=>{
-  const entries=[
-    {name:'Already owned',uuid:'10'},{name:'Low score',uuid:'11'},{name:'Unrated',uuid:'12'},
-    {name:'Excellent',uuid:'13'},{name:'Great',uuid:'14'},{name:'Good',uuid:'15'},
-  ];
-  const values={10:100,11:1,13:99,14:95,15:80};
-  const {drawCatalogueGames}=loadApp({
-    games:[{title:'Already owned'}],web:value=>value,fetch:async()=>({ok:true,json:async()=>entries}),
+test('catalogue ranks established hits and preserves platform and genre filters',()=>{
+  const {rankedCatalogueGames,parseSteamReviewSnapshot,parseCriticSnapshot}=loadApp({
+    games:[{title:'Already owned'}],cdn:id=>'cover/'+id,
   });
-  const choices=await drawCatalogueGames('Steam',item=>values[item.steamId]&&{value:values[item.steamId]});
-  assert.deepEqual(Array.from(choices,item=>item.title),['Excellent','Great','Good']);
+  const steam=parseSteamReviewSnapshot([
+    header,
+    '1,Small release,small,2020-01-01,false,20,0,',
+    '2,Known Hit,hit,2020-01-01,false,19600,400,',
+    '3,Popular Indie,indie,2020-01-01,false,9700,300,',
+    '4,Already owned,saved,2020-01-01,false,99000,1000,',
+    '5,Divisive,div,2020-01-01,false,99000,12000,',
+  ].join('\n'));
+  const critics=parseCriticSnapshot([
+    'title,platform,date,critics,users,other',
+    'Known Hit,PC,2024,96,8.0,',
+    'Known Hit,Xbox Series X,2024,95,8.0,',
+    'Console Hit,PlayStation 5,2024,92,8.0,',
+    'Small release,PC,2024,78,9.0,',
+    'Classic,PC,2024,92,8.0,',
+  ].join('\n'));
+  const genres=new Map([
+    ['known hit',new Map([['PC','RPG'],['Xbox Series X','RPG']])],
+    ['console hit',new Map([['PlayStation 5','Akcja']])],
+  ]);
+  const data={steam,critics,genres};
+  const titles=results=>Array.from(results,result=>result.title);
+  assert.deepEqual(titles(rankedCatalogueGames(data,'','','default')),
+    ['Known Hit','Popular Indie','Classic','Console Hit']);
+  assert.deepEqual(titles(rankedCatalogueGames(data,'Xbox','RPG','default')),['Known Hit']);
+  assert.deepEqual(titles(rankedCatalogueGames(data,'Steam','','default')),['Known Hit','Popular Indie']);
+  assert.deepEqual(titles(rankedCatalogueGames({critics},'PlayStation','','default')),['Console Hit']);
+  assert.deepEqual(titles(rankedCatalogueGames({steam},'','','steam')),['Known Hit','Popular Indie']);
 });

@@ -33,10 +33,11 @@ function gameShelf(list) {
   const label = t('Moja kolejka');
   const header = '<div class="now-section-heading"><h2 id="shelf-title">'+label+'</h2>'+
     btn(t('＋ Dodaj do kolejki'),'pick:queue')+'</div>';
-  return '<section class="panel now-queue" aria-labelledby="shelf-title">'+header+
+  return '<section class="panel now-queue" aria-labelledby="shelf-title" tabindex="-1">'+header+
     (list.length?'<div class="grid library-covers">'+list.map((game,index)=>gameTile(game,{eagerCover:index<4})).join('')+'</div>':
       '<p class="muted queue-empty">'+t('Kolejka jest pusta. Dodaj grę, żeby pojawiła się na półce.')+'</p>')+'</section>';
 }
+let eveningAfterImport=false;
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
 function featuredGame() {
   const activeGames=games.filter(game=>!game.archived&&game.status==='Gram');
@@ -395,6 +396,17 @@ function action(act){
  if(act==='edit-start' && game){editStartRating(game);return}
  if(act==='critics-retry' && game){attachCriticScores([game]);return}
  if(act==='evening-more'){nextEveningPage();return}
+ if(act==='evening-shelf'){
+   const shelf=app.querySelector('.now-queue');
+   shelf?.focus({preventScroll:true});
+   shelf?.scrollIntoView({block:'start'});
+   return;
+ }
+ if(act==='evening-after-import'){
+   eveningAfterImport=true;
+   location.hash='now';
+   return;
+ }
  if(act==='evening-filters'){openEvening();return}
  if(act==='evening-catalogue'){
    pickEveningDuration(eveningDuration||'30',{...savedEveningSettings(),scope:'catalogue'});
@@ -644,6 +656,10 @@ window.onhashchange=event=>{
   const previous=new URL(event.oldURL).hash;
   if(previous==='#library')libraryScroll=window.scrollY;
   render();
+  if(eveningAfterImport&&location.hash==='#now'){
+    eveningAfterImport=false;
+    pickEveningDuration('30',{scope:'library',order:'default',platform:'',mood:'',genre:'',ratedOnly:false});
+  }
   if(location.hash==='#library'){
     window.scrollTo(0,libraryScroll);
     if(libraryReturnGame){

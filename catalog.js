@@ -41,52 +41,49 @@ function catalogEntry(entry,store) {
   };
 }
 
-async function drawCatalogueGames(platform,rate,limit=3) {
-  const stores=rate&&platform==='PC'?['Steam']:Object.hasOwn(storeCatalogs,platform)?[platform]:Object.keys(storeCatalogs);
-  const letters='abcdefghijklmnopqrstuvwxyz_';
-  const savedTitles=new Set(games.map(game=>catalogText(game.title)));
+function rankedCatalogueGames({steam,critics,genres},platform,genre,order,limit=15) {
+  const stores={
+    Steam:['PC'],Xbox:['Xbox Series X','Xbox One'],
+    PlayStation:['PlayStation 5','PlayStation 4'],Nintendo:['Nintendo Switch 2','Nintendo Switch'],
+  };
+  const desired=platform==='PC'?'Steam':platform;
+  const owned=new Set(games.map(game=>catalogText(game.title)));
   const choices=new Map();
-  if(rate)return drawRatedCatalogueGames(stores,letters,savedTitles,rate,limit);
-  for(let attempt=0;attempt<3&&choices.size<limit;attempt++){
-    const store=stores[Math.floor(Math.random()*stores.length)];
-    const letter=letters[Math.floor(Math.random()*letters.length)];
-    try {
-      const pool=(await catalogBucket(store,letter)).map(item=>catalogEntry(item,store))
-        .filter(item=>item && !savedTitles.has(catalogText(item.title)));
-      while(pool.length&&choices.size<limit){
-        const slot=Math.floor(Math.random()*pool.length);
-        const [item]=pool.splice(slot,1);
-        choices.set(catalogText(item.title),item);
-      }
-    }catch{continue}
-  }
-  return [...choices.values()];
-}
 
-async function drawRatedCatalogueGames(stores,letters,savedTitles,rate,limit) {
-  const requests=stores.flatMap(store=>{
-    const available=[...letters];
-    return Array.from({length:2},()=>{
-      const [letter]=available.splice(Math.floor(Math.random()*available.length),1);
-      return catalogBucket(store,letter).then(entries=>({entries,store}));
-    });
-  });
-  const batches=(await Promise.allSettled(requests)).filter(batch=>batch.status==='fulfilled');
-  if(!batches.length)throw Error('Game catalogue unavailable');
-  const choices=new Map();
-  for(const {value:{entries,store}} of batches){
-    for(const entry of entries){
-      const item=catalogEntry(entry,store);
-      if(!item)continue;
-      const title=catalogText(item.title);
-      if(savedTitles.has(title))continue;
-      const rating=rate(item,store);
-      if(!rating)continue;
-      const previous=choices.get(title);
-      if(!previous||compareEveningRatings(rating,previous.rating)<0)choices.set(title,{...item,rating});
+  function add(title,store,version,critic,review) {
+    const key=catalogText(title);
+    if(!key||owned.has(key))return;
+    const indexedGenre=genres?.get(key)?.get(version)||'';
+    if(genre&&indexedGenre!==genre)return;
+    const rating=rankEveningHit(order,critic,review);
+    if(!rating)return;
+    const current=choices.get(key);
+    if(current&&compareEveningRatings(rating,current.rating)>=0)return;
+    choices.set(key,{title,store,versions:version?[version]:[],genre:indexedGenre,rating,
+      steamId:store==='Steam'?review?.id:undefined,cover:review?.id?cdn(review.id):''});
+  }
+
+  for(const [key,versions] of critics||[]){
+    const review=steam?.byTitle.get(key);
+    for(const [store,supported] of Object.entries(stores)){
+      if(desired&&store!==desired)continue;
+      if(platform==='Steam'&&store==='Steam'&&!review)continue;
+      for(const version of supported){
+        const entry=versions.get(version);
+        if(!entry)continue;
+        add(entry.title,store==='Steam'&&!review?'PC':store,version,entry.critics,review);
+      }
     }
   }
-  return [...choices.values()].sort((a,b)=>compareEveningRatings(a.rating,b.rating)).slice(0,limit);
+  if(!desired||desired==='Steam'){
+    for(const review of steam?.byTitle.values()||[]){
+      if(!review||review.reviews<5000||review.value<.90)continue;
+      const critic=critics?.get(catalogText(review.title))?.get('PC')?.critics;
+      add(review.title,'Steam','PC',critic,review);
+    }
+  }
+  return [...choices.values()].sort((a,b)=>compareEveningRatings(a.rating,b.rating)||
+    a.title.localeCompare(b.title)).slice(0,limit);
 }
 
 async function findCatalogGames(title, store, exact=false) {

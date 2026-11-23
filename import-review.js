@@ -108,7 +108,11 @@ function lastImportMarkup(saved) {
   if(!record || !Number.isInteger(record.count)||!Number.isInteger(record.added))return '';
   const date=new Date(record.at);
   const timestamp=Number.isFinite(date.valueOf())?date.toLocaleDateString(appLocale()):'';
-  return '<p class="last-import-summary">'+t('Ostatni import')+': '+esc([timestamp,new Intl.NumberFormat(appLocale()).format(record.count)+' '+t('gier')].filter(Boolean).join(' · '))+'</p>';
+  const format=new Intl.NumberFormat(appLocale());
+  const summary=[timestamp,format.format(record.count)+' '+t('gier'),
+    record.added>0?t('Nowe gry')+' · '+format.format(record.added):''].filter(Boolean).join(' · ');
+  return '<div class="import-next"><p class="last-import-summary">'+t('Ostatni import')+' · '+esc(summary)+'</p>'+
+    (record.count>0?btn(t('Wybierz grę na 30 min'),'evening-after-import'):'')+'</div>';
 }
 
 function steamGameRows(data) {

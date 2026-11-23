@@ -36,7 +36,7 @@ function gamePassNotice(game,link=false) {
 
 const eveningDurations = {30:'30 min',60:'1 h',120:'2 h',180:'3 h',unlimited:'Bez limitu'};
 const eveningOrders = {
-  default:'Domyślnie',
+  default:'Metacritic + Steam',
   steam:'Steam (opinie graczy)',
   metacritic:'Metacritic (oceny krytyków)',
 };
@@ -46,36 +46,59 @@ function compareEveningRatings(a,b) {
   return (b?.value??-1)-(a?.value??-1)||(b?.reviews??0)-(a?.reviews??0);
 }
 
-async function eveningRatingLookup(order) {
-  if(order==='steam'){
-    const index=await steamReviewIndex();
-    return game=>findSteamReview(index,game);
-  }
-  const index=await criticIndex();
+function rankEveningHit(order,critic,review) {
+  const meta=Number.isInteger(critic)?critic:null;
+  const steam=review?.reviews>=1000?review:null;
+  const provenSteam=steam?.reviews>=5000&&steam.value>=.90;
+  if(order==='steam'&&!provenSteam)return;
+  if(order==='metacritic'&&!(meta>=87))return;
+  if(order==='default'&&!(meta>=87||provenSteam||(meta>=80&&steam?.value>=.88)))return;
+  const adjusted=steam?(steam.value*steam.reviews+850)/(steam.reviews+1000)*100:0;
+  const value=order==='steam'?adjusted:order==='metacritic'?meta:
+    meta!==null&&steam?meta*.55+adjusted*.45+2:(meta??adjusted)-3;
+  return {value,critic:meta,steam,reviews:steam?.reviews};
+}
+
+async function eveningRatingData(order,needGenres) {
+  const [critics,steam]=await Promise.allSettled([
+    order==='steam'&&!needGenres?Promise.resolve(null):criticIndex(),
+    steamReviewIndex(),
+  ]);
+  return {critics:critics.value,steam:steam.value,genres:genreIndex,
+    partial:critics.status==='rejected'||steam.status==='rejected'};
+}
+
+function eveningRatingLookup({critics,steam},order) {
   return (game,platform)=>{
     const versions=game.catalogVersions?.[platform]||game.versions||[];
-    const score=game.criticScores?.[platform]?.critics??matchCriticScore(index,game.title,platform,versions)?.critics;
-    return Number.isInteger(score)&&score>=0&&score<=100?{value:score}:undefined;
+    const critic=game.criticScores?.[platform]?.critics??
+      (critics&&matchCriticScore(critics,game.title,platform,versions)?.critics);
+    const review=steam&&findSteamReview(steam,game);
+    return rankEveningHit(order,critic,review);
   };
 }
 
-function eveningRatingLabel(order,rating) {
-  if(!rating)return '';
-  if(order==='metacritic')return 'Metacritic · '+rating.value+' / 100';
-  return 'Steam · '+rating.value.toLocaleString(appLocale(),{style:'percent',maximumFractionDigits:1});
-}
-
 function eveningRatingMarkup(order,rating) {
-  const label=eveningRatingLabel(order,rating);
-  if(!label)return '';
-  const reviews=order==='steam'?' · '+t('Liczba recenzji')+' '+rating.reviews.toLocaleString(appLocale()):'';
-  return '<small><strong>'+esc(label+reviews)+'</strong></small>';
+  if(!rating)return '';
+  const badges=[];
+  if(order!=='steam'&&rating.critic!==null){
+    badges.push('<span>Metacritic <strong>'+rating.critic+'/100</strong></span>');
+  }
+  if(order!=='metacritic'&&rating.steam){
+    const {value,reviews}=rating.steam;
+    const percent=value.toLocaleString(appLocale(),{style:'percent',maximumFractionDigits:0});
+    badges.push('<span>Steam <strong>'+esc(percent)+'</strong> · '+
+      esc(reviews.toLocaleString(appLocale()))+' '+t('opinii')+'</span>');
+  }
+  return badges.length?'<div class="evening-ratings">'+badges.join('')+'</div>':'';
 }
 
 function eveningRatingSource(order) {
-  const source=order==='steam'?steamReviewProject:criticProject;
-  const name=order==='steam'?'The Game Census · CC BY 4.0':'Metacritic · '+t('Dane z migawki 7.10.2025');
-  return order==='default'?'':'<small><a class="text-link" href="'+source+'" target="_blank" rel="noopener noreferrer">'+esc(name)+'</a></small>';
+  const sources=[];
+  if(order!=='steam')sources.push([criticProject,'Metacritic · '+t('Dane z migawki 7.10.2025')]);
+  if(order!=='metacritic')sources.push([steamReviewProject,'The Game Census · CC BY 4.0']);
+  return '<small class="evening-rating-sources">'+sources.map(([url,label])=>
+    '<a class="text-link" href="'+url+'" target="_blank" rel="noopener noreferrer">'+esc(label)+'</a>').join(' · ')+'</small>';
 }
 
 let eveningDuration;
@@ -85,7 +108,8 @@ function eveningPanel() {
   const choices=Object.entries(eveningDurations).map(([id,label])=>
     '<button type="button" data-act="evening:'+id+'" aria-pressed="'+(id===eveningDuration)+'">'+t(label)+'</button>').join('');
   return '<section class="panel feature-panel evening-panel" aria-labelledby="evening-title">'+
-    '<div class="evening-heading"><h2 id="evening-title">'+t('Mam czas na grę')+'</h2>'+
+    '<div class="evening-heading"><div><h2 id="evening-title">'+t('Mam czas na grę')+'</h2>'+
+    '<p>'+t('Wybierz czas. Znajdź grę.')+'</p></div>'+
     btn(t('Zmień filtry'),'evening-filters','evening-filter-button')+'</div>'+
     '<div class="evening-durations" role="group" aria-label="'+t('Czas na grę')+'">'+choices+
     '</div><div id="evening-results" aria-live="polite"></div></section>';
@@ -93,12 +117,11 @@ function eveningPanel() {
 
 function savedEveningSettings() {
   const saved=preferences.evening||{};
-  const defaultScope=games.some(game=>!game.archived)?'library':'catalogue';
   return {
-    scope:Object.hasOwn(eveningScopes,saved.scope)?saved.scope:defaultScope,
+    scope:Object.hasOwn(eveningScopes,saved.scope)?saved.scope:'catalogue',
     order:Object.hasOwn(eveningOrders,saved.order)?saved.order:'default',
-    platform:saved.platform??preferences.profile?.platform??'',
-    mood:saved.mood||'',genre:saved.genre||'',ratedOnly:Boolean(saved.ratedOnly),
+    platform:saved.platform??'',
+    mood:saved.mood||'',genre:saved.genre||'',ratedOnly:saved.ratedOnly??true,
   };
 }
 
@@ -119,16 +142,16 @@ function eveningPicks(minutes,mood,platform,rate,{scope='library',genre='',rated
     const saved=game.sessionHint || {};
     const hint={minutes:Number.isFinite(saved.minutes)?saved.minutes:0,mood:Object.hasOwn(moods,saved.mood)?saved.mood:''};
     const timing=estimateTimeFit(minutes,hint.minutes);
-    if(timing===1 || (mood && hint.mood && hint.mood!==mood))return [];
+    if(timing===1 || (mood && hint.mood!==mood))return [];
     const selectedPlatform=platform||game.system;
     const score=scoreForSession(game,selectedPlatform,timing);
     const rating=rate?.(game,selectedPlatform);
     if(ratedOnly&&!rating)return [];
-    return [{game,hint,timing,score,rating,random:Math.random()}];
+    return [{game,hint,timing,score,rating}];
   });
   return candidates.sort((a,b)=>compareEveningRatings(a.rating,b.rating)||
     (b.score?.value??-1)-(a.score?.value??-1)||(b.timing??0)-(a.timing??0)||
-    Number(Boolean(b.game.pinnedAt))-Number(Boolean(a.game.pinnedAt))||a.random-b.random).slice(0,limit);
+    Number(Boolean(b.game.pinnedAt))-Number(Boolean(a.game.pinnedAt))||(a.game.title||a.game.id).localeCompare(b.game.title||b.game.id)).slice(0,limit);
 }
 
 let drawnCatalogue=[];
@@ -147,7 +170,12 @@ function renderEveningPage(result,page) {
     const titleAction=game?'data-game="'+esc(game.id)+'"':'data-act="draw-add:'+(page.offset+index)+'"';
     const queueAction=game?'library:'+esc(game.id):'catalogue:'+(page.offset+index);
     const queued=(game||libraryMatch(item))?.pinnedAt;
-    const reason=game&&item.hint.minutes?t('Typowa sesja')+' · '+item.hint.minutes+' min':t('Czas sesji nieustalony');
+    const run=game?.runs[platform];
+    const reasons=[];
+    if(item.hint?.minutes)reasons.push(t('Typowa sesja')+' · '+item.hint.minutes+' min');
+    if(run?.goal||game?.tasks?.some(task=>task.pinned&&!task.done))reasons.push(t('Masz zapisany następny cel'));
+    if(queued)reasons.push(t('Z Twojej kolejki'));
+    if(!reasons.length)reasons.push(t('Czas sesji nieustalony'));
     const status=[game?.status==='Gram'?t('Gram teraz'):'',game?.demo?t('Demo'):''];
     const details=item.score?'<small>'+esc(t(item.score.verdict))+' · '+
       item.score.value.toLocaleString(appLocale(),{maximumFractionDigits:2})+' / 5</small>':'';
@@ -155,7 +183,7 @@ function renderEveningPage(result,page) {
       '<span class="evening-cover" aria-hidden="true"><b>'+esc(initial)+'</b>'+cover+'</span><div class="evening-pick-text">'+
       '<button type="button" class="evening-game-link" '+titleAction+'>'+title+'</button>'+
       '<small>'+[platform,...status].filter(Boolean).map(esc).join(' · ')+'</small>'+
-      '<small>'+esc(reason)+'</small>'+eveningRatingMarkup(page.order,item.rating)+details+'</div>'+
+      '<small class="evening-reason">'+esc(reasons[0])+'</small>'+eveningRatingMarkup(page.order,item.rating)+details+'</div>'+
       '<button type="button" class="evening-queue-button" data-act="evening-queue:'+queueAction+'"'+
       (queued?' disabled':'')+'>'+t(queued?'W kolejce':'Do kolejki')+'</button></li>';
   }).join('');
@@ -163,7 +191,9 @@ function renderEveningPage(result,page) {
     (rows.length?'<h3>'+t('Propozycje na teraz')+'</h3><ul class="evening-picks">'+html+'</ul>':
       '<p class="muted">'+t(page.empty)+'</p>')+eveningRatingSource(page.order)+
     (page.offset+3<page.choices.length?'<div class="library-more">'+btn(t('Pokaż kolejne'),'evening-more')+'</div>':'')+
-    (!rows.length&&page.scope!=='catalogue'?btn(t('Zobacz gry z katalogu'),'evening-catalogue'):'');
+    (!rows.length?'<div class="actions">'+btn(t('Zmień filtry'),'evening-filters')+
+      (page.scope==='catalogue'?'':btn(t('Zobacz gry z katalogu'),'evening-catalogue'))+
+      (games.some(game=>!game.archived&&game.pinnedAt)?btn(t('Zobacz całą kolejkę'),'evening-shelf'):'')+'</div>':'');
 }
 
 function currentEveningDraw(result,ticket) {
@@ -198,34 +228,23 @@ async function showEveningPicks(result,minutes,settings,ticket) {
   const {scope,platform,order,mood,genre,ratedOnly}=settings;
   drawnCatalogue=[];
   eveningPage=null;
-  let rate;
-  if(order!=='default'){
-    result.innerHTML='<p>'+t('Pobieram oceny…')+'</p>';
-    try {
-      rate=await eveningRatingLookup(order);
-    }catch{
-      if(currentEveningDraw(result,ticket))result.innerHTML='<p class="muted">'+t('Oceny chwilowo niedostępne. Spróbuj ponownie lub zmień sortowanie.')+'</p>';
-      return;
-    }
-    if(!currentEveningDraw(result,ticket))return;
-  }
-  let choices,notice='',empty='Brak pasujących gier w bibliotece. Zmień kryteria.';
-  if(scope==='catalogue'){
-    result.innerHTML='<p>'+t(rate?'Szukam ocenionych gier w katalogu…':'Losuję z katalogu…')+'</p>';
-    empty=rate?'Brak ocenionych gier w tym losowaniu. Spróbuj ponownie.':'Katalog chwilowo niedostępny. Spróbuj ponownie.';
-    try {
-      choices=await drawCatalogueGames(platform,rate,15);
-    }catch{
-      if(currentEveningDraw(result,ticket))result.innerHTML='<p class="muted">'+t('Katalog chwilowo niedostępny. Spróbuj ponownie.')+'</p>';
-      return;
-    }
-    if(!currentEveningDraw(result,ticket))return;
-    drawnCatalogue=choices;
-  }else{
-    choices=eveningPicks(minutes,mood,platform,rate,{scope,genre,ratedOnly,limit:Infinity});
-    if(ratedOnly)empty='Brak ocenionych gier dla tych filtrów.';
-    if(rate&&choices.length&&!choices.some(pick=>pick.rating))notice='Brak ocen z tego źródła dla pasujących gier.';
-  }
+  result.innerHTML='<div class="evening-loading" role="status"><span aria-hidden="true"></span>'+
+    t('Szukam najlepszych gier…')+'</div>';
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  if(!currentEveningDraw(result,ticket))return;
+
+  const data=await eveningRatingData(order,Boolean(genre));
+  if(!currentEveningDraw(result,ticket))return;
+  const rate=eveningRatingLookup(data,order);
+  const catalogue=scope==='catalogue';
+  const choices=catalogue?rankedCatalogueGames(data,platform,genre,order):
+    eveningPicks(minutes,mood,platform,rate,{scope,genre,ratedOnly,limit:Infinity});
+  const unavailable=order==='steam'?!data.steam:order==='metacritic'?!data.critics:
+    !data.steam&&!data.critics;
+  const empty=unavailable?'Oceny chwilowo niedostępne. Spróbuj ponownie lub zmień sortowanie.':
+    catalogue||ratedOnly?'Brak wysoko ocenionych gier dla tych filtrów.':'Brak pasujących gier w bibliotece. Zmień kryteria.';
+  const notice=data.partial&&!unavailable?'Jedno lub więcej źródeł ocen jest niedostępnych.':'';
+  if(catalogue)drawnCatalogue=choices;
   eveningPage={scope,platform,order,choices,notice,empty,offset:0};
   renderEveningPage(result,eveningPage);
 }
@@ -242,8 +261,9 @@ function openEvening(duration=eveningDuration||'30') {
     '<label id="evening-duration">'+t('Czas na grę')+'<select name="duration">'+
     options(Object.keys(eveningDurations),duration,id=>t(eveningDurations[id]))+'</select></label>'+
     '<details class="extra-options"'+(saved.mood||saved.genre||saved.ratedOnly?' open':'')+'><summary>'+t('Więcej filtrów')+'</summary>'+
-    '<div id="evening-constraints">'+
-    select(t('Nastrój'),'mood',['',...Object.keys(moods)],saved.mood,id=>t(moods[id]||'Dowolny'))+
+    '<div id="evening-mood">'+
+    select(t('Nastrój'),'mood',['',...Object.keys(moods)],saved.mood,id=>t(moods[id]||'Dowolny'))+'</div>'+
+    '<div>'+
     select(t('Gatunek'),'evening-genre',['',...gameGenres],saved.genre,id=>t(id||'Wszystkie gatunki'))+'</div>'+
     '<label class="compact-check"><input type="checkbox" name="rated-only"'+(saved.ratedOnly?' checked':'')+'>'+
     t('Tylko gry z oceną')+'</label></details>',()=>{});
@@ -256,19 +276,18 @@ function openEvening(duration=eveningDuration||'30') {
   function syncScope() {
     const catalogue=modes.value==='catalogue';
     fields.querySelector('#evening-duration').hidden=catalogue;
-    fields.querySelector('#evening-constraints').hidden=catalogue;
-    durationField.disabled=mood.disabled=genre.disabled=catalogue;
+    fields.querySelector('#evening-mood').hidden=catalogue;
+    durationField.disabled=mood.disabled=rated.disabled=catalogue;
+    rated.closest('label').hidden=catalogue;
   }
   for(const radio of modes)radio.onchange=syncScope;
-  rated.onchange=()=>{if(rated.checked&&sorting.value==='default')sorting.value='metacritic'};
-  sorting.onchange=()=>{if(sorting.value==='default')rated.checked=false};
   syncScope();
   form.onsubmit=event=>{
     event.preventDefault();
     const data=new FormData(form);
     const settings={
       scope:data.get('draw-mode'),platform:data.get('platform'),order:sorting.value,
-      mood:mood.value,genre:genre.value,ratedOnly:rated.checked,
+      mood:data.get('mood')||'',genre:genre.value,ratedOnly:rated.checked,
     };
     preferences.evening=settings;
     savePreferences();
