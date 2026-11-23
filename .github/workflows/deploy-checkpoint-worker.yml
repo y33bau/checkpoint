@@ -1,0 +1,42 @@
+name: Deploy Checkpoint Worker
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checkpoint-steam-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Install Worker dependencies
+        working-directory: integrations/steam
+        run: npm ci
+      - name: Deploy checkpoint-steam
+        working-directory: integrations/steam
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CHECKPOINT_STEAM_DEPLOY_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CHECKPOINT_CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          npm run deploy -- --keep-vars
+      - name: Check production routes
+        run: |
+          base=https://checkpoint-steam.ad-szelag.workers.dev
+          for provider in steam xbox psn; do
+            curl -fsS --max-time 10 --retry 4 --retry-all-errors "$base/api/$provider/status" |
+              jq -e --arg provider "$provider" 'if $provider == "psn" then (.ready | type == "boolean") else .ready == true end'
+          done
