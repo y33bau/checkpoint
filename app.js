@@ -254,13 +254,13 @@ function render(){
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
- else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
+ else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+homePlayerProfiles()+eveningPanel()}
  else{
    const current=featuredGame();
    const addPlaying=btn(t('＋ Dodaj grę'),'pick:playing','now-add-playing');
    app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+
      (current?featuredPanel(current):'<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>')+
-     eveningPanel()+gameShelf(queuedGames(current));
+     homePlayerProfiles()+eveningPanel()+gameShelf(queuedGames(current));
  }
  if(eveningResults)app.querySelector('#evening-results')?.replaceWith(eveningResults);
  paintMedia(g||(view==='now'?featuredGame():null));
@@ -282,6 +282,15 @@ const submitForm=e=>{e.preventDefault();try{saveAction(new FormData(form));persi
 function action(act){
  const game=active();
  if(deviceBusy)return;
+ if(act.startsWith('player-games:')){
+   const id=act.slice('player-games:'.length);
+   if(!Object.hasOwn(playerPlatforms,id))return;
+   clearLibraryFilters();
+   libraryMode='';
+   platform=playerPlatforms[id];
+   location.hash='library';
+   return;
+ }
  if(act==='show-guide'){showQuickGuide();return}
  if(act.startsWith('google-')){googleAction(act);return}
  if(act==='upload-cover'&&game){openCoverUpload(game);return}
