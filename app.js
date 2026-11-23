@@ -50,15 +50,16 @@ function featuredPanel(game) {
     '<button type="button" data-act="featured-prev" aria-label="'+t('Poprzednia gra')+'">‹</button>'+
     '<span aria-live="polite">'+(playing.indexOf(game)+1)+' / '+playing.length+'</span>'+
     '<button type="button" data-act="featured-next" aria-label="'+t('Następna gra')+'">›</button></div>';
-  return '<section class="panel featured-carousel" data-swipe="'+(playing.length>1)+'">'+
+  return '<section class="panel featured-carousel" data-game-id="'+esc(game.id)+'" data-swipe="'+(playing.length>1)+'">'+
     '<article class="featured-game"><div class="featured-identity">'+
     '<div class="featured-cover" aria-hidden="true">'+featureArtwork(game)+'</div>'+
-    '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+'</span><h2>'+esc(game.title)+'</h2></div></div>'+pager+
+    '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+(game.demo?' · '+t('Gra przykładowa'):'')+'</span><h2>'+esc(game.title)+'</h2></div></div>'+pager+
     (run.progress>0?'<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>':'')+
     '<div class="featured-main-actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
     '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button></div>'+
     featuredReturnPanel(game,run)+
-    '<div class="featured-tools">'+quickResources(game)+voiceButton()+youtubeGuide(game,true)+'</div>'+
+    '<details class="featured-more extra-options"><summary>'+t('Więcej')+'</summary>'+
+    '<div class="featured-tools">'+quickResources(game)+voiceButton()+youtubeGuide(game,true)+'</div></details>'+
     '<p id="media-status" role="status"></p></article></section>';
 }
 
@@ -92,9 +93,9 @@ const banner=(g,inner)=>'<article class="hero">'+((gameCoverSource(g)||g.coverFa
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
-  { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Zaloguj się przez Steam i wybierz gry do importu. Możesz też wkleić listę JSON.' },
-  { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zaloguj się kontem Microsoft i wybierz gry z historii grania Xbox do importu.' },
-  { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Wpisz nick PSN, aby dodać do biblioteki gry widoczne w Twojej historii.' },
+  { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Zaloguj się przez Steam i zaimportuj bibliotekę.' },
+  { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zaloguj się przez Microsoft i zaimportuj historię grania Xbox.' },
+  { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Podaj nick PSN i zaimportuj gry z publicznej historii.' },
   { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
   { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Wklej listę gier i linki do map z Wand.' },
 ];
@@ -112,6 +113,8 @@ function connectionPrimary(provider,saved) {
     case 'steam': return steamConnectButton(saved);
     case 'xbox': return xboxConnectButton(saved);
     case 'ps':
+      if(psnImportChecking&&steamServerAddress())
+        return '<span class="provider-pending" role="status">'+t('Sprawdzam dostępność importu…')+'</span>';
       if(psnImportAvailable)return btn(t(saved?.lastImport?.mode==='psn-profile'?'Odśwież z PlayStation':'Importuj z PlayStation'),
         'psn-import','primary provider-action');
       return saved?.libraryUrl
@@ -122,34 +125,74 @@ function connectionPrimary(provider,saved) {
   }
 }
 
+function renderConnectionCard(provider) {
+  const saved = connections[provider.id];
+  const isSteam = provider.id === 'steam';
+  const hasLibrary=Object.hasOwn(librarySources,provider.id);
+  const description=provider.id==='ps'&&!psnImportAvailable&&(!psnImportChecking||!steamServerAddress())
+    ?'Wczytaj bibliotekę i historię grania przez Checkpoint Bridge.':provider.description;
+  const steamStatus = isSteam && saved?.syncedAt && !saved?.lastImport
+    ? '<small>'+t('Ostatnia synchronizacja')+': ' + esc(new Date(saved.syncedAt).toLocaleString(appLocale())) + '</small>'
+    : '';
+  const mark=provider.id==='nintendo'?'<span class="provider-mark" aria-hidden="true">N</span>':
+    '<span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span>';
+  const primary=provider.id==='steam'||provider.id==='xbox'||provider.id==='ps';
+  const heading=primary?'h3':'h2';
+  const state=(saved?.librarySyncedAt||saved?.syncedAt)?'Biblioteka zsynchronizowana':
+    saved?.libraryUrl?'Adres połączenia zapisany':saved?.lastImport?'Biblioteka wczytana':'Profil zapisany';
+  return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<'+heading+'>'+
+    provider.name+'</'+heading+'></div>'+ '<p class="muted provider-description">'+t(description)+'</p>'+
+    '<div class="actions provider-primary">'+connectionPrimary(provider,saved)+'</div>'+
+    '<details class="extra-options provider-options"><summary>'+t('Opcje połączenia')+'</summary>'+
+    (saved?'<p class="connection-state is-saved">'+t(state)+(saved.profile?' · '+esc(saved.profile):'')+'</p>':'')+
+    '<div class="actions">'+
+    (provider.id==='nintendo'?'':'<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+t('Otwórz')+' '+provider.name + '</a>') +
+    (isSteam||provider.id==='xbox'?'':btn(saved?.profile?t('Edytuj profil'):t('Dodaj profil'),'profile-'+provider.id)) +
+    (provider.id==='xbox'&&saved?.profile?btn(t('Odłącz Xbox'),'xbox-unlink'):'')+(isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam')+btn(t('Import Steam JSON'),'import')+(saved?btn(t('Odłącz Steam'),'steam-unlink'):''):'')+
+    (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
+    '</div>' + (isSteam && !steamServerAddress() ? '<small>'+t(steamErrorMessage('not_configured'))+'</small>' : '') +
+    (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
+    (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus + '</details>' + (saved?.lastImport?lastImportMarkup(saved):'') +
+    (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') +
+    (provider.id==='ps'?sourceStatus('ps'):'') + '</article>';
+}
+
 function renderConnections() {
   checkPsnImport();
-  return pageHeading(t('Połączenia')) + renderConnectionGuide() + '<div class="platform-grid">' + providers.map(provider => {
-    const saved = connections[provider.id];
-    const isSteam = provider.id === 'steam';
-    const hasLibrary=Object.hasOwn(librarySources,provider.id);
-    const description=provider.id==='ps'&&!psnImportAvailable?'Wczytaj bibliotekę i historię grania przez Checkpoint Bridge.':provider.description;
-    const steamStatus = isSteam && saved?.syncedAt && !saved?.lastImport
-      ? '<small>'+t('Ostatnia synchronizacja')+': ' + esc(new Date(saved.syncedAt).toLocaleString(appLocale())) + '</small>'
-      : '';
-    const mark=provider.id==='nintendo'?'<span class="provider-mark" aria-hidden="true">N</span>':
-      '<span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span>';
-    return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t((saved?.librarySyncedAt||saved?.syncedAt)?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?.lastImport?'Biblioteka wczytana':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
-      '<p class="muted">' + t(description) + '</p>' +
-      (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
-      '<div class="actions">' + connectionPrimary(provider,saved) +
-      '</div><details class="extra-options"><summary>'+t('Opcje połączenia')+'</summary><div class="actions">' +
-      (provider.id==='nintendo'?'':'<a class="button" href="' + provider.url + '" target="_blank" rel="noopener noreferrer">'+t('Otwórz')+' '+provider.name + '</a>') +
-      (isSteam||provider.id==='xbox'?'':btn(saved?.profile?t('Edytuj profil'):t('Dodaj profil'),'profile-'+provider.id)) +
-      (provider.id==='xbox'&&saved?.profile?btn(t('Odłącz Xbox'),'xbox-unlink'):'')+(isSteam?btn(t('Pokaż zaimportowane gry'),'source-view:steam')+btn(t('Import Steam JSON'),'import')+(saved?btn(t('Odłącz Steam'),'steam-unlink'):''):'')+
-      (hasLibrary?sourceConnectionButtons(provider.id,saved):'')+
-      '</div>' + (isSteam && !steamServerAddress() ? '<small>'+t(steamErrorMessage('not_configured'))+'</small>' : '') +
-      (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
-      (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus + '</details>' + (saved?.lastImport?lastImportMarkup(saved):'') +
-      (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') +
-      (provider.id==='ps'?sourceStatus('ps'):'') + '</article>';
-  }).join('') + '</div>';
+  const cards=providers.map(renderConnectionCard);
+  return pageHeading(t('Połączenia'))+
+    '<section class="import-platforms" aria-labelledby="import-platform-title"><div class="import-heading">'+
+    '<h2 id="import-platform-title">'+t('Importuj swoje gry')+'</h2>'+
+    '<p class="muted">'+t('Dane zapisują się w tej przeglądarce.')+'</p></div>'+
+    '<div class="platform-grid import-platform-grid">'+cards.slice(0,3).join('')+'</div></section>'+
+    renderConnectionGuide()+'<div class="platform-grid">'+cards.slice(3).join('')+'</div>';
 }
+function refreshPsnConnection() {
+  const psCard=app.querySelector('.platform-card.ps');
+  const guideSection=app.querySelector('.connection-guide [data-provider="ps"]');
+  if(!psCard||!guideSection)return;
+  const provider=providers.find(item=>item.id==='ps');
+  const template=document.createElement('template');
+  for(const [current,markup,target] of [
+    [psCard,renderConnectionCard(provider),'.provider-primary button, .provider-options summary'],
+    [guideSection,renderConnectionGuideSection(provider,connectionInstructions[appLanguage()]),'summary'],
+  ]){
+    template.innerHTML=markup;
+    const updated=template.content.firstElementChild;
+    const active=document.activeElement;
+    const hadFocus=current.contains(active);
+    const oldDetails=current.matches('details')?current:current.querySelector('details');
+    const newDetails=updated.matches('details')?updated:updated.querySelector('details');
+    newDetails.open=oldDetails.open;
+    const replacement=hadFocus&&[...updated.querySelectorAll('button,a,summary')].find(element=>
+      (active.dataset.act&&element.dataset.act===active.dataset.act)||
+      (active.href&&element.href===active.href)||
+      (active.tagName==='SUMMARY'&&element.tagName==='SUMMARY'));
+    current.replaceWith(updated);
+    if(hadFocus)(replacement||updated.querySelector(target))?.focus({preventScroll:true});
+  }
+}
+
 function toggleGameArchive(game) {
   const archived=Boolean(game.archived);
   if(archived)delete game.archived;
@@ -256,21 +299,31 @@ function render(){
  }
  const g=active(),view=location.hash.slice(1)||'now';
  const eveningResults=view==='now'?app.querySelector('#evening-results'):null;
+ if(!eveningResults){eveningDuration=undefined;eveningSettings=undefined;}
+ const openGameTools=app.querySelector('.featured-more[open]')?.closest('.featured-carousel')?.dataset.gameId;
  document.body.dataset.view=g?'game':view;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
  if(view==='settings'){app.innerHTML=renderSettings();initializeGoogleSync()}
  else if(view==='news'){app.innerHTML=renderNews();loadNews()}
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
- else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()+gameShelf([])+homePlayerProfiles()}
+ else if(!games.some(game=>!game.archived)){
+   app.innerHTML=pageHeading(t('Gram teraz'))+eveningPanel()+
+     '<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><div class="actions">'+
+     '<a class="button primary" href="#connections">'+t('Zaimportuj moje gry')+'</a>'+
+     btn(t('＋ Dodaj grę'),'pick:playing')+'</div></div>'+gameShelf([])+homePlayerProfiles();
+ }
  else{
    const current=featuredGame();
    const addPlaying=btn(t('＋ Dodaj grę'),'pick:playing','now-add-playing');
-   app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+
+   app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+eveningPanel()+
      (current?featuredPanel(current):'<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>')+
-     eveningPanel()+gameShelf(queuedGames(current))+homePlayerProfiles();
+     gameShelf(queuedGames(current))+homePlayerProfiles();
  }
  if(eveningResults)app.querySelector('#evening-results')?.replaceWith(eveningResults);
+ if(openGameTools&&view==='now'&&featuredGame()?.id===openGameTools){
+   app.querySelector('.featured-more').open=true;
+ }
  paintMedia(g||(view==='now'?featuredGame():null));
  syncSessionVoice();
  if(g && currentGameTab==='ratings')attachCriticScores([g]);
@@ -342,6 +395,11 @@ function action(act){
  if(act==='edit-start' && game){editStartRating(game);return}
  if(act==='critics-retry' && game){attachCriticScores([game]);return}
  if(act==='evening-more'){nextEveningPage();return}
+ if(act==='evening-filters'){openEvening();return}
+ if(act==='evening-catalogue'){
+   pickEveningDuration(eveningDuration||'30',{...savedEveningSettings(),scope:'catalogue'});
+   return;
+ }
  if(act.startsWith('evening-queue:')){
    const [,kind,id]=act.split(':');
    queueEveningPick(kind,id);return;
@@ -349,7 +407,7 @@ function action(act){
  if(act.startsWith('draw-add:')){const choice=drawnCatalogue[Number(act.slice(9))];if(choice)openGameForm(null,choice);return}
  if(act.startsWith('evening:')){
    const duration=act.slice('evening:'.length);
-   if(Object.hasOwn(eveningDurations,duration))openEvening(duration);
+   if(Object.hasOwn(eveningDurations,duration))pickEveningDuration(duration);
    return;
  }
  if(act==='pick:queue'||act==='pick:playing'){openGamePicker(act.slice(5));return}

@@ -146,11 +146,13 @@ function gameTile(game,{actions=true,details='',badge='',description='',eagerCov
   const title=esc(game.title);
   const initials=game.title.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('');
   const genre=gameGenre(game);
-  const metadata=[...Object.keys(game.runs),genre?t(genre):'',t(game.status)].filter(Boolean).map(esc).join(' · ');
+  const metadata=[...Object.keys(game.runs),genre?t(genre):'',t(game.status),game.demo?t('Gra przykładowa'):''].filter(Boolean).map(esc).join(' · ');
+  const tag=game.demo?t('Demo'):game.system;
   return '<div class="library-item"><div class="library-tile-face">'+
     '<div class="tile-poster"><button type="button" class="tile" data-game="'+esc(game.id)+'" aria-label="'+title+(description?' · '+esc(description):'')+'">'+
     '<span class="cover" aria-hidden="true"><b>'+esc(initials)+'</b>'+coverImage(game,eagerCover)+'</span>'+
     '<strong class="tile-caption" aria-hidden="true">'+title+'</strong></button>'+badge+
+    (!badge?'<span class="tile-platform">'+esc(tag)+'</span>':'')+
     '<button type="button" class="tile-disclosure" aria-label="'+esc(t('Pokaż szczegóły')+' · '+game.title)+'" aria-expanded="false" data-act="tile-details">＋</button></div>'+
     '<div class="tile-expansion"><div class="tile-detail"><strong>'+title+'</strong><small>'+metadata+'</small>'+
     details+gamePassNotice(game)+(actions&&!game.archived?'<div class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</div>':'')+
@@ -160,7 +162,8 @@ function gameTile(game,{actions=true,details='',badge='',description='',eagerCov
 function libraryRow(game, rating) {
   const title=esc(game.title);
   const cover='<span class="cover" aria-hidden="true">'+coverImage(game)+'</span>';
-  const metadata='<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+'</small>'+gamePassNotice(game)+'</span>';
+  const metadata='<span class="info"><strong>'+title+'</strong><small>'+esc(Object.keys(game.runs).join(' · '))+' · '+t(game.status)+
+    (game.demo?' · '+t('Demo'):'')+'</small>'+gamePassNotice(game)+'</span>';
   return '<div class="library-item"><button type="button" class="library-row" data-game="'+esc(game.id)+'">'+cover+metadata+
     (rating?'<span class="library-row-score">'+esc(rating)+'</span>':'')+'</button>'+
     (game.archived?'':'<span class="library-actions">'+playingToggle(game,true)+queueToggle(game,true)+'</span>')+'</div>';

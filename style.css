@@ -2,6 +2,7 @@
 
 :root {
   color-scheme: dark;
+  scroll-padding-bottom:calc(88px + env(safe-area-inset-bottom));
   --night: #080911;
   --surface: #101120;
   --raised: #191a30;
@@ -648,9 +649,9 @@ body[data-view="now"] .featured-carousel{
 .featured-game{padding:var(--space)}
 .featured-identity{
   position:relative;isolation:isolate;display:flex;align-items:flex-end;
-  min-height:clamp(210px,34vw,390px);
+  min-height:clamp(126px,18vw,195px);
   margin:calc(-1 * var(--space)) calc(-1 * var(--space)) 2px;
-  padding:clamp(16px,4vw,38px);overflow:hidden;
+  padding:clamp(14px,2.5vw,26px);overflow:hidden;
   border-bottom:1px solid #ad63b7;
   background:#2c2034 url("assets/afterglow.png") center 48% / cover;
 }
@@ -661,7 +662,7 @@ body[data-view="now"] .featured-carousel{
 }
 .featured-title{min-width:0;max-width:42rem;color:#fff5f9;text-shadow:0 2px 12px #080811,0 0 22px #ff49ac56}
 .featured-identity h2{
-  font-size:clamp(35px,8vw,78px);font-weight:800;font-style:italic;
+  font-size:clamp(28px,6vw,56px);font-weight:800;font-style:italic;
   letter-spacing:-.025em;line-height:.91;text-transform:uppercase;overflow-wrap:anywhere;
 }
 .featured-identity .eyebrow{
@@ -774,16 +775,8 @@ body[data-view="now"] .featured-carousel{
   content:"";position:absolute;inset:3px;border:1.5px solid currentColor;border-radius:50%;
 }
 @media(max-width:620px){
-  nav a{font-size:clamp(.59rem,2.6vw,.76rem);padding-inline:1px}
-}
-@media(max-width:360px){
-  nav a{font-family:var(--font-display);font-size:.72rem;letter-spacing:-.025em}
-}
-@media(max-width:620px){
+  nav a{font-size:clamp(.6875rem,2.9vw,.8125rem);padding-inline:1px;letter-spacing:-.02em}
   .nav-label{max-width:100%;overflow-wrap:anywhere}
-}
-@media(max-width:360px){
-  nav a{font-family:inherit;font-size:.59rem}
 }
 
 
@@ -843,7 +836,7 @@ body[data-view="now"] .featured-carousel{
 .library-covers .library-actions{position:static;transform:none;flex-direction:row;gap:4px;padding:6px 8px 0}
 .tile-disclosure{display:none;position:absolute;inset:4px 4px auto auto;padding:2px 7px;min-height:34px;min-width:34px;z-index:3;background:#171122e5}
 .tile-rank{position:absolute;inset:5px auto auto 5px;z-index:2;padding:2px 5px;border-radius:6px;background:#171122e6;font-size:.75rem;pointer-events:none}
-.now-queue .library-covers,#evening-results>.library-covers{margin-top:12px}
+.now-queue .library-covers{margin-top:12px}
 @media(max-width:980px){.library-covers{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(hover:none) or (pointer:coarse){.tile-disclosure{display:block}}
 
@@ -924,8 +917,8 @@ body[data-view="now"] .featured-carousel{
 .quick-picker-group .picker-option:hover{background:#201a2c}
 .picker-row-info{display:grid;flex:1;min-width:0}
 .picker-row-info small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.picker-row-actions,.evening-card-actions{display:flex;gap:4px}
-.picker-row-actions button,.evening-card-actions button{min-height:40px;padding:4px 7px;font-size:.76rem;white-space:nowrap}
+.picker-row-actions{display:flex;gap:4px}
+.picker-row-actions button button{min-height:40px;padding:4px 7px;font-size:.76rem;white-space:nowrap}
 .evening-scopes{border:0;margin:0;padding:4px 0 8px}
 .evening-scopes>div{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .evening-scopes label{position:relative;margin:0}
@@ -935,9 +928,6 @@ body[data-view="now"] .featured-carousel{
 .evening-scopes input:focus-visible+span{outline:2px solid #ed96c8;outline-offset:2px}
 .compact-check{display:flex;align-items:center;gap:8px;min-height:40px}
 .compact-check input{flex:none;width:18px;height:18px;margin:0}
-.evening-choice{min-width:0}
-.evening-choice>button{margin-top:6px;width:100%;min-height:40px;padding-inline:6px}
-.discovery-row>.evening-card-actions{flex:0 1 auto;display:grid}
 #wand-quick-import:empty{display:none}
 .match-maps-shortcut{margin-bottom:12px}
 .match-map-list{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
@@ -977,4 +967,89 @@ body[data-view="now"] .featured-carousel{
 @media(max-width:560px){
   .home-player-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .home-player-grid[data-count="3"] .player-platform-card.ps{grid-column:1/-1}
+}
+
+/* Quick picks and account imports */
+.evening-panel{
+  margin-block:0 var(--space);gap:10px;
+  border-color:#7b63a8;background:linear-gradient(120deg,#26163d,#111827 72%);
+}
+.evening-heading,.import-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;
+}
+.evening-heading h2,.import-heading h2{font-size:clamp(24px,3vw,32px)}
+.evening-heading .evening-filter-button{padding-inline:11px;font-size:.86rem}
+.evening-panel .evening-durations{margin:0}
+.evening-durations button[aria-pressed="true"]{
+  border-color:var(--mint);background:#153740;color:var(--mint);
+}
+#evening-results:empty{display:none}
+#evening-results>:is(p,small,button){margin-block:6px 0}
+.evening-picks{
+  display:grid;gap:7px;margin:8px 0;padding:0;list-style:none;
+}
+.evening-pick{
+  display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:9px;
+  padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#121324;
+}
+.evening-cover{
+  display:grid;place-items:center;position:relative;min-height:50px;aspect-ratio:4/5;
+  border-radius:5px;overflow:hidden;background:#27213b;color:var(--soft);
+}
+.evening-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.evening-pick-text{display:grid;line-height:1.25}
+.evening-pick-text small{font-size:.78rem}
+.evening-pick .evening-game-link{
+  justify-self:start;min-height:44px;padding:4px 0;border:0;background:transparent;
+  color:var(--ink);text-align:left;overflow-wrap:anywhere;
+}
+.evening-pick .evening-game-link:is(:hover,:focus-visible){color:var(--mint)}
+.evening-pick .evening-queue-button{font-size:.81rem;padding-inline:8px}
+.featured-more{margin:0}
+.featured-more>summary{min-height:44px;display:list-item;padding-block:10px}
+.featured-more[open] .featured-tools{margin-top:7px}
+.featured-resume .resume-empty{font-size:.88rem}
+.tile-platform{
+  position:absolute;inset:5px auto auto 5px;z-index:2;
+  padding:2px 6px;border-radius:5px;background:#171122ef;
+  color:var(--ink);font-size:.72rem;pointer-events:none;
+}
+.import-platforms{margin-bottom:var(--space)}
+.import-heading{margin-bottom:10px}
+.import-heading p{font-size:.88rem}
+.import-platform-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.import-platform-grid .platform-card{
+  grid-template-rows:auto 1fr auto auto;align-content:stretch;gap:8px;
+  padding:clamp(11px,2vw,18px);border-color:#635783;
+}
+.import-platform-grid .provider-heading{gap:8px}
+.import-platform-grid .provider-heading h3{font-size:1.55rem}
+.import-platform-grid .provider-description{font-size:.92rem;line-height:1.35}
+.import-platform-grid :is(.provider-action,.provider-pending){width:100%}
+.provider-pending{
+  display:grid;align-items:center;min-height:44px;color:var(--soft);
+  font-size:.88rem;text-align:center;
+}
+.import-platform-grid .provider-options{margin-top:0}
+.provider-options .connection-state{margin:6px 0}
+.onboarding-choices{display:grid;gap:8px;margin-top:4px}
+@media(max-width:700px){
+  .import-platform-grid{grid-template-columns:minmax(0,1fr)}
+  .import-platform-grid .platform-card{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:auto auto auto;align-content:start;gap:4px 8px;
+  }
+  .import-platform-grid .provider-heading{grid-column:1;grid-row:1}
+  .import-platform-grid .provider-heading h3{font-size:1.2rem;overflow-wrap:normal}
+  .import-platform-grid .provider-mark{width:30px;height:30px;border-radius:7px}
+  .import-platform-grid .provider-mark img{width:18px;height:18px}
+  .import-platform-grid .provider-primary{grid-column:2;grid-row:1;align-self:start;margin:0}
+  .import-platform-grid .provider-action{font-size:.81rem;padding:5px 6px;line-height:1.18}
+  .import-platform-grid .provider-description{font-size:.82rem}
+  .import-platform-grid .platform-card>:not(.provider-primary,.provider-heading){grid-column:1/-1}
+  .import-platform-grid .provider-options>summary{font-size:.82rem}
+}
+@media(max-width:360px){
+  .evening-pick{grid-template-columns:33px minmax(0,1fr) auto;gap:7px}
+  .evening-cover{min-height:43px}
 }

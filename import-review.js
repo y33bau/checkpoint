@@ -32,6 +32,7 @@ function openImportReview(provider, items, apply) {
     '<p>'+formatter.format(items.filter(item=>item.status==='Nowa gra').length)+' '+t('nowych')+' · '+
     formatter.format(items.filter(item=>item.status==='Już w bibliotece').length)+' '+t('już w bibliotece')+' · '+
     formatter.format(items.filter(item=>item.status==='Dodaj platformę').length)+' '+t('do połączenia z istniejącymi grami')+'</p>'+
+    '<p class="muted">'+t('Dane zapisują się w tej przeglądarce.')+'</p>'+
     '<div class="actions import-review-controls"><button type="button" data-review-all>'+t('Zaznacz wszystkie')+'</button>'+
     '<button type="button" data-review-none>'+t('Odznacz wszystkie')+'</button></div>'+
     '<div id="import-review-list"></div><button type="button" id="import-review-more">'+t('Pokaż kolejne')+'</button>'+

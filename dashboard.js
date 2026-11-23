@@ -15,6 +15,13 @@ function renderSettings() {
   return pageHeading(t('Ustawienia')) + `
     <div class="settings-grid">
       <article class="panel settings-card">
+        <h2>${t('Kopia zapasowa')}</h2>
+        <p class="muted">${t('Przenieś gry i postępy na inne urządzenie.')}</p>
+        <div class="actions">${btn(t('Pobierz kopię'),'backup-export','primary')}${btn(t('Wczytaj kopię'),'backup-import')}</div>
+        <input type="file" id="backup-file" accept=".json,application/json" hidden>
+        <p class="muted" id="backup-status" role="status"></p>
+      </article>
+      <article class="panel settings-card">
         <h2 id="app-language-title">${t('Język aplikacji')}</h2>
         <label><select id="app-language" aria-labelledby="app-language-title">
           <option value="pl" ${appLanguage() === 'pl' ? 'selected' : ''}>PL · Polski</option>
@@ -31,13 +38,6 @@ function renderSettings() {
       <article class="panel settings-card">
         <h2>${t('Krótki przewodnik')}</h2>
         <div class="actions">${btn(t('Pokaż przewodnik'),'show-guide')}</div>
-      </article>
-      <article class="panel settings-card">
-        <h2>${t('Kopia zapasowa')}</h2>
-        <p class="muted">${t('Zawiera gry, postępy, własne okładki, nagrania i ustawienia. Limit pliku to 64 MB.')}</p>
-        <div class="actions">${btn(t('Pobierz kopię'),'backup-export','primary')}${btn(t('Wczytaj kopię'),'backup-import')}</div>
-        <input type="file" id="backup-file" accept=".json,application/json" hidden>
-        <p class="muted" id="backup-status" role="status"></p>
       </article>
       <article class="panel settings-card">
         <h2>${t('Aktualizacja aplikacji')}</h2>
