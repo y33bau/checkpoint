@@ -59,7 +59,7 @@ function startRatingPanel(game) {
     '</option>'+levelOptions(fitLevels,timing)+'</select></label><div id="start-result" aria-live="polite">'+startResult(game,timing)+'</div>'+
     '<details><summary>'+t('Jak to działa?')+'</summary><p>'+t('Wpisz Metacritic dla swojej platformy. Oceń, ile ta gra daje Ci tego, czego szukasz: frajdy, relaksu, historii albo wyzwania. Na koniec wybierz, czy w dostępnym czasie zdążysz zrobić sensowny postęp.')+'</p>'+
     '<p>'+t('Wagi: Metacritic 35%, Wartość 55%, czas 10%. Od 4,00 — Graj. Od 3,00 — Rozważ. Poniżej 3,00 — Odpuść.')+'</p>'+
-    '<p>'+t('Przy wyborze gry na wieczór dopasowanie liczymy z typowej długości sesji. NO LIMIT pomija dopasowanie czasowe.')+'</p></details></section>';
+    '<p>'+t('Przy wyborze gry na wieczór dopasowanie liczymy z typowej długości sesji. Wybierz „Bez limitu”, aby pominąć dopasowanie czasowe.')+'</p></details></section>';
 }
 
 function editStartRating(game) {

@@ -34,7 +34,7 @@ function gamePassNotice(game,link=false) {
     '<small class="pass-notice">'+text+'</small>';
 }
 
-const eveningDurations = {30:'30 min',60:'1 h',120:'2 h',180:'3 h',unlimited:'NO LIMIT'};
+const eveningDurations = {30:'30 min',60:'1 h',120:'2 h',180:'3 h',unlimited:'Bez limitu'};
 const eveningOrders = {
   default:'Domyślnie',
   steam:'Steam (opinie graczy)',
@@ -78,11 +78,38 @@ function eveningRatingSource(order) {
   return order==='default'?'':'<small><a class="text-link" href="'+source+'" target="_blank" rel="noopener noreferrer">'+esc(name)+'</a></small>';
 }
 
+let eveningDuration;
+let eveningSettings;
+
 function eveningPanel() {
-  const choices=Object.entries(eveningDurations).map(([id,label])=>btn(label,'evening:'+id)).join('');
-  return '<section class="panel feature-panel evening-panel"><h2>'+t('Mam czas na grę')+'</h2>'+
+  const choices=Object.entries(eveningDurations).map(([id,label])=>
+    '<button type="button" data-act="evening:'+id+'" aria-pressed="'+(id===eveningDuration)+'">'+t(label)+'</button>').join('');
+  return '<section class="panel feature-panel evening-panel" aria-labelledby="evening-title">'+
+    '<div class="evening-heading"><h2 id="evening-title">'+t('Mam czas na grę')+'</h2>'+
+    btn(t('Zmień filtry'),'evening-filters','evening-filter-button')+'</div>'+
     '<div class="evening-durations" role="group" aria-label="'+t('Czas na grę')+'">'+choices+
     '</div><div id="evening-results" aria-live="polite"></div></section>';
+}
+
+function savedEveningSettings() {
+  const saved=preferences.evening||{};
+  const defaultScope=games.some(game=>!game.archived)?'library':'catalogue';
+  return {
+    scope:Object.hasOwn(eveningScopes,saved.scope)?saved.scope:defaultScope,
+    order:Object.hasOwn(eveningOrders,saved.order)?saved.order:'default',
+    platform:saved.platform??preferences.profile?.platform??'',
+    mood:saved.mood||'',genre:saved.genre||'',ratedOnly:Boolean(saved.ratedOnly),
+  };
+}
+
+function pickEveningDuration(duration,settings=savedEveningSettings()) {
+  eveningDuration=duration;
+  eveningSettings=settings;
+  for(const button of app.querySelectorAll('[data-act^="evening:"]')){
+    button.setAttribute('aria-pressed',String(button.dataset.act==='evening:'+duration));
+  }
+  const result=app.querySelector('#evening-results');
+  if(result)showEveningPicks(result,duration==='unlimited'?null:Number(duration),settings,++drawRequest);
 }
 
 function eveningPicks(minutes,mood,platform,rate,{scope='library',genre='',ratedOnly=false,limit=3}={}) {
@@ -110,27 +137,33 @@ let eveningPage;
 
 function renderEveningPage(result,page) {
   const rows=page.choices.slice(page.offset,page.offset+3);
-  const html=page.scope==='catalogue'
-    ? rows.map((item,index)=>'<div class="entry discovery-row">'+(item.cover?'<img loading="lazy" alt="" src="'+esc(item.cover)+'">':'')+
-      '<div><strong>'+esc(item.title)+'</strong><p class="muted">'+esc(item.store)+'</p>'+
-      eveningRatingMarkup(page.order,item.rating)+'</div><div class="evening-card-actions">'+
-      btn(t('Do kolejki'),'evening-queue:catalogue:'+(page.offset+index))+
-      btn(t('Dodaj grę'),'draw-add:'+(page.offset+index))+'</div></div>').join('')
-    : '<div class="grid library-covers">'+rows.map(({game,hint,timing,score,rating})=>{
-      const duration=hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony');
-      const mood=Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony');
-      const details='<small>'+duration+' · '+mood+'</small>'+
-        (timing?'<small>'+t('Dopasowanie do sesji')+' · '+timing+' / 10</small>':'')+
-        eveningRatingMarkup(page.order,rating)+(score?startBadge(score):'');
-      const label=eveningRatingLabel(page.order,rating);
-      const badge=label?'<span class="tile-rank" aria-hidden="true">'+esc(label)+'</span>':'';
-      return '<div class="evening-choice">'+gameTile(game,{actions:false,details,badge,description:label})+
-        '<button type="button" data-act="evening-queue:library:'+esc(game.id)+'"'+(game.pinnedAt?' disabled':'')+'>'+
-        t(game.pinnedAt?'W kolejce':'Do kolejki')+'</button></div>';
-    }).join('')+'</div>';
+  const html=rows.map((item,index)=>{
+    const game=item.game;
+    const platform=game?(page.platform||game.system):item.store;
+    const name=game?.title||item.title;
+    const title=esc(name);
+    const initial=Array.from(name.trim())[0]||'';
+    const cover=game?coverImage(game):item.cover?'<img loading="lazy" alt="" src="'+esc(item.cover)+'">':'';
+    const titleAction=game?'data-game="'+esc(game.id)+'"':'data-act="draw-add:'+(page.offset+index)+'"';
+    const queueAction=game?'library:'+esc(game.id):'catalogue:'+(page.offset+index);
+    const queued=(game||libraryMatch(item))?.pinnedAt;
+    const reason=game&&item.hint.minutes?t('Typowa sesja')+' · '+item.hint.minutes+' min':t('Czas sesji nieustalony');
+    const status=[game?.status==='Gram'?t('Gram teraz'):'',game?.demo?t('Demo'):''];
+    const details=item.score?'<small>'+esc(t(item.score.verdict))+' · '+
+      item.score.value.toLocaleString(appLocale(),{maximumFractionDigits:2})+' / 5</small>':'';
+    return '<li class="evening-pick">'+
+      '<span class="evening-cover" aria-hidden="true"><b>'+esc(initial)+'</b>'+cover+'</span><div class="evening-pick-text">'+
+      '<button type="button" class="evening-game-link" '+titleAction+'>'+title+'</button>'+
+      '<small>'+[platform,...status].filter(Boolean).map(esc).join(' · ')+'</small>'+
+      '<small>'+esc(reason)+'</small>'+eveningRatingMarkup(page.order,item.rating)+details+'</div>'+
+      '<button type="button" class="evening-queue-button" data-act="evening-queue:'+queueAction+'"'+
+      (queued?' disabled':'')+'>'+t(queued?'W kolejce':'Do kolejki')+'</button></li>';
+  }).join('');
   result.innerHTML=(page.notice?'<p class="muted">'+t(page.notice)+'</p>':'')+
-    (rows.length?html:'<p class="muted">'+t(page.empty)+'</p>')+eveningRatingSource(page.order)+
-    (page.offset+3<page.choices.length?'<div class="library-more">'+btn(t('Pokaż kolejne'),'evening-more')+'</div>':'');
+    (rows.length?'<h3>'+t('Propozycje na teraz')+'</h3><ul class="evening-picks">'+html+'</ul>':
+      '<p class="muted">'+t(page.empty)+'</p>')+eveningRatingSource(page.order)+
+    (page.offset+3<page.choices.length?'<div class="library-more">'+btn(t('Pokaż kolejne'),'evening-more')+'</div>':'')+
+    (!rows.length&&page.scope!=='catalogue'?btn(t('Zobacz gry z katalogu'),'evening-catalogue'):'');
 }
 
 function currentEveningDraw(result,ticket) {
@@ -142,7 +175,7 @@ function nextEveningPage() {
   if(!result||!eveningPage||eveningPage.offset+3>=eveningPage.choices.length)return;
   eveningPage.offset+=3;
   renderEveningPage(result,eveningPage);
-  result.querySelector('[data-game], [data-act^="evening-queue:"]')?.focus({preventScroll:true});
+  result.querySelector('.evening-game-link')?.focus({preventScroll:true});
 }
 
 function queueEveningPick(kind,id) {
@@ -158,6 +191,7 @@ function queueEveningPick(kind,id) {
     .find(button=>button.dataset.act==='evening-queue:'+kind+':'+id);
   if(button){button.disabled=true;button.textContent=t('W kolejce')}
   render();
+  button?.closest('.evening-pick')?.querySelector('.evening-game-link')?.focus({preventScroll:true});
 }
 
 async function showEveningPicks(result,minutes,settings,ticket) {
@@ -192,15 +226,13 @@ async function showEveningPicks(result,minutes,settings,ticket) {
     if(ratedOnly)empty='Brak ocenionych gier dla tych filtrów.';
     if(rate&&choices.length&&!choices.some(pick=>pick.rating))notice='Brak ocen z tego źródła dla pasujących gier.';
   }
-  eveningPage={scope,order,choices,notice,empty,offset:0};
+  eveningPage={scope,platform,order,choices,notice,empty,offset:0};
   renderEveningPage(result,eveningPage);
 }
 
-function openEvening(duration) {
-  const saved=preferences.evening||{};
-  const order=Object.hasOwn(eveningOrders,saved.order)?saved.order:'default';
-  const scope=Object.hasOwn(eveningScopes,saved.scope)?saved.scope:'library';
-  const platform=saved.platform??preferences.profile?.platform;
+function openEvening(duration=eveningDuration||'30') {
+  const saved=eveningSettings||savedEveningSettings();
+  const {order,scope,platform}=saved;
   const scopes=Object.entries(eveningScopes).map(([id,label])=>
     '<label><input type="radio" name="draw-mode" value="'+id+'"'+(scope===id?' checked':'')+'><span>'+t(label)+'</span></label>').join('');
   openForm(t('Wybierz grę na wieczór'),
@@ -208,13 +240,14 @@ function openEvening(duration) {
     select(t('Platforma'),'platform',['',...systems],platform,value=>value||t('Dowolna'))+
     select(t('Sortowanie'),'evening-order',Object.keys(eveningOrders),order,id=>t(eveningOrders[id]))+
     '<label id="evening-duration">'+t('Czas na grę')+'<select name="duration">'+
-    options(Object.keys(eveningDurations),duration,id=>eveningDurations[id])+'</select></label>'+
+    options(Object.keys(eveningDurations),duration,id=>t(eveningDurations[id]))+'</select></label>'+
     '<details class="extra-options"'+(saved.mood||saved.genre||saved.ratedOnly?' open':'')+'><summary>'+t('Więcej filtrów')+'</summary>'+
     '<div id="evening-constraints">'+
     select(t('Nastrój'),'mood',['',...Object.keys(moods)],saved.mood,id=>t(moods[id]||'Dowolny'))+
     select(t('Gatunek'),'evening-genre',['',...gameGenres],saved.genre,id=>t(id||'Wszystkie gatunki'))+'</div>'+
     '<label class="compact-check"><input type="checkbox" name="rated-only"'+(saved.ratedOnly?' checked':'')+'>'+
     t('Tylko gry z oceną')+'</label></details>',()=>{});
+  document.querySelector('#save').textContent=t('Pokaż propozycje');
   const {duration:durationField,mood}=form.elements;
   const genre=form.elements['evening-genre'];
   const rated=form.elements['rated-only'];
@@ -240,9 +273,7 @@ function openEvening(duration) {
     preferences.evening=settings;
     savePreferences();
     dialog.close();
-    const result=document.querySelector('#evening-results');
-    const minutes=data.get('duration')==='unlimited'?null:Number(data.get('duration'));
-    if(result)showEveningPicks(result,minutes,settings,++drawRequest);
+    pickEveningDuration(data.get('duration')||duration,settings);
   };
 }
 
@@ -282,7 +313,8 @@ function featuredReturnPanel(game,run) {
     '<div class="row"><h3 id="featured-resume-title">'+t('Wróć do gry')+'</h3>'+
     '<button type="button" class="resume-edit" data-act="edit-return" aria-label="'+esc(t('Edytuj kartę powrotu'))+'">'+t('Edytuj')+'</button></div>'+
     lastPlayedMarkup(run)+
-    (noteItem||goalItem?'<dl class="resume-details">'+noteItem+goalItem+'</dl>':'')+
+    (noteItem||goalItem?'<dl class="resume-details">'+noteItem+goalItem+'</dl>':
+      '<p class="muted resume-empty">'+t('Zapisz, gdzie skończyłeś, albo dodaj kolejny cel.')+'</p>')+
     '<div id="featured-voice"></div></section>';
 }
 

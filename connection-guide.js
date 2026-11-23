@@ -131,16 +131,18 @@ const connectionInstructions = {
   },
 };
 
+function renderConnectionGuideSection(provider,guide) {
+  const manual=guide.steps[provider.id==='ps'&&!psnImportAvailable&&(!psnImportChecking||!steamServerAddress())?'psBridge':provider.id];
+  const links=manual.links.map(([label,url])=>'<a class="text-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(label)+'</a>').join('');
+  return '<details class="connection-guide-section" data-provider="'+provider.id+'"><summary>'+esc(provider.name)+'</summary>'+
+    '<p class="muted">'+esc(manual.info)+'</p><ol>'+manual.items.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol>'+
+    (manual.example?'<p><code>'+esc(manual.example)+'</code></p>':'')+
+    (links?'<div class="connection-guide-links">'+links+'</div>':'')+'</details>';
+}
+
 function renderConnectionGuide() {
   const guide=connectionInstructions[appLanguage()];
-  const sections=providers.map(provider=>{
-    const manual=guide.steps[provider.id==='ps'&&!psnImportAvailable?'psBridge':provider.id];
-    const links=manual.links.map(([label,url])=>'<a class="text-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(label)+'</a>').join('');
-    return '<details class="connection-guide-section"><summary>'+esc(provider.name)+'</summary>'+
-      '<p class="muted">'+esc(manual.info)+'</p><ol>'+manual.items.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol>'+
-      (manual.example?'<p><code>'+esc(manual.example)+'</code></p>':'')+
-      (links?'<div class="connection-guide-links">'+links+'</div>':'')+'</details>';
-  }).join('');
+  const sections=providers.map(provider=>renderConnectionGuideSection(provider,guide)).join('');
   return '<details class="panel connection-guide"><summary><span><strong>'+esc(guide.title)+'</strong>'+
     '<small>'+esc(guide.intro)+'</small></span></summary><div class="connection-guide-body">'+sections+'</div></details>';
 }

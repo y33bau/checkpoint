@@ -109,6 +109,7 @@ function browser(ready = false) {
   const calls = [];
   const context = vm.createContext({
     dialog, form, t: value => value, render() {}, attachCriticScores() {},
+    refreshPsnConnection() {},
     openForm() { dialog.open = true; submit.disabled = false; },
     input() { return '<input>'; },
     appLanguage: () => 'pl',
@@ -178,7 +179,10 @@ test('quick import stays hidden until the public Worker advertises support', asy
   for (const ready of [false, true]) {
     const b = browser(ready);
     assert.equal(b.run('psnImportAvailable'), false);
-    await b.run('checkPsnImport()');
+    const check=b.run('checkPsnImport()');
+    assert.equal(b.run('psnImportChecking'), true);
+    await check;
+    assert.equal(b.run('psnImportChecking'), false);
     assert.equal(b.run('psnImportAvailable'), ready);
   }
 });

@@ -1,5 +1,6 @@
 const psnOnlineIdPattern=/^[A-Za-z][A-Za-z0-9_-]{2,15}$/;
 let psnImportAvailable=false;
+let psnImportChecking=true;
 let psnLastCheck;
 
 async function checkPsnImport() {
@@ -13,9 +14,10 @@ async function checkPsnImport() {
     });
     available=response.ok&&(await response.json()).ready===true;
   }catch{}
-  if(available===psnImportAvailable)return;
+  const changed=psnImportChecking||available!==psnImportAvailable;
   psnImportAvailable=available;
-  if(location.hash==='#connections')render();
+  psnImportChecking=false;
+  if(changed&&location.hash==='#connections')refreshPsnConnection();
 }
 const psnImportErrors={
   invalid_id:'Sprawdź nick PSN. Wpisz nazwę widoczną na profilu PlayStation.',
@@ -47,6 +49,7 @@ function openPsnImport() {
   const locale=appLanguage()==='pl'?'pl-pl':'en-us';
   openForm(t('Importuj z PlayStation'),
     '<p class="muted">'+t('Wczytamy gry z publicznej historii grania na Twoim profilu.')+'</p>'+
+    '<p class="muted">'+t('Dane zapisują się w tej przeglądarce.')+'</p>'+
     input(t('Nick PSN'), 'onlineId', connections.ps?.profile,
       'autofocus required minlength="3" maxlength="16" autocapitalize="none" autocomplete="off" spellcheck="false"')+
     '<a class="text-link" href="https://www.playstation.com/'+locale+'/support/account/privacy-settings/" target="_blank" rel="noopener noreferrer">'+
