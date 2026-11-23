@@ -47,12 +47,11 @@ function rankedCatalogueGames({steam,critics,genres},platform,genre,order,limit=
     PlayStation:['PlayStation 5','PlayStation 4'],Nintendo:['Nintendo Switch 2','Nintendo Switch'],
   };
   const desired=platform==='PC'?'Steam':platform;
-  const owned=new Set(games.map(game=>catalogText(game.title)));
   const choices=new Map();
 
   function add(title,store,version,critic,review) {
     const key=catalogText(title);
-    if(!key||owned.has(key))return;
+    if(!key)return;
     const indexedGenre=genres?.get(key)?.get(version)||'';
     if(genre&&indexedGenre!==genre)return;
     const rating=rankEveningHit(order,critic,review);
@@ -60,7 +59,7 @@ function rankedCatalogueGames({steam,critics,genres},platform,genre,order,limit=
     const current=choices.get(key);
     if(current&&compareEveningRatings(rating,current.rating)>=0)return;
     choices.set(key,{title,store,versions:version?[version]:[],genre:indexedGenre,rating,
-      steamId:store==='Steam'?review?.id:undefined,cover:review?.id?cdn(review.id):''});
+      steamId:store==='Steam'?review?.id:undefined,artId:review?.id,cover:review?.id?cdn(review.id):''});
   }
 
   for(const [key,versions] of critics||[]){

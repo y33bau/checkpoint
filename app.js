@@ -75,18 +75,18 @@ function stepFeatured(direction, focusAction) {
   if(focusAction) app.querySelector('[data-act="'+focusAction+'"]')?.focus({preventScroll:true});
 }
 
-function featureArtwork(game) {
+function featureArtwork(game,{loading="eager",artId}={}) {
   const cover=gameCoverSource(game);
   const fallback=web(game.coverFallback||'');
   const legacySteamId=/steamstatic\.com\/steam\/apps\/(\d+)\//.exec(cover)?.[1];
-  const steamId=game.steamAppId||legacySteamId;
+  const steamId=artId||game.steamAppId||legacySteamId;
   const sources=[
     ...(!validCustomCover(game.customCover)&&/^\d+$/.test(steamId)?['https://cdn.cloudflare.steamstatic.com/steam/apps/'+steamId+'/library_hero.jpg']:[]),
-    cover,fallback,
+    cover,fallback,...(/^\d+$/.test(steamId)?[cdn(steamId),steamHeader(steamId)]:[]),
   ].filter((url,index,list)=>url&&list.indexOf(url)===index);
   if(!sources.length)return '';
   const [first,...rest]=sources;
-  return '<div class="feature-art" aria-hidden="true"><img class="feature-image" alt="" src="'+esc(first)+'" data-art-next="'+
+  return '<div class="feature-art" aria-hidden="true"><img class="feature-image" alt="" loading="'+loading+'" src="'+esc(first)+'" data-art-next="'+
     esc(JSON.stringify(rest))+'"></div>';
 }
 

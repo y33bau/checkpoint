@@ -1,4 +1,6 @@
 const english = {
+  "Katalog globalny": "Global catalogue",
+  "Odkryj w katalogu": "Discover in the catalogue",
   "Wybierz czas. Znajdź grę.": "Pick a duration. Find a game.",
   "Szukam najlepszych gier…": "Finding the best games…",
   "Masz zapisany następny cel": "You have a next goal saved",

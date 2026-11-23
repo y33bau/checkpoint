@@ -389,7 +389,6 @@ button.danger { color:#ffb3b5;border-color:#81515b; }
 #chronicle-screenshot img,#chronicle-card img{display:block;width:min(100%,510px);border-radius:10px;margin:8px 0}
 .pass-notice{display:block;color:#ffd29c;font-weight:700}
 .gamepass-banner{margin-top:10px}
-.evening-pick span{display:grid;gap:3px}
 @media(max-width:620px){.return-grid{grid-template-columns:1fr}}
 
 .start-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -1029,26 +1028,59 @@ body[data-view="now"] .featured-carousel{
 .evening-panel .evening-durations{margin:0}
 #evening-results:empty{display:none}
 #evening-results>:is(p,small,button){margin-block:6px 0}
-.evening-picks{
-  display:grid;gap:7px;margin:8px 0;padding:0;list-style:none;
+.evening-results-heading{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;
 }
+.evening-results-heading small{color:#a5edf6}
+.evening-picks{display:grid;gap:12px;margin:10px 0;padding:0;list-style:none}
 .evening-pick{
-  display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:9px;
-  padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:#121324;
+  position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  align-items:end;gap:12px;min-height:clamp(180px,27cqw,248px);padding:clamp(14px,3cqw,26px);
+  border:1px solid #9b91bb;border-radius:14px;overflow:hidden;
+  background:radial-gradient(ellipse at 78% 16%,#624182,#252840 52%,#141422);
 }
-.evening-cover{
-  display:grid;place-items:center;position:relative;min-height:50px;aspect-ratio:4/5;
-  border-radius:5px;overflow:hidden;background:#27213b;color:var(--soft);
+.evening-cover,.evening-pick::before{
+  position:absolute;inset:0;pointer-events:none;
 }
-.evening-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.evening-pick-text{display:grid;line-height:1.25}
-.evening-pick-text small{font-size:.78rem}
+.evening-cover{z-index:-2}
+.evening-cover .feature-art{position:absolute;inset:0;z-index:0}
+.evening-cover .feature-image{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 39%;
+}
+.evening-cover img[data-art-shape="portrait"]{object-position:65% 37%}
+.evening-pick::before{
+  content:"";z-index:-1;background:linear-gradient(90deg,#090814ed 0,#090814a6 46%,transparent 83%),
+    linear-gradient(0deg,#090814ed 0,#09081438 60%,transparent 91%);
+}
+.evening-pick-text{min-width:0;display:grid;justify-items:start;gap:4px;line-height:1.25}
+.evening-pick-text small{font-size:.8rem}
+.evening-pick .evening-platform{
+  padding:3px 7px;border:1px solid #a0e9fa7d;border-radius:5px;
+  background:#101b2bee;color:#d9f9ff;font-weight:700;
+}
 .evening-pick .evening-game-link{
-  justify-self:start;min-height:44px;padding:4px 0;border:0;background:transparent;
-  color:var(--ink);text-align:left;overflow-wrap:anywhere;
+  min-height:44px;padding:2px 0;border:0;background:transparent;color:white;
+  font:800 italic clamp(24px,5cqw,42px)/1.05 var(--font-display);
+  text-align:left;text-shadow:0 2px 10px #080815;overflow-wrap:anywhere;
 }
 .evening-pick .evening-game-link:is(:hover,:focus-visible){color:var(--mint)}
-.evening-pick .evening-queue-button{font-size:.81rem;padding-inline:8px}
+.evening-pick .evening-queue-button{
+  min-height:44px;padding-inline:12px;border-color:#af9bd9;background:#1a1835f2;font-size:.85rem;
+}
+.evening-pick .evening-queue-button:not(:disabled):hover{border-color:var(--mint);background:#204254}
+.evening-pick .evening-queue-button:disabled{opacity:1;color:var(--soft)}
+.evening-pick .evening-ratings>span{background:#182e3aef;border:1px solid #7acdda5c}
+@media(max-width:520px){
+  .evening-pick{
+    min-height:220px;padding-top:clamp(62px,19vw,108px);
+    grid-template-columns:1fr;align-content:end;justify-items:start;gap:9px;
+  }
+  .evening-pick::before{
+    background:linear-gradient(0deg,#090814f5,#090814b0 58%,#09081424 100%);
+  }
+  .evening-cover .feature-image{object-position:58% 40%}
+}
+
 .featured-more{margin:0}
 .featured-more>summary{min-height:44px;display:list-item;padding-block:10px}
 .featured-more[open] .featured-tools{margin-top:7px}
@@ -1095,8 +1127,4 @@ body[data-view="now"] .featured-carousel{
 }
 @media(max-width:500px){
   .evening-heading .evening-filter-button{font-size:.77rem;padding-inline:8px}
-}
-@media(max-width:360px){
-  .evening-pick{grid-template-columns:33px minmax(0,1fr) auto;gap:7px}
-  .evening-cover{min-height:43px}
 }

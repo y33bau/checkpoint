@@ -68,7 +68,7 @@ test('Metacritic ranking respects catalogue platform and version',()=>{
   assert.equal(rate({title:'One'},'PlayStation'),undefined);
 });
 
-test('catalogue ranks established hits and preserves platform and genre filters',()=>{
+test('global ranking includes owned titles and preserves platform and genre filters',()=>{
   const {rankedCatalogueGames,parseSteamReviewSnapshot,parseCriticSnapshot}=loadApp({
     games:[{title:'Already owned'}],cdn:id=>'cover/'+id,
   });
@@ -95,9 +95,9 @@ test('catalogue ranks established hits and preserves platform and genre filters'
   const data={steam,critics,genres};
   const titles=results=>Array.from(results,result=>result.title);
   assert.deepEqual(titles(rankedCatalogueGames(data,'','','default')),
-    ['Known Hit','Popular Indie','Classic','Console Hit']);
+    ['Known Hit','Already owned','Popular Indie','Classic','Console Hit']);
   assert.deepEqual(titles(rankedCatalogueGames(data,'Xbox','RPG','default')),['Known Hit']);
-  assert.deepEqual(titles(rankedCatalogueGames(data,'Steam','','default')),['Known Hit','Popular Indie']);
+  assert.deepEqual(titles(rankedCatalogueGames(data,'Steam','','default')),['Known Hit','Already owned','Popular Indie']);
   assert.deepEqual(titles(rankedCatalogueGames({critics},'PlayStation','','default')),['Console Hit']);
-  assert.deepEqual(titles(rankedCatalogueGames({steam},'','','steam')),['Known Hit','Popular Indie']);
+  assert.deepEqual(titles(rankedCatalogueGames({steam},'','','steam')),['Already owned','Known Hit','Popular Indie']);
 });
