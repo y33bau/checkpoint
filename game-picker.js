@@ -1,5 +1,4 @@
 const pickerListLimit = 40;
-const pickerTargets = { playing:'Gram', queue:'Do kolejki' };
 
 function pickerThumb(cover, fallback='') {
   const main=validCustomCover(cover)?cover:web(cover||''), backup=web(fallback||'');
@@ -45,11 +44,11 @@ function placeCatalogueGame(target, choice, platform) {
   return item;
 }
 
-function pickerLibraryResults(query) {
+function pickerLibraryResults(query,currentId) {
   const words=catalogText(query).split(' ').filter(Boolean);
   const rank=entry=>{
     const title=catalogText(entry.title);
-    if(!words.length)return Number(entry.status!=='Gram');
+    if(!words.length)return entry.id===currentId?0:entry.status==='Gram'?1:2;
     if(title===words.join(' '))return 0;
     if(title.startsWith(words.join(' ')))return 1;
     return words.every(word=>title.includes(word))?2:3;
@@ -57,30 +56,23 @@ function pickerLibraryResults(query) {
   return games.map(entry=>({entry,rank:rank(entry)})).filter(row=>row.rank<3)
     .sort((a,b)=>a.rank-b.rank||Number(Boolean(a.entry.archived))-Number(Boolean(b.entry.archived))||
       a.entry.title.localeCompare(b.entry.title,appLocale()))
-    .map(row=>row.entry).slice(0,pickerListLimit);
-}
-
-function pickerActions(entry,target) {
-  const buttons=[target,target==='queue'?'playing':'queue'];
-  return '<div class="picker-row-actions">'+buttons.map(action=>{
-    const saved=entry&&!entry.archived&&(action==='queue'?entry.pinnedAt:entry.status==='Gram');
-    const label=saved&&action==='queue'?'W kolejce':pickerTargets[action];
-    return '<button type="button" data-pick-target="'+action+'"'+(saved&&action==='queue'?' disabled':'')+'>'+t(label)+'</button>';
-  }).join('')+'</div>';
+    .map(row=>row.entry).slice(0,words.length?pickerListLimit:6);
 }
 
 function openGamePicker(target='playing') {
-  if(!Object.hasOwn(pickerTargets,target))return;
+  if(target!=='playing'&&target!=='queue')return;
   const saved=preferences.profile?.platform;
   const platform=systems.includes(saved)?saved:systems[0];
-  openForm(t('Dodaj grę'),
+  const current=target==='playing'?featuredGame():null;
+  openForm(t(current?'Zmień grę':'Dodaj grę'),
     '<div class="quick-picker-controls">'+
     input(t('Szukaj gry'),'quick-game-query','','type="search" autocomplete="off" maxlength="120"')+
-    select(t('Platforma katalogu'),'picker-system',systems,platform)+'</div>'+
+    '<details class="picker-search-options"><summary>'+t('Opcje wyszukiwania')+'</summary>'+
+    select(t('Platforma katalogu'),'picker-system',systems,platform)+
+    '<button type="button" id="picker-detailed-add">'+t('Dodaj z formularza')+'</button></details></div>'+
     '<div id="picker-library" class="quick-picker-group"></div>'+
     '<div id="picker-catalog" class="quick-picker-group"></div>'+
-    '<p class="muted picker-status" id="picker-status" role="status"></p>'+
-    '<button type="button" id="picker-detailed-add">'+t('Dodaj z formularza')+'</button>',()=>{});
+    '<p class="muted picker-status" id="picker-status" role="status"></p>',()=>{});
   document.querySelector('#save').hidden=true;
   const query=form.elements['quick-game-query'];
   const store=form.elements['picker-system'];
@@ -89,25 +81,30 @@ function openGamePicker(target='playing') {
   const status=fields.querySelector('#picker-status');
   let choices=[], timer, revision=0;
 
-  const row=(kind,id,entry,details,thumb,existing)=>'<div class="picker-option" data-pick-kind="'+kind+'" data-pick-id="'+esc(id)+'">'+
-    thumb+'<div class="picker-row-info"><strong title="'+esc(entry.title)+'">'+esc(entry.title)+'</strong>'+
-    '<small>'+esc(details)+'</small></div>'+pickerActions(existing,target)+'</div>';
+  const row=(kind,id,entry,details,thumb)=>{
+    const selected=kind==='library'&&id===current?.id;
+    const queued=kind==='library'&&target==='queue'&&!entry.archived&&entry.pinnedAt;
+    return '<button type="button" class="picker-option" data-pick-kind="'+kind+'" data-pick-id="'+esc(id)+'"'+
+      (queued?' disabled':'')+'>'+thumb+'<span class="picker-row-info"><strong>'+esc(entry.title)+'</strong>'+
+      '<small>'+esc(details)+'</small></span>'+
+      (selected||queued?'<small class="picker-state">'+t(selected?'Obecna gra':'W kolejce')+'</small>':'')+'</button>';
+  };
 
   function renderResults(showManual=false) {
-    const matches=pickerLibraryResults(query.value);
+    const matches=pickerLibraryResults(query.value,current?.id);
     local.innerHTML=matches.length?'<h3>'+t('Z biblioteki')+'</h3><div class="picker-list">'+matches.map(entry=>
       row('library',entry.id,entry,Object.keys(entry.runs).join(' · ')+' · '+t(entry.archived?'Archiwum':entry.status),
-        pickerThumb(gameCoverSource(entry),entry.coverFallback),entry)).join('')+'</div>':'';
+        pickerThumb(gameCoverSource(entry),entry.coverFallback))).join('')+'</div>':'';
     const rows=choices.flatMap((choice,index)=>{
       const existing=libraryMatch(choice);
       if(existing?.runs[choice.store])return [];
-      return row('catalogue',index,choice,choice.store,pickerThumb(choice.cover),null);
+      return row('catalogue',index,choice,choice.store,pickerThumb(choice.cover));
     });
     const title=query.value.trim();
     const exact=catalogText(title);
     if(showManual&&exact.length>=2&&!choices.some(choice=>catalogText(choice.title)===exact)&&
         !matches.some(entry=>catalogText(entry.title)===exact)){
-      rows.push(row('manual','',{title},t('Dodaj ręcznie')+' · '+store.value,pickerThumb(''),null));
+      rows.push(row('manual','',{title},t('Dodaj ręcznie')+' · '+store.value,pickerThumb('')));
     }
     external.innerHTML=rows.length?'<h3>'+t('Z katalogu')+'</h3><div class="picker-list">'+rows.join('')+'</div>':'';
   }
@@ -136,18 +133,17 @@ function openGamePicker(target='playing') {
   }
 
   function choose(event) {
-    const action=event.target.closest('button[data-pick-target]')?.dataset.pickTarget;
-    const result=event.target.closest('[data-pick-kind]');
-    if(!action||!result||deviceBusy)return;
+    const result=event.target.closest('button[data-pick-kind]:not(:disabled)');
+    if(!result||deviceBusy)return;
     const {pickKind:kind,pickId:id}=result.dataset;
     if(kind==='library'){
       const item=games.find(entry=>entry.id===id);
       if(!item)return;
-      placeGame(action,item);
+      placeGame(target,item);
     }else{
       const choice=kind==='manual'?{title:query.value.trim()}:choices[Number(id)];
       if(!choice)return;
-      placeCatalogueGame(action,choice,store.value);
+      placeCatalogueGame(target,choice,store.value);
     }
     persist();
     dialog.close();
@@ -168,7 +164,7 @@ function openGamePicker(target='playing') {
   }
   form.onsubmit=event=>{
     event.preventDefault();
-    fields.querySelector('button[data-pick-target="'+target+'"]:not(:disabled)')?.click();
+    if(query.value.trim())fields.querySelector('button[data-pick-kind]:not(:disabled)')?.click();
   };
   dialog.addEventListener('close',()=>{clearTimeout(timer);revision++},{once:true});
   renderResults();

@@ -47,24 +47,19 @@ function featuredGame() {
 function featuredPanel(game) {
   const playing=games.filter(item=>!item.archived&&item.status==='Gram');
   const run=game.runs[game.system];
-  const pager=playing.length<2?'':'<div class="featured-pager">'+
-    '<button type="button" data-act="featured-prev" aria-label="'+t('Poprzednia gra')+'">‹</button>'+
-    '<span aria-live="polite">'+(playing.indexOf(game)+1)+' / '+playing.length+'</span>'+
-    '<button type="button" data-act="featured-next" aria-label="'+t('Następna gra')+'">›</button></div>';
   return '<section class="panel featured-carousel" data-game-id="'+esc(game.id)+'" data-swipe="'+(playing.length>1)+'">'+
     '<article class="featured-game"><div class="featured-identity">'+
     '<div class="featured-cover" aria-hidden="true">'+featureArtwork(game)+'</div>'+
-    '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+(game.demo?' · '+t('Gra przykładowa'):'')+'</span><h2>'+esc(game.title)+'</h2></div></div>'+pager+
+    '<div class="featured-title"><span class="eyebrow">'+esc(game.system)+(game.demo?' · '+t('Gra przykładowa'):'')+'</span><h2>'+esc(game.title)+'</h2></div></div>'+
     (run.progress>0?'<div class="featured-progress"><span>'+t('Postęp')+' · '+esc(run.progress)+'%</span>'+bar(run.progress)+'</div>':'')+
     '<div class="featured-main-actions">'+btn(t('＋ Zapisz sesję'),'quick','primary')+
     '<button data-game="'+esc(game.id)+'">'+t('Karta gry')+'</button></div>'+
-    featuredReturnPanel(game,run)+
     '<details class="featured-more extra-options"><summary>'+t('Więcej')+'</summary>'+
-    '<div class="featured-tools">'+quickResources(game)+voiceButton()+youtubeGuide(game,true)+'</div></details>'+
+    featuredReturnPanel(game,run)+'<div class="featured-tools">'+quickResources(game)+voiceButton()+youtubeGuide(game,true)+'</div></details>'+
     '<p id="media-status" role="status"></p></article></section>';
 }
 
-function stepFeatured(direction, focusAction) {
+function stepFeatured(direction) {
   const playing=games.filter(game=>!game.archived&&game.status==='Gram');
   if(playing.length<2||recording)return;
   const current=playing.indexOf(featuredGame());
@@ -72,7 +67,6 @@ function stepFeatured(direction, focusAction) {
   savePreferences();
   render();
   app.querySelector('.featured-carousel')?.setAttribute('data-slide',direction>0?'next':'prev');
-  if(focusAction) app.querySelector('[data-act="'+focusAction+'"]')?.focus({preventScroll:true});
 }
 
 function featureArtwork(game,{loading="eager",artId}={}) {
@@ -91,7 +85,7 @@ function featureArtwork(game,{loading="eager",artId}={}) {
   return '<div class="feature-art" aria-hidden="true">'+image+igdb+'</div>';
 }
 
-const banner=(g,inner)=>'<article class="hero"><div class="game-art">'+coverImage(g)+'</div>'+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
+const banner=(g,inner)=>'<article class="hero"><div class="game-art">'+coverImage(g)+'</div>'+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h1>'+esc(g.title)+'</h1>'+inner+'</div></article>';
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
@@ -303,21 +297,26 @@ function render(){
  const eveningResults=view==='now'?app.querySelector('#evening-results'):null;
  if(!eveningResults){eveningDuration=undefined;eveningSettings=undefined;}
  const openGameTools=app.querySelector('.featured-more[open]')?.closest('.featured-carousel')?.dataset.gameId;
+ const openHomeDetails=Boolean(app.querySelector('.now-details[open]'));
+ const openCardDetails=g?.id===displayedGameId&&Boolean(app.querySelector('.game-details[open]'));
  document.body.dataset.view=g?'game':view;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
  if(view==='settings'){app.innerHTML=renderSettings();initializeGoogleSync()}
  else if(view==='news'){app.innerHTML=renderNews();loadNews()}
  else if(view==='connections'){app.innerHTML=renderConnections()}
- else if(g){app.innerHTML=renderGameCard(g)}
+ else if(g){app.innerHTML=renderGameCard(g,openCardDetails)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
  else{
    const current=featuredGame();
    const heading='<div class="now-current-heading"><h2>'+t('Obecna gra')+'</h2>'+
-     btn(t('Dodaj grę +'),'pick:playing','now-add-playing')+'</div>';
+     btn(t(current?'Zmień grę':'Dodaj grę +'),'pick:playing','now-add-playing')+'</div>';
    const featured=current?featuredPanel(current):games.some(game=>!game.archived)?
      '<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>':
      '<div class="panel empty-library"><h3>'+t('Twoja biblioteka jest pusta')+'</h3><div class="actions">'+
      '<a class="button primary" href="#connections">'+t('Zaimportuj moje gry')+'</a></div></div>';
-   app.innerHTML=eveningPanel()+heading+featured+gameShelf(queuedGames(current))+homePlayerProfiles();
+   const profiles=homePlayerProfiles();
+   app.innerHTML=eveningPanel()+heading+featured+
+     '<details class="panel now-details"'+(openHomeDetails?' open':'')+'><summary>'+
+     t(profiles?'Kolejka i profile':'Moja kolejka')+'</summary>'+gameShelf(queuedGames(current))+profiles+'</details>';
  }
  if(eveningResults)app.querySelector('#evening-results')?.replaceWith(eveningResults);
  if(openGameTools&&view==='now'&&featuredGame()?.id===openGameTools){
@@ -326,8 +325,19 @@ function render(){
  paintMedia(g||(view==='now'?featuredGame():null));
  syncSessionVoice();
  observeIgdbMetadata();
- if(g && currentGameTab==='ratings')attachCriticScores([g]);
- if(g && currentGameTab==='goals')wireWandQuickImport(g);
+ const cardDetails=app.querySelector('.game-details');
+ if(cardDetails){
+   const loadSection=()=>{
+     if(!cardDetails.open)return;
+     if(currentGameTab==='ratings')attachCriticScores([g]);
+     if(currentGameTab==='goals'&&!cardDetails.dataset.wandLoaded){
+       cardDetails.dataset.wandLoaded='true';
+       wireWandQuickImport(g);
+     }
+   };
+   cardDetails.addEventListener('toggle',loadSection);
+   loadSection();
+ }
  for(const link of document.querySelectorAll('nav a')) {
    if(link.classList.contains('active')) link.setAttribute('aria-current','page');
    else link.removeAttribute('aria-current');
@@ -369,7 +379,6 @@ function action(act){
    else openResourcePaste(resourceGame);
    return;
  }
- if(act==='featured-prev'||act==='featured-next'){stepFeatured(act==='featured-next'?1:-1,act);return}
  const [sourceAction,providerId]=act.split(':');
  if(providerId==='steam'||Object.hasOwn(librarySources,providerId)){
    if(sourceAction==='source-view'){
@@ -397,6 +406,7 @@ function action(act){
  if(act==='evening-more'){nextEveningPage();return}
  if(act==='evening-shelf'){
    const shelf=app.querySelector('.now-queue');
+   if(shelf)shelf.closest('details').open=true;
    shelf?.focus({preventScroll:true});
    shelf?.scrollIntoView({block:'start'});
    return;
@@ -407,8 +417,8 @@ function action(act){
    return;
  }
  if(act==='evening-filters'){openEvening();return}
- if(act==='evening-catalogue'){
-   pickEveningDuration(eveningDuration||'30',{...savedEveningSettings(),scope:'catalogue'});
+ if(act.startsWith('evening-scope:')){
+   selectEveningScope(act.slice('evening-scope:'.length));
    return;
  }
  if(act.startsWith('evening-queue:')){
@@ -505,7 +515,7 @@ function action(act){
    return;
  }
  if(!g)return;const r=g.runs[g.system];
- if(['session','quick'].includes(act))openSessionForm(g,act==='quick');
+ if(['session','quick'].includes(act))openSessionForm(g);
  if(act==='rate')openGameScores(g);
  if(act==='map')openResourcePaste(g,'map');
  if(act==='task')openForm(t('Nowy cel'),input(t('Co chcesz zrobić?'),'name','','required'),d=>g.tasks.push({name:d.get('name'),done:false}))}

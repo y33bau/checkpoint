@@ -40,7 +40,8 @@ const eveningOrders = {
   steam:'Steam (opinie graczy)',
   metacritic:'Metacritic (oceny krytyków)',
 };
-const eveningScopes={playing:'Kontynuuj',queue:'Z mojej kolejki',library:'Cała biblioteka',catalogue:'Katalog globalny'};
+const eveningQuickScopes={library:'Z mojej biblioteki',discover:'Odkryj nową grę'};
+const eveningScopes={...eveningQuickScopes,playing:'Kontynuuj',queue:'Z mojej kolejki',catalogue:'Katalog globalny'};
 
 function compareEveningRatings(a,b) {
   return (b?.value??-1)-(a?.value??-1)||(b?.reviews??0)-(a?.reviews??0);
@@ -104,12 +105,49 @@ function eveningRatingSource(order) {
 let eveningDuration;
 let eveningSettings;
 
+function eveningQuickScope() {
+  const {scope}=eveningSettings||savedEveningSettings();
+  return scope==='playing'||scope==='queue'?'library':scope;
+}
+
+function syncEveningControls() {
+  for(const button of app.querySelectorAll('[data-evening-scope]')){
+    button.setAttribute('aria-pressed',String(button.dataset.eveningScope===eveningQuickScope()));
+  }
+  for(const button of app.querySelectorAll('[data-act^="evening:"]')){
+    button.setAttribute('aria-pressed',String(button.dataset.act==='evening:'+eveningDuration));
+  }
+}
+
+function selectEveningScope(scope) {
+  if(!Object.hasOwn(eveningQuickScopes,scope))return;
+  eveningSettings={...(eveningSettings||savedEveningSettings()),scope};
+  preferences.evening=eveningSettings;
+  savePreferences();
+  if(eveningDuration)pickEveningDuration(eveningDuration);
+  else syncEveningControls();
+}
+
+function eveningCatalogueScope(scope) {
+  return scope==='catalogue'||scope==='discover';
+}
+
+function excludeEveningLibrary() {
+  const titles=new Set(games.map(game=>catalogText(game.title)));
+  const steamIds=new Set(games.map(game=>game.steamAppId).filter(Boolean).map(Number));
+  return (title,steamId)=>titles.has(title)||steamIds.has(steamId);
+}
+
 function eveningPanel() {
+  const scopes=Object.entries(eveningQuickScopes).map(([id,label])=>
+    '<button type="button" data-act="evening-scope:'+id+'" data-evening-scope="'+id+'" aria-pressed="'+
+    (id===eveningQuickScope())+'">'+t(label)+'</button>').join('');
   const choices=Object.entries(eveningDurations).map(([id,label])=>
     '<button type="button" data-act="evening:'+id+'" aria-pressed="'+(id===eveningDuration)+'">'+t(label)+'</button>').join('');
   return '<section class="panel feature-panel evening-panel" aria-labelledby="evening-title">'+
     '<div class="evening-heading"><h1 id="evening-title">'+t('Wylosuj grę')+'</h1>'+
     btn(t('Zmień filtry'),'evening-filters','evening-filter-button')+'</div>'+
+    '<div class="evening-quick-scopes" role="group" aria-label="'+t('Zakres wyboru')+'">'+scopes+'</div>'+
     '<div class="evening-durations" role="group" aria-label="'+t('Czas na grę')+'">'+choices+
     '</div><div id="evening-results" aria-live="polite"></div></section>';
 }
@@ -117,19 +155,17 @@ function eveningPanel() {
 function savedEveningSettings() {
   const saved=preferences.evening||{};
   return {
-    scope:Object.hasOwn(eveningScopes,saved.scope)?saved.scope:'catalogue',
+    scope:Object.hasOwn(eveningScopes,saved.scope)?saved.scope:'discover',
     order:Object.hasOwn(eveningOrders,saved.order)?saved.order:'default',
     platform:saved.platform??'',
-    mood:saved.mood||'',genre:saved.genre||'',ratedOnly:saved.ratedOnly??true,
+    mood:saved.mood||'',genre:saved.genre||'',ratedOnly:saved.ratedOnly??false,
   };
 }
 
-function pickEveningDuration(duration,settings={...savedEveningSettings(),scope:'catalogue'}) {
+function pickEveningDuration(duration,settings=eveningSettings||savedEveningSettings()) {
   eveningDuration=duration;
   eveningSettings=settings;
-  for(const button of app.querySelectorAll('[data-act^="evening:"]')){
-    button.setAttribute('aria-pressed',String(button.dataset.act==='evening:'+duration));
-  }
+  syncEveningControls();
   const result=app.querySelector('#evening-results');
   if(result)showEveningPicks(result,duration==='unlimited'?null:Number(duration),settings,++drawRequest);
 }
@@ -204,12 +240,11 @@ function renderEveningPage(result,page,appendFrom=0) {
   }else result.innerHTML=(page.notice?'<p class="muted">'+t(page.notice)+'</p>':'')+
     (rows.length?'<div class="evening-results-heading"><h3>'+t('Propozycje na teraz')+'</h3>'+
       '<span class="evening-result-time">'+t(eveningDurations[page.minutes??'unlimited'])+'</span>'+
-      (page.scope==='catalogue'?'<small>'+t('Katalog globalny')+'</small>':
-        btn(t('Katalog globalny'),'evening-catalogue'))+'</div><ul class="evening-picks">'+html+'</ul>':
+      '<small>'+t(eveningScopes[page.scope])+'</small></div><ul class="evening-picks">'+html+'</ul>':
       '<p class="muted">'+t(page.empty)+'</p>')+eveningRatingSource(page.order)+
     (hasMore?'<div class="library-more">'+btn(moreLabel,'evening-more')+'</div>':'')+
     (!rows.length?'<div class="actions">'+btn(t('Zmień filtry'),'evening-filters')+
-      (page.scope==='catalogue'?'':btn(t('Zobacz gry z katalogu'),'evening-catalogue'))+
+      
       (games.some(game=>!game.archived&&game.pinnedAt)?btn(t('Zobacz całą kolejkę'),'evening-shelf'):'')+'</div>':'');
 
   for(const [index,cover] of [...result.querySelectorAll('.evening-cover')].slice(appendFrom).entries()){
@@ -268,15 +303,16 @@ async function showEveningPicks(result,minutes,settings,ticket) {
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   if(!currentEveningDraw(result,ticket))return;
 
-  const data=await eveningRatingData(order,Boolean(genre||minutes&&scope==='catalogue'));
+  const catalogue=eveningCatalogueScope(scope);
+  const data=await eveningRatingData(order,Boolean(genre||minutes&&catalogue));
   if(!currentEveningDraw(result,ticket))return;
   const rate=eveningRatingLookup(data,order);
-  const catalogue=scope==='catalogue';
-  const choices=catalogue?rankedCatalogueGames(data,platform,genre,order,{minutes}):
+  const exclude=scope==='discover'?excludeEveningLibrary():undefined;
+  const choices=catalogue?rankedCatalogueGames(data,platform,genre,order,{minutes,exclude}):
     eveningPicks(minutes,mood,platform,rate,{scope,genre,ratedOnly,limit:Infinity});
   const unavailable=order==='steam'?!data.steam:order==='metacritic'?!data.critics:
     !data.steam&&!data.critics;
-  const empty=unavailable?'Oceny chwilowo niedostępne. Spróbuj ponownie lub zmień sortowanie.':
+  const empty=unavailable&&(catalogue||ratedOnly)?'Oceny chwilowo niedostępne. Spróbuj ponownie lub zmień sortowanie.':
     catalogue||ratedOnly?'Brak wysoko ocenionych gier dla tych filtrów.':'Brak pasujących gier w bibliotece. Zmień kryteria.';
   const notice=data.partial&&!unavailable?'Jedno lub więcej źródeł ocen jest niedostępnych.':'';
   if(catalogue)drawnCatalogue=choices;
@@ -309,7 +345,7 @@ function openEvening(duration=eveningDuration||'30') {
   const sorting=form.elements['evening-order'];
   const modes=form.elements['draw-mode'];
   function syncScope() {
-    const catalogue=modes.value==='catalogue';
+    const catalogue=eveningCatalogueScope(modes.value);
     fields.querySelector('#evening-mood').hidden=catalogue;
     mood.disabled=rated.disabled=catalogue;
     rated.closest('label').hidden=catalogue;
@@ -508,15 +544,15 @@ async function prepareChronicle(game) {
   }catch{chronicleStatus('Nie udało się przygotować karty.')}
 }
 
-function openSessionForm(game, quick) {
+function openSessionForm(game) {
   const run=game.runs[game.system];
   const minutes=input(t('Czas gry (min)'),'minutes',30,'type="number" min="1" max="1440" required');
   const progress=input(t('Postęp (%)'),'progress',run.progress,'type="number" min="0" max="100" required');
   const notes=input(t('Co udało się zrobić?'),'note')+input(t('Następny cel'),'goal',run.goal);
   const presets=[15,30,60].map(value=>'<button type="button" data-minutes="'+value+'" aria-pressed="'+(value===30)+'">'+value+' min</button>').join('');
-  const extras=quick?'<details><summary>'+t('Dodaj szczegóły')+'</summary>'+notes+'</details>':notes;
-  openForm(t('Zapisz sesję'),(quick?'<p>'+esc(game.title)+'</p><div class="session-presets">'+presets+'</div>':'')+
-    minutes+progress+(quick?'<div class="session-voice">'+voiceButton()+'</div><p data-session-media-status role="status"></p>':'')+extras,data=>{
+  const extras='<details><summary>'+t('Dodaj szczegóły')+'</summary>'+notes+'</details>';
+  openForm(t('Zapisz sesję'),'<p>'+esc(game.title)+'</p><div class="session-presets">'+presets+'</div>'+
+    minutes+progress+'<div class="session-voice">'+voiceButton()+'</div><p data-session-media-status role="status"></p>'+extras,data=>{
       const playedAt=Date.now();
       const note=data.get('note').trim();
       run.sessions.push({playedAt,date:new Date(playedAt).toLocaleDateString(appLocale()),minutes:Number(data.get('minutes')),note});
@@ -524,7 +560,6 @@ function openSessionForm(game, quick) {
       if(note)run.resumeNote=note;
       run.progress=Number(data.get('progress'));
     });
-  if(!quick)return;
   dialog.classList.add('quick-sheet');
   const duration=form.elements.minutes;
   const buttons=[...fields.querySelectorAll('[data-minutes]')];

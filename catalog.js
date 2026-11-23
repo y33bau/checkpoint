@@ -57,7 +57,7 @@ function catalogueSessionBonus(minutes,typicalMinutes) {
   return ratio===1?16:ratio>=1?Math.max(0,8/ratio):ratio>=.5?-7:-16;
 }
 
-function rankedCatalogueGames({steam,critics,genres},platform,genre,order,{limit=60,minutes=null}={}) {
+function rankedCatalogueGames({steam,critics,genres},platform,genre,order,{limit=60,minutes=null,exclude}={}) {
   const stores={
     Steam:['PC'],Xbox:['Xbox Series X','Xbox One'],
     PlayStation:['PlayStation 5','PlayStation 4'],Nintendo:['Nintendo Switch 2','Nintendo Switch'],
@@ -67,7 +67,7 @@ function rankedCatalogueGames({steam,critics,genres},platform,genre,order,{limit
 
   function add(title,store,version,critic,review) {
     const key=catalogText(title);
-    if(!key)return;
+    if(!key||exclude?.(key,review?.id))return;
     const byPlatform=genres?.get(key);
     const indexedGenre=byPlatform?.get(version)||
       (byPlatform?.size===1?byPlatform.values().next().value:'');

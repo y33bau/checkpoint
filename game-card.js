@@ -48,7 +48,7 @@ function gameRatings(game) {
 const gameTabs={overview:'Przegląd',goals:'Cele i poradniki',ratings:'Oceny i kronika'};
 let currentGameTab='overview';
 let displayedGameId;
-function renderGameCard(game) {
+function renderGameCard(game,detailsOpen=false) {
   if(displayedGameId!==game.id){
     displayedGameId=game.id;
     currentGameTab='overview';
@@ -61,13 +61,15 @@ function renderGameCard(game) {
     goals:()=>mapsAndGoals(game),
     ratings:()=>gameRatings(game),
   };
-  const upload=btn(t('Wgraj okładkę'),'upload-cover');
-  const hasCover=Boolean(gameCoverSource(game)||web(game.coverFallback||''));
   const archiveLabel=game.archived?'Przywróć do biblioteki':'Archiwizuj grę';
-  return pageHeading(t('Karta gry'),btn(t('Edytuj'),'edit'))+
-    banner(game,'<p>'+esc(game.catalog)+(gameGenre(game)?' · '+esc(t(gameGenre(game))):'')+'</p><div class="actions">'+(game.archived?btn(t(archiveLabel),'archive-game','primary'):btn(t('Zapisz sesję'),'session','primary'))+(!hasCover?upload:'')+primaryGuideLink(game)+
-      '</div><details class="extra-options"><summary>'+t('Opcje gry')+'</summary><div class="actions">'+youtubeGuide(game)+(game.archived?'':playingToggle(game)+queueToggle(game))+
-      (hasCover?upload:'')+btn(t('Odśwież okładkę'),'refresh-cover')+(!game.archived?btn(t(archiveLabel),'archive-game'):'')+'</div></details>')+
+  const mainAction=game.archived?btn(t(archiveLabel),'archive-game','primary'):btn(t('Zapisz sesję'),'session','primary');
+  return banner(game,'<div class="actions">'+mainAction+'</div>')+
+    '<details class="panel game-details"'+(detailsOpen?' open':'')+'><summary>'+t('Więcej')+'</summary>'+
     '<div class="game-tabs" role="group" aria-label="'+t('Sekcje karty gry')+'">'+tabs+'</div>'+
-    views[currentGameTab]();
+    views[currentGameTab]()+
+    '<details class="extra-options"><summary>'+t('Opcje gry')+'</summary><div class="actions">'+
+    btn(t('Edytuj'),'edit')+primaryGuideLink(game)+youtubeGuide(game)+
+    (game.archived?'':playingToggle(game)+queueToggle(game))+
+    btn(t('Wgraj okładkę'),'upload-cover')+btn(t('Odśwież okładkę'),'refresh-cover')+
+    (game.archived?'':btn(t(archiveLabel),'archive-game'))+'</div></details></details>';
 }

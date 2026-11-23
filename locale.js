@@ -1,6 +1,10 @@
 const english = {
   "ocen": "ratings",
   "Wylosuj grę": "Find a game",
+  "Odkryj nową grę": "Discover a new game",
+  "Zmień grę": "Switch game",
+  "Kolejka i profile": "Queue and profiles",
+  "Opcje wyszukiwania": "Search options",
   "Obecna gra": "Current game",
   "Dodaj grę +": "Add game +",
   "Orientacyjna sesja wg gatunku": "Estimated session by genre",

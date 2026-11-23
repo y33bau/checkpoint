@@ -96,7 +96,7 @@ label { display:grid;gap:5px;margin:12px 0; }
   background:linear-gradient(90deg,#100b19ef 0%,#170f23c2 39%,#170e2424 88%),linear-gradient(0deg,#100b19bd,transparent 58%);
 }
 .hero-content { position:relative;z-index:1;min-width:0;width:100%; }
-.hero h2 { max-width:19ch;font-size:clamp(42px,7vw,80px);font-weight:800;font-style:italic;letter-spacing:-.025em;line-height:.93;text-transform:uppercase;text-wrap:balance; }
+.hero h1 { max-width:19ch;font-size:clamp(42px,7vw,80px);font-weight:800;font-style:italic;letter-spacing:-.025em;line-height:.93;text-transform:uppercase;text-wrap:balance; }
 .hero p { margin:11px 0 16px;color:#f2e4ef; }
 .hero p:empty { display:none; }
 .eyebrow { display:block;margin-bottom:8px;color:#ffd0b7;font-size:.825rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase; }
@@ -703,16 +703,6 @@ body[data-view="now"] .featured-carousel{
 .featured-tools{grid-template-columns:repeat(5,minmax(0,1fr))}
 .featured-tools :is(button,.button){padding-inline:4px}
 .featured-game :is(#media-status,#featured-voice):empty{display:none}
-.featured-pager{
-  justify-self:center;display:grid;grid-template-columns:44px minmax(44px,auto) 44px;
-  align-items:center;gap:3px;padding:2px;border:1px solid var(--line);
-  border-radius:12px;background:#101426;color:var(--mint);
-}
-.featured-pager button{width:44px;min-height:44px;padding:0;background:transparent;border-color:transparent;font-size:1.55rem;line-height:1}
-.featured-pager button{color:var(--mint)}
-.featured-pager button:hover,.featured-pager button:focus-visible{background:#1b3443}
-.featured-pager button:focus-visible{outline-offset:-2px}
-.featured-pager span{font-size:.85rem;text-align:center;font-variant-numeric:tabular-nums}
 .now-section-heading{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .queue-empty{margin-top:10px}
 .evening-durations{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -921,14 +911,15 @@ body[data-view="now"] .featured-carousel{
 .quick-guide p{margin:2px 0 0;color:var(--soft);font-size:.88rem}
 
 /* Quick game actions, recommendation filters and online map list */
-.quick-picker-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,36%);gap:8px;clear:both}
+.quick-picker-controls{clear:both}
+.picker-search-options>summary{cursor:pointer;color:var(--soft);min-height:38px;padding-block:8px}
+.picker-search-options>button{margin-block:6px}
+.picker-state{flex:none;color:var(--mint);font-size:.72rem;text-align:end}
 .quick-picker-group h3{margin:10px 0 5px;font-size:.92rem}
 .quick-picker-group .picker-option{padding:7px;gap:6px}
 .quick-picker-group .picker-option:hover{background:#201a2c}
 .picker-row-info{display:grid;flex:1;min-width:0}
 .picker-row-info small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.picker-row-actions{display:flex;gap:4px}
-.picker-row-actions button button{min-height:40px;padding:4px 7px;font-size:.76rem;white-space:nowrap}
 .evening-scopes{border:0;margin:0;padding:4px 0 8px}
 .evening-scopes>div{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .evening-scopes label{position:relative;margin:0}
@@ -1035,7 +1026,15 @@ body[data-view="now"] .featured-carousel{
 }
 .import-heading h2{font-size:clamp(24px,3vw,32px)}
 .evening-heading .evening-filter-button{padding-inline:11px;font-size:.86rem}
+.evening-quick-scopes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.evening-quick-scopes button{min-height:44px;padding:5px 8px;background:#15152bd9;border-color:#76619a;font-size:.88rem}
+.evening-quick-scopes button[aria-pressed="true"]{background:#183741;border-color:#64d7d9;color:#e7ffff}
 .evening-panel .evening-durations{margin:0}
+.now-details,.game-details{margin-block:12px var(--space);display:block}
+.now-details>summary,.game-details>summary{cursor:pointer;min-height:44px;padding-block:10px;font-weight:700}
+.now-details>section{margin-block:10px 0}
+.game-details>.extra-options{margin-top:12px}
+.hero-content>.actions{margin-bottom:0}
 #evening-results:empty{display:none}
 #evening-results>:is(p,small,button){margin-block:6px 0}
 .evening-results-heading{
