@@ -192,6 +192,18 @@ function validateBackup(data) {
        (game.guides!==undefined&&(!Array.isArray(game.guides)||
          !game.guides.every(item=>string(item?.name)&&web(item.url)&&(item.goal===undefined||string(item.goal)))))||
        !game.maps.every(item=>string(item?.name)&&web(item.url))||!game.tasks.every(item=>string(item?.name)&&typeof item.done==='boolean'))throw Error('Game');
+    if(game.matchMaps!==undefined){
+      if(!Array.isArray(game.matchMaps))throw Error('Match maps');
+      const maps=new Set();
+      for(const map of game.matchMaps){
+        if(!validId(map?.id)||maps.has(map.id)||!string(map.title)||!web(map.url)||!string(map.mode)||
+          (map.notes!==undefined&&!string(map.notes))||(map.favorite!==undefined&&typeof map.favorite!=='boolean')||
+          (map.guides!==undefined&&(!Array.isArray(map.guides)||!map.guides.every(item=>
+            string(item?.name)&&web(item.url)&&(item.goal===undefined||string(item.goal))))))throw Error('Match maps');
+        maps.add(map.id);
+      }
+      if(game.lastMatchMap!==undefined&&!maps.has(game.lastMatchMap))throw Error('Match maps');
+    }
     for(const [platform,run] of Object.entries(game.runs)){
       if(!systems.includes(platform)||!plain(run)||!within(run.progress,0,100)||!string(run.goal)||!Array.isArray(run.sessions)||
          !run.sessions.every(session=>within(session?.minutes,0,1440)&&string(session.date)&&string(session.note)))throw Error('Playthrough');

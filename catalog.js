@@ -41,19 +41,19 @@ function catalogEntry(entry,store) {
   };
 }
 
-async function drawCatalogueGames(platform,rate) {
+async function drawCatalogueGames(platform,rate,limit=3) {
   const stores=rate&&platform==='PC'?['Steam']:Object.hasOwn(storeCatalogs,platform)?[platform]:Object.keys(storeCatalogs);
   const letters='abcdefghijklmnopqrstuvwxyz_';
   const savedTitles=new Set(games.map(game=>catalogText(game.title)));
   const choices=new Map();
-  if(rate)return drawRatedCatalogueGames(stores,letters,savedTitles,rate);
-  for(let attempt=0;attempt<3&&choices.size<3;attempt++){
+  if(rate)return drawRatedCatalogueGames(stores,letters,savedTitles,rate,limit);
+  for(let attempt=0;attempt<3&&choices.size<limit;attempt++){
     const store=stores[Math.floor(Math.random()*stores.length)];
     const letter=letters[Math.floor(Math.random()*letters.length)];
     try {
       const pool=(await catalogBucket(store,letter)).map(item=>catalogEntry(item,store))
         .filter(item=>item && !savedTitles.has(catalogText(item.title)));
-      while(pool.length&&choices.size<3){
+      while(pool.length&&choices.size<limit){
         const slot=Math.floor(Math.random()*pool.length);
         const [item]=pool.splice(slot,1);
         choices.set(catalogText(item.title),item);
@@ -63,7 +63,7 @@ async function drawCatalogueGames(platform,rate) {
   return [...choices.values()];
 }
 
-async function drawRatedCatalogueGames(stores,letters,savedTitles,rate) {
+async function drawRatedCatalogueGames(stores,letters,savedTitles,rate,limit) {
   const requests=stores.flatMap(store=>{
     const available=[...letters];
     return Array.from({length:2},()=>{
@@ -86,7 +86,7 @@ async function drawRatedCatalogueGames(stores,letters,savedTitles,rate) {
       if(!previous||compareEveningRatings(rating,previous.rating)<0)choices.set(title,{...item,rating});
     }
   }
-  return [...choices.values()].sort((a,b)=>compareEveningRatings(a.rating,b.rating)).slice(0,3);
+  return [...choices.values()].sort((a,b)=>compareEveningRatings(a.rating,b.rating)).slice(0,limit);
 }
 
 async function findCatalogGames(title, store, exact=false) {

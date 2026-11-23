@@ -246,23 +246,27 @@ function render(){
    libraryMode='rated';
    history.replaceState(history.state,'','#library');
  }
- const g=active(),view=location.hash.slice(1)||'now';document.body.dataset.view=g?'game':view;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
+ const g=active(),view=location.hash.slice(1)||'now';
+ const eveningResults=view==='now'?app.querySelector('#evening-results'):null;
+ document.body.dataset.view=g?'game':view;document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+(g?'library':view)));
  if(view==='settings'){app.innerHTML=renderSettings();initializeGoogleSync()}
  else if(view==='news'){app.innerHTML=renderNews();loadNews()}
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
- else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'add','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
+ else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()}
  else{
    const current=featuredGame();
-   const addPlaying=btn(t('＋ Do ogrywanych'),'pick:playing','now-add-playing');
+   const addPlaying=btn(t('＋ Dodaj grę'),'pick:playing','now-add-playing');
    app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+
      (current?featuredPanel(current):'<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>')+
      eveningPanel()+gameShelf(queuedGames(current));
  }
+ if(eveningResults)app.querySelector('#evening-results')?.replaceWith(eveningResults);
  paintMedia(g||(view==='now'?featuredGame():null));
  syncSessionVoice();
  if(g && currentGameTab==='ratings')attachCriticScores([g]);
+ if(g && currentGameTab==='goals')wireWandQuickImport(g);
  for(const link of document.querySelectorAll('nav a')) {
    if(link.classList.contains('active')) link.setAttribute('aria-current','page');
    else link.removeAttribute('aria-current');
@@ -284,11 +288,13 @@ function action(act){
  if(act==='refresh-cover'&&game){openCoverRefresh([game]);return}
  if(act==='refresh-all-covers'){openCoverRefresh(games.filter(item=>!item.archived),true);return}
  if(act==='archive-game' && game){toggleGameArchive(game);return}
- if(['wand-maps','stuck','resource-paste'].includes(act)){
+ if(['wand-maps','stuck','resource-paste','match-maps','match-map-add'].includes(act)){
    const resourceGame=game||featuredGame();
    if(!resourceGame)return;
    if(act==='wand-maps')openWandMaps(resourceGame);
    else if(act==='stuck')openStuck(resourceGame);
+   else if(act==='match-maps')openMatchMaps(resourceGame);
+   else if(act==='match-map-add')openMatchMapManual(resourceGame);
    else openResourcePaste(resourceGame);
    return;
  }
@@ -317,6 +323,11 @@ function action(act){
  }
  if(act==='edit-start' && game){editStartRating(game);return}
  if(act==='critics-retry' && game){attachCriticScores([game]);return}
+ if(act==='evening-more'){nextEveningPage();return}
+ if(act.startsWith('evening-queue:')){
+   const [,kind,id]=act.split(':');
+   queueEveningPick(kind,id);return;
+ }
  if(act.startsWith('draw-add:')){const choice=drawnCatalogue[Number(act.slice(9))];if(choice)openGameForm(null,choice);return}
  if(act.startsWith('evening:')){
    const duration=act.slice('evening:'.length);
@@ -411,12 +422,12 @@ function action(act){
  if(act==='rate')openGameScores(g);
  if(act==='map')openResourcePaste(g,'map');
  if(act==='task')openForm(t('Nowy cel'),input(t('Co chcesz zrobić?'),'name','','required'),d=>g.tasks.push({name:d.get('name'),done:false}))}
-function openGameForm(existing,suggestion) {
+function openGameForm(existing,suggestion,initialTitle='') {
   let selectedGame;
   const platform = existing?.system || suggestion?.store || preferences.profile?.platform || systems[0];
   openForm(existing?t('Edytuj grę'):t('Dodaj grę'),
     select(t('Platforma'),'system',systems,platform) +
-    input(t('Tytuł'),'title',existing?.title||suggestion?.title,'required maxlength="120" placeholder="'+t('Zacznij wpisywać tytuł…')+'"') +
+    input(t('Tytuł'),'title',existing?.title||suggestion?.title||initialTitle,'required maxlength="120" placeholder="'+t('Zacznij wpisywać tytuł…')+'"') +
     '<div id="catalog-results" class="catalog-results" role="listbox" aria-label="'+t('Podpowiedzi gier')+'" hidden></div>' +
     '<p id="catalog-status" class="muted" role="status"></p>' +
     input(t('Katalog'),'catalog',existing?.catalog||'Moje gry','required') +
@@ -450,7 +461,7 @@ function openGameForm(existing,suggestion) {
       else attachCriticScores([item]);
       location.hash='game-'+item.id;
     });
-  selectedGame=wireCatalogSearch(existing?.title||suggestion?.title,suggestion);
+  selectedGame=wireCatalogSearch(existing?.title||suggestion?.title||initialTitle,suggestion);
 }
 
 async function fillExactCover(game, title, store) {
