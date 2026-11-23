@@ -80,3 +80,14 @@ npm run deploy
 | --- | --- | --- |
 | `XBOX_CLIENT_ID` | zmienna | Application (client) ID aplikacji Microsoft Entra. |
 | `XBOX_CLIENT_SECRET` | sekret | Client secret tej aplikacji. Nigdy nie trafia do przeglądarki. |
+
+## Publiczna historia gier PlayStation
+
+`POST /api/psn/library` przyjmuje nick PSN i odpowiada w formacie `checkpoint-source-v1`. Import obejmuje gry widoczne dla wszystkich w historii PSN, z czasem gry, gdy PSN go udostępnia. Działa bez logowania użytkownika. Serwer odczytuje historię poprzez społecznościową bibliotekę `psn-api`.
+
+W konfiguracji Workera ustaw dwa parametry dla osobnego konta PSN bez znajomych i bez prywatnych danych użytkowników:
+
+- `PSN_SERVICE_ONLINE_ID` — nick konta serwisowego. Worker nie zwraca jego historii.
+- `PSN_NPSSO` — sekret sesji konta serwisowego w Cloudflare Workers. Po unieważnieniu sesji zaktualizuj sekret w Cloudflare.
+
+W środowisku lokalnym te same wartości można ustawić w ignorowanym przez Git pliku `.dev.vars.local`. Użyj aktualnej wersji Workera z D1 i istniejącymi migracjami. Po wdrożeniu wypróbuj import na profilu z publiczną historią i sprawdź komunikat dla profilu z ukrytą historią.

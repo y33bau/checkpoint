@@ -3,10 +3,11 @@
 // -> app gets a one-time code -> POST /api/steam/token (code + verifier)
 // -> short-lived import token -> GET /api/steam/library and GET /api/steam/achievements.
 // Xbox sign-in (/auth/xbox/*, /api/xbox/*) lives in xbox.mjs.
-// Secrets: STEAM_WEB_API_KEY, XBOX_CLIENT_SECRET. Vars: APP_URLS, XBOX_CLIENT_ID. Binding: DB (D1).
+// PlayStation public game history (/api/psn/library) lives in psn.mjs.
 import { nonceWindow, steamAuthorizeUrl, verifySteamAssertion } from './openid.mjs';
 import { createXbox, xboxLimits, xboxReady, xboxTables } from './xbox.mjs';
 import { achievementLimits, parseAppIds, steamAchievements } from './achievements.mjs';
+import { createPsnLibrary, psnLimits, psnReady } from './psn.mjs';
 
 const libraryEndpoint = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/';
 const stateCookie = '__Host-checkpoint-steam';
@@ -21,6 +22,7 @@ export const limits = {
   library: { max: 20, window: 600 },
   ...xboxLimits,
   ...achievementLimits,
+  ...psnLimits,
 };
 
 const encoder = new TextEncoder();
@@ -63,7 +65,7 @@ async function clientKey(request) {
 async function overLimit(env, action, request) {
   const rule = limits[action];
   const now = nowSeconds();
-  const bucket = action + ':' + await clientKey(request);
+  const bucket = action + ':' + (request ? await clientKey(request) : 'all');
   const row = await env.DB.prepare(
     'INSERT INTO rate_limits (bucket, count, expires_at) VALUES (?1, 1, ?2) ' +
     'ON CONFLICT(bucket) DO UPDATE SET ' +
@@ -259,6 +261,8 @@ async function library(request, env, reply, origin) {
 
 const xbox = createXbox({ appUrls, overLimit, sha256, randomSecret, nowSeconds, baseHeaders, redirect, lifetimes });
 
+const psnLibrary = createPsnLibrary(overLimit);
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -298,6 +302,11 @@ export default {
     }
     if (url.pathname === '/api/xbox/library') {
       return request.method === 'GET' ? xbox.library(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);
+    }
+    if (url.pathname === '/api/psn/status' && request.method === 'GET') return reply({ ready: psnReady(env) });
+    if (url.pathname === '/api/psn/library') {
+      if (request.method !== 'POST') return reply({ error: 'method_not_allowed' }, 405);
+      return psnLibrary(request, env, reply, origin);
     }
     if (url.pathname === '/api/steam/token') {
       return request.method === 'POST' ? exchange(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);
