@@ -1,3 +1,5 @@
+import { durationMinutes, playedGames } from './psn-history.mjs';
+
 const pageLimit = 30;
 
 function unwrap(data) {
@@ -65,12 +67,6 @@ export async function xboxLibrary(env) {
   return { games: [...entries.values()], partial: history.status === 'rejected' || achievements.status === 'rejected' };
 }
 
-function durationMinutes(duration) {
-  const match = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(String(duration));
-  if (!match) return undefined;
-  return Number(match[1] || 0) * 60 + Number(match[2] || 0) + Math.round(Number(match[3] || 0) / 60);
-}
-
 async function purchasedGames(api, credentials) {
   const games = [];
   const seen = new Set();
@@ -88,22 +84,6 @@ async function purchasedGames(api, credentials) {
     if (page.length < 48) return games;
   }
   throw Error('PlayStation purchase pagination limit reached');
-}
-
-async function playedGames(api, credentials) {
-  const games = [];
-  const seen = new Set();
-  let offset = 0;
-  for (let index = 0; index < pageLimit; index++) {
-    const page = await api.getUserPlayedGames(credentials, 'me', { limit: 50, offset });
-    if (!Array.isArray(page?.titles)) throw Error('PlayStation activity unavailable');
-    games.push(...page.titles);
-    if (!page.nextOffset || !page.titles.length) return games;
-    if (seen.has(page.nextOffset)) throw Error('PlayStation repeated activity page');
-    seen.add(page.nextOffset);
-    offset = page.nextOffset;
-  }
-  throw Error('PlayStation activity pagination limit reached');
 }
 
 let authorization;
@@ -133,7 +113,10 @@ export async function psnLibrary(env,loadApi=()=>import('psn-api')) {
   const credentials = await authorizePSN(api, env);
   const [purchased, played] = await Promise.allSettled([
     purchasedGames(api, credentials),
-    playedGames(api, credentials),
+    playedGames(api, credentials, 'me', pageLimit).then(result => {
+      if (result.partial) throw Error('PlayStation activity pagination limit reached');
+      return result.games;
+    }),
   ]);
   if (purchased.status === 'rejected' && played.status === 'rejected') throw Error('PlayStation library unavailable');
   const activity = played.status === 'fulfilled' ? played.value : [];

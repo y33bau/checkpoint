@@ -13,7 +13,9 @@ function sourceConnectionButtons(provider,saved) {
   const input=btn(t(provider==='wand'?'Wklej listę gier':'Importuj plik'),'source-file:'+provider);
   const view=btn(t('Pokaż zaimportowane gry'),'source-view:'+provider);
   if(provider==='wand')return view;
-  if(provider==='ps')return input+view+(saved?.libraryUrl?btn(t('Ustawienia połączenia'),'source-connect:ps'):'');
+  if(provider==='ps')return input+view+
+    btn(t(saved?.libraryUrl?'Ustawienia połączenia':'Podłącz przez Bridge'),'source-connect:ps')+
+    (saved?.libraryUrl?btn(t('Synchronizuj bibliotekę'),'source-sync:ps'):'');
   return input+view+btn(t(saved?.libraryUrl?'Ustawienia połączenia':'Podłącz bibliotekę'),'source-connect:'+provider)+
     (saved?.libraryUrl?btn(t('Synchronizuj bibliotekę'),'source-sync:'+provider):'');
 }
@@ -25,7 +27,7 @@ function sourceConnectionDetails(provider,saved) {
   return '<small>'+t(provider==='xbox'?'Historia grania i podsumowanie osiągnięć.':'Zakupy i uprawnienia PS4 / PS5 oraz historia grania.')+'</small>'+
     (last?'<small>'+t('Ostatnia synchronizacja')+' · '+esc(last)+'</small>':'')+
     '<a class="text-link" href="'+sourceGuide+'" target="_blank" rel="noopener noreferrer">'+t('Konfiguracja połączenia')+'</a>'+
-    sourceStatus(provider);
+    (provider==='ps'?'':sourceStatus(provider));
 }
 
 function sourceStatus(provider) {
@@ -83,7 +85,7 @@ function parseWandList(text) {
   });
 }
 
-function mergeNormalizedSource(rows,provider) {
+function mergeNormalizedSource(rows,provider,save=persistAchievements) {
   const source=librarySources[provider];
   const byTitle=new Map(games.map(item=>[catalogText(item.title),item]));
   const byId=new Map(games.filter(item=>item.sourceIds?.[provider]).map(item=>[item.sourceIds[provider],item]));
@@ -120,7 +122,7 @@ function mergeNormalizedSource(rows,provider) {
     if(row.map && !entry.maps.some(map=>map.url===row.map))entry.maps.push({name:'Wand',url:row.map});
     touched.add(entry);
   }
-  persistAchievements();
+  save();
   attachCriticScores([...touched]);
   return {added,count:touched.size};
 }

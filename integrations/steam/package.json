@@ -8,6 +8,9 @@
     "deploy": "wrangler deploy --env=\"\"",
     "check": "wrangler deploy --dry-run --env=\"\" --outdir dist"
   },
+  "dependencies": {
+    "psn-api": "2.18.1"
+  },
   "devDependencies": {
     "wrangler": "4.166.0"
   }

@@ -94,7 +94,7 @@ const connectionKey = 'checkpoint-connections-v1';
 const providers = [
   { id: 'steam', name: 'Steam', label: 'ID Steam (17 cyfr)', url: 'https://steamcommunity.com/my/', description: 'Zaloguj się przez Steam i wybierz gry do importu. Możesz też wkleić listę JSON.' },
   { id: 'xbox', name: 'Xbox', label: 'Gamertag', url: 'https://www.xbox.com/play', description: 'Zaloguj się kontem Microsoft i wybierz gry z historii grania Xbox do importu.' },
-  { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Wczytaj bibliotekę i historię grania przez Checkpoint Bridge.' },
+  { id: 'ps', name: 'PlayStation', label: 'PSN Online ID', url: 'https://www.playstation.com/', description: 'Wpisz nick PSN, aby dodać do biblioteki gry widoczne w Twojej historii.' },
   { id:'nintendo', name:'Nintendo', label:'Pseudonim Nintendo (opcjonalnie)', url:'https://accounts.nintendo.com/', description:'Otwórz oficjalne konto Nintendo albo zapisz lokalny pseudonim.' },
   { id: 'wand', name: 'Wand', label: 'Nazwa profilu (opcjonalnie)', url: 'https://www.wand.com/', description: 'Wklej listę gier i linki do map z Wand.' },
 ];
@@ -111,9 +111,8 @@ function connectionPrimary(provider,saved) {
   switch(provider.id){
     case 'steam': return steamConnectButton(saved);
     case 'xbox': return xboxConnectButton(saved);
-    case 'ps': return saved?.libraryUrl
-      ? btn(t('Odśwież bibliotekę PS'),'source-sync:ps','primary provider-action')
-      : btn(t('Podłącz przez Bridge'),'source-connect:ps','primary provider-action');
+    case 'ps': return btn(t(saved?.lastImport?.mode==='psn-profile'?'Odśwież z PlayStation':'Importuj z PlayStation'),
+      'psn-import','primary provider-action');
     case 'nintendo': return '<a class="button provider-action" href="'+provider.url+'" target="_blank" rel="noopener noreferrer">'+t('Otwórz konto Nintendo')+'</a>';
     case 'wand': return btn(t('Wklej listę gier'),'source-file:wand','primary provider-action');
   }
@@ -141,7 +140,8 @@ function renderConnections() {
       '</div>' + (isSteam && !steamServerAddress() ? '<small>'+t(steamErrorMessage('not_configured'))+'</small>' : '') +
       (hasLibrary?sourceConnectionDetails(provider.id,saved):'')+
       (!isSteam && !hasLibrary ? '<small>'+t(provider.id==='nintendo'?'Logowanie odbywa się na stronie Nintendo. Checkpoint zapisuje pseudonim lokalnie.':'Tryb profilu — bez synchronizacji z kontem.')+'</small>' : '') + steamStatus + '</details>' + (saved?.lastImport?lastImportMarkup(saved):'') +
-      (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') + '</article>';
+      (isSteam ? '<p role="status">' + esc(steamMessage) + '</p>' : '') +
+      (provider.id==='ps'?sourceStatus('ps'):'') + '</article>';
   }).join('') + '</div>';
 }
 function toggleGameArchive(game) {
@@ -293,6 +293,7 @@ function action(act){
    location.hash='library';
    return;
  }
+ if(act==='psn-import'){openPsnImport();return}
  if(act==='show-guide'){showQuickGuide();return}
  if(act.startsWith('google-')){googleAction(act);return}
  if(act==='upload-cover'&&game){openCoverUpload(game);return}

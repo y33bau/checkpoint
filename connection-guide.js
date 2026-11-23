@@ -25,14 +25,13 @@ const connectionInstructions = {
         links:[['Konfiguracja Checkpoint Bridge','https://github.com/y33bau/checkpoint/tree/main/integrations/consoles']],
       },
       ps:{
-        info:'Importuje aktywne pozycje z biblioteki PS4 i PS5 oraz historię grania z czasem gry, jeśli konto ją udostępnia.',
+        info:'Szybki import dodaje gry widoczne w publicznej historii PlayStation oraz udostępniony czas gry.',
         items:[
-          'Na komputerze skonfiguruj i uruchom Checkpoint Bridge. Autoryzację PlayStation przeprowadź według instrukcji mostka i zachowaj dane dostępowe w jego lokalnej konfiguracji.',
-          'Na kafelku PlayStation wybierz „Podłącz bibliotekę”. Na tym samym komputerze zostaw podpowiedziany adres i w kolejnym kroku wpisz osobny klucz mostka. Zatwierdź gry w podglądzie.',
-          'Użyj „Pokaż zaimportowane gry”, aby wyświetlić swoją kolekcję. Opcja „Synchronizuj bibliotekę” ponownie pobiera listę.',
-          'Na telefonie możesz wczytać plik wyeksportowany przez Bridge przyciskiem „Importuj plik”.',
+          'Na kafelku PlayStation wybierz „Importuj z PlayStation”, wpisz nick z profilu i kliknij „Importuj gry”.',
+          'Jeżeli lista jest pusta, sprawdź, czy Twoja historia grania jest widoczna dla wszystkich w ustawieniach prywatności PlayStation.',
+          'W „Opcjach połączenia” znajdziesz wcześniejszy import z Checkpoint Bridge, który może też wczytać zakupy.',
         ],
-        links:[['Konfiguracja Checkpoint Bridge','https://github.com/y33bau/checkpoint/tree/main/integrations/consoles']],
+        links:[['Ustawienia prywatności PlayStation','https://www.playstation.com/pl-pl/support/account/privacy-settings/']],
       },
       nintendo:{
         info:'Kafelek otwiera oficjalne konto Nintendo i pozwala zapisać pseudonim w tej przeglądarce. Gry dodajesz z katalogu eShop.',
@@ -81,14 +80,13 @@ const connectionInstructions = {
         links:[['Set up Checkpoint Bridge','https://github.com/y33bau/checkpoint/tree/main/integrations/consoles']],
       },
       ps:{
-        info:'Imports active PS4 and PS5 library entries plus play history and play time when the account provides them.',
+        info:'Quick import adds games visible in your public PlayStation play history and any available playtime.',
         items:[
-          'Set up and run Checkpoint Bridge on your computer. Follow the PlayStation authorization steps in the setup guide and keep credentials in the local configuration.',
-          'On the PlayStation card, select Connect library. On the same computer, keep the suggested address, enter the separate bridge key and confirm the games in the preview.',
-          'Select Show imported games to view your collection. Sync library refreshes the list.',
-          'On a phone, use Import file to load a file exported by the bridge.',
+          'On the PlayStation card, select Import from PlayStation, enter your PSN username and select Import games.',
+          'If the list is empty, check that your game history is visible to everyone in your PlayStation privacy settings.',
+          'Connection options includes the original Checkpoint Bridge import, which can also import purchases.',
         ],
-        links:[['Set up Checkpoint Bridge','https://github.com/y33bau/checkpoint/tree/main/integrations/consoles']],
+        links:[['PlayStation privacy settings','https://www.playstation.com/en-us/support/account/privacy-settings/']],
       },
       nintendo:{
         info:'The card opens the official Nintendo Account site and saves an optional nickname in this browser. Add games from the eShop catalogue.',
