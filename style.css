@@ -120,10 +120,16 @@ nav {
 }
 nav a { display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:49px;padding:5px 2px;border-radius:10px;color:var(--soft);text-align:center;text-decoration:none;font-size:.8rem;font-weight:600;line-height:1.1; }
 nav a:hover { background:#1a2340;color:var(--ink); }
+nav .nav-primary{
+  color:#f2dcff;background:#251a39;font-weight:750;
+  box-shadow:inset 0 0 0 1px #bc93e99c,0 0 10px #ab68ff27;
+}
+nav .nav-primary:hover{color:#fff3ff;background:#32234b}
 nav .active {
   color:var(--mint);background:linear-gradient(180deg,#16323d,#11222b);
   box-shadow:inset 0 0 0 1px #65f4f17a,0 0 12px var(--neon-cyan-glow);
 }
+nav .nav-primary.active{color:var(--mint)}
 .nav-icon { display:block;width:16px;height:16px;position:relative;color:inherit; }
 .nav-icon-now::before { content:"";position:absolute;inset:3px;border:1.5px solid currentColor;transform:rotate(45deg);border-radius:2px; }
 .nav-icon-library { background:radial-gradient(circle,currentColor 59%,transparent 66%) 0 0/8px 8px; }
@@ -627,8 +633,13 @@ summary{cursor:pointer}
 
 /* Now playing uses the same panel rhythm from the game to the queue. */
 body[data-view="now"] main > .panel{margin:0 0 12px}
-body[data-view="now"] .top{flex-wrap:nowrap;gap:8px;padding-block:20px 12px}
-body[data-view="now"] .top h1{font-size:clamp(30px,7vw,52px)}
+body[data-view="now"] #app{padding-top:clamp(14px,2.4vw,24px)}
+.now-current-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px;
+}
+.now-current-heading h2{
+  font-size:clamp(25px,4.8vw,38px);font-weight:800;font-style:italic;text-transform:uppercase;
+}
 .now-add-playing{
   flex:none;display:inline-flex;align-items:center;justify-content:center;
   padding:5px clamp(8px,2vw,14px);min-height:44px;
@@ -718,7 +729,6 @@ body[data-view="now"] .featured-carousel{
   .evening-durations button{font-size:.85rem}
 }
 @media(max-width:350px){
-  body[data-view="now"] .top h1{font-size:27px}
   .evening-durations{grid-template-columns:repeat(6,minmax(0,1fr))}
   .evening-durations button{grid-column:span 2}
   .evening-durations button:nth-last-child(-n+2){grid-column:span 3}
@@ -986,11 +996,10 @@ body[data-view="now"] .featured-carousel{
   background:repeating-linear-gradient(124deg,transparent 0 19px,#b4fcff2b 20px 21px,transparent 22px 45px);
   mask-image:radial-gradient(ellipse 62% 200px at 93% 0,#000 0,transparent 89%);
 }
-.evening-panel .evening-heading h2{
+.evening-panel .evening-heading h1{
   color:#fff7fc;font-size:clamp(29px,6vw,56px);letter-spacing:-.025em;
   font-style:italic;font-weight:800;text-transform:uppercase;text-shadow:0 0 24px #ff50bc75;
 }
-.evening-heading p{font-size:clamp(.78rem,1.6vw,1rem);color:#f2dff4;line-height:1.3}
 .evening-panel .evening-filter-button{background:#15152bd9;border-color:#9c86c9;box-shadow:0 4px 14px #06051648}
 .evening-panel .evening-durations button{
   position:relative;min-height:49px;background:#151627dd;border-color:#76619a;
@@ -1024,7 +1033,7 @@ body[data-view="now"] .featured-carousel{
 .evening-heading,.import-heading{
   display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;
 }
-.evening-heading h2,.import-heading h2{font-size:clamp(24px,3vw,32px)}
+.import-heading h2{font-size:clamp(24px,3vw,32px)}
 .evening-heading .evening-filter-button{padding-inline:11px;font-size:.86rem}
 .evening-panel .evening-durations{margin:0}
 #evening-results:empty{display:none}

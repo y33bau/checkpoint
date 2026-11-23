@@ -1,4 +1,7 @@
 const english = {
+  "Wylosuj grę": "Find a game",
+  "Obecna gra": "Current game",
+  "Dodaj grę +": "Add game +",
   "Orientacyjna sesja wg gatunku": "Estimated session by genre",
   "Katalog globalny": "Global catalogue",
   "Odkryj w katalogu": "Discover in the catalogue",

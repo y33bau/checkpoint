@@ -108,8 +108,7 @@ function eveningPanel() {
   const choices=Object.entries(eveningDurations).map(([id,label])=>
     '<button type="button" data-act="evening:'+id+'" aria-pressed="'+(id===eveningDuration)+'">'+t(label)+'</button>').join('');
   return '<section class="panel feature-panel evening-panel" aria-labelledby="evening-title">'+
-    '<div class="evening-heading"><div><h2 id="evening-title">'+t('Mam czas na grę')+'</h2>'+
-    '<p>'+t('Wybierz czas. Znajdź grę.')+'</p></div>'+
+    '<div class="evening-heading"><h1 id="evening-title">'+t('Wylosuj grę')+'</h1>'+
     btn(t('Zmień filtry'),'evening-filters','evening-filter-button')+'</div>'+
     '<div class="evening-durations" role="group" aria-label="'+t('Czas na grę')+'">'+choices+
     '</div><div id="evening-results" aria-live="polite"></div></section>';

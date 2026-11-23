@@ -308,18 +308,15 @@ function render(){
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
- else if(!games.some(game=>!game.archived)){
-   app.innerHTML=pageHeading(t('Gram teraz'))+eveningPanel()+
-     '<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><div class="actions">'+
-     '<a class="button primary" href="#connections">'+t('Zaimportuj moje gry')+'</a>'+
-     btn(t('＋ Dodaj grę'),'pick:playing')+'</div></div>'+gameShelf([])+homePlayerProfiles();
- }
  else{
    const current=featuredGame();
-   const addPlaying=btn(t('＋ Dodaj grę'),'pick:playing','now-add-playing');
-   app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+eveningPanel()+
-     (current?featuredPanel(current):'<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>')+
-     gameShelf(queuedGames(current))+homePlayerProfiles();
+   const heading='<div class="now-current-heading"><h2>'+t('Obecna gra')+'</h2>'+
+     btn(t('Dodaj grę +'),'pick:playing','now-add-playing')+'</div>';
+   const featured=current?featuredPanel(current):games.some(game=>!game.archived)?
+     '<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>':
+     '<div class="panel empty-library"><h3>'+t('Twoja biblioteka jest pusta')+'</h3><div class="actions">'+
+     '<a class="button primary" href="#connections">'+t('Zaimportuj moje gry')+'</a></div></div>';
+   app.innerHTML=eveningPanel()+heading+featured+gameShelf(queuedGames(current))+homePlayerProfiles();
  }
  if(eveningResults)app.querySelector('#evening-results')?.replaceWith(eveningResults);
  if(openGameTools&&view==='now'&&featuredGame()?.id===openGameTools){
@@ -684,6 +681,7 @@ window.addEventListener('pointerup',event=>{
   featuredSwipe=undefined;
   if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.4)stepFeatured(dx<0?1:-1);
 });
+history.replaceState(history.state,'','#now');
 applyLanguage();initializeAmbient();render();if(needsOnboarding(preferences))openOnboarding();loadGamePass();attachGenres(games);
 
 resumeSteamLogin();
