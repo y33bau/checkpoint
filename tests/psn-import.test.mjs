@@ -95,9 +95,12 @@ test('the shared Worker exposes the PSN import route only to allowed app origins
   assert.deepEqual(await unconfigured.json(), { error: 'psn_not_configured' });
   const rejected = await worker.fetch(new Request(endpoint, { method: 'POST' }), workerEnv);
   assert.equal(rejected.status, 403);
+  const status = endpoint.replace('/library', '/status');
+  assert.deepEqual(await (await worker.fetch(new Request(status), workerEnv)).json(), { ready: false });
+  assert.deepEqual(await (await worker.fetch(new Request(status), { ...workerEnv, ...env })).json(), { ready: true });
 });
 
-function browser() {
+function browser(ready = false) {
   const submit = { disabled: false };
   const status = {};
   const form = { onlineId: 'PSPlayer' };
@@ -111,8 +114,10 @@ function browser() {
     appLanguage: () => 'pl',
     document: { querySelector: name => name === '#save' ? submit : status },
     FormData: class { get(name) { return form[name]; } },
-    URL, AbortController, structuredClone, setTimeout, clearTimeout,
+    URL, AbortController, AbortSignal, structuredClone, setTimeout, clearTimeout,
+    location: { hash: '#connections' },
     async fetch(url, options) {
+      if (url.pathname.endsWith('/status')) return ready ? reply({ ready }) : reply({ error: 'not_found' }, 404);
       calls.push({ url: url.href, body: options.body });
       if (form.onlineId === 'HiddenUser') return reply({ error: 'profile_unavailable' }, 404);
       return reply({
@@ -137,13 +142,13 @@ function browser() {
   for (const file of ['console-sync.js', 'psn-import.js']) {
     vm.runInContext(readFileSync(new URL('../' + file, import.meta.url), 'utf8'), context);
   }
-  return { context, status, form, dialog, calls, open: () => vm.runInContext('openPsnImport()', context) };
+  return { context, status, form, dialog, calls, run: code => vm.runInContext(code, context) };
 }
 
 test('submitting a nickname directly imports the game, preserving the existing rating and platform', async () => {
   const b = browser();
   for (let i = 0; i < 2; i++) {
-    b.open();
+    b.run('openPsnImport()');
     await b.form.onsubmit({ preventDefault() {} });
     assert.equal(b.dialog.open, false);
   }
@@ -161,10 +166,19 @@ test('submitting a nickname directly imports the game, preserving the existing r
 test('a private history leaves the import form open and the library unchanged', async () => {
   const b = browser();
   b.form.onlineId = 'HiddenUser';
-  b.open();
+  b.run('openPsnImport()');
   await b.form.onsubmit({ preventDefault() {} });
   assert.equal(b.dialog.open, true);
   assert.match(b.status.textContent, /widoczność historii gier/);
   assert.equal(b.context.stored, null);
   assert.equal(b.context.connections.ps, undefined);
+});
+
+test('quick import stays hidden until the public Worker advertises support', async () => {
+  for (const ready of [false, true]) {
+    const b = browser(ready);
+    assert.equal(b.run('psnImportAvailable'), false);
+    await b.run('checkPsnImport()');
+    assert.equal(b.run('psnImportAvailable'), ready);
+  }
 });

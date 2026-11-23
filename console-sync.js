@@ -14,8 +14,9 @@ function sourceConnectionButtons(provider,saved) {
   const view=btn(t('Pokaż zaimportowane gry'),'source-view:'+provider);
   if(provider==='wand')return view;
   if(provider==='ps')return input+view+
-    btn(t(saved?.libraryUrl?'Ustawienia połączenia':'Podłącz przez Bridge'),'source-connect:ps')+
-    (saved?.libraryUrl?btn(t('Synchronizuj bibliotekę'),'source-sync:ps'):'');
+    (saved?.libraryUrl?btn(t('Ustawienia połączenia'),'source-connect:ps'):
+      psnImportAvailable?btn(t('Podłącz przez Bridge'),'source-connect:ps'):'')+
+    (saved?.libraryUrl&&psnImportAvailable?btn(t('Synchronizuj bibliotekę'),'source-sync:ps'):'');
   return input+view+btn(t(saved?.libraryUrl?'Ustawienia połączenia':'Podłącz bibliotekę'),'source-connect:'+provider)+
     (saved?.libraryUrl?btn(t('Synchronizuj bibliotekę'),'source-sync:'+provider):'');
 }

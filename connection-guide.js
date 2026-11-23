@@ -33,6 +33,16 @@ const connectionInstructions = {
         ],
         links:[['Ustawienia prywatności PlayStation','https://www.playstation.com/pl-pl/support/account/privacy-settings/']],
       },
+      psBridge:{
+        info:'Importuje aktywne pozycje z biblioteki PS4 i PS5 oraz historię grania z czasem gry, jeśli konto ją udostępnia.',
+        items:[
+          'Na komputerze skonfiguruj i uruchom Checkpoint Bridge. Autoryzację PlayStation przeprowadź według instrukcji mostka i zachowaj dane dostępowe w jego lokalnej konfiguracji.',
+          'Na kafelku PlayStation wybierz „Podłącz bibliotekę”. Na tym samym komputerze zostaw podpowiedziany adres i w kolejnym kroku wpisz osobny klucz mostka. Zatwierdź gry w podglądzie.',
+          'Użyj „Pokaż zaimportowane gry”, aby wyświetlić swoją kolekcję. Opcja „Synchronizuj bibliotekę” ponownie pobiera listę.',
+          'Na telefonie możesz wczytać plik wyeksportowany przez Bridge przyciskiem „Importuj plik”.',
+        ],
+        links:[['Konfiguracja Checkpoint Bridge','https://github.com/y33bau/checkpoint/tree/main/integrations/consoles']],
+      },
       nintendo:{
         info:'Kafelek otwiera oficjalne konto Nintendo i pozwala zapisać pseudonim w tej przeglądarce. Gry dodajesz z katalogu eShop.',
         items:[
@@ -88,6 +98,16 @@ const connectionInstructions = {
         ],
         links:[['PlayStation privacy settings','https://www.playstation.com/en-us/support/account/privacy-settings/']],
       },
+      psBridge:{
+        info:'Imports active PS4 and PS5 library entries plus play history and play time when the account provides them.',
+        items:[
+          'Set up and run Checkpoint Bridge on your computer. Follow the PlayStation authorization steps in the setup guide and keep credentials in the local configuration.',
+          'On the PlayStation card, select Connect library. On the same computer, keep the suggested address, enter the separate bridge key and confirm the games in the preview.',
+          'Select Show imported games to view your collection. Sync library refreshes the list.',
+          'On a phone, use Import file to load a file exported by the bridge.',
+        ],
+        links:[['Set up Checkpoint Bridge','https://github.com/y33bau/checkpoint/tree/main/integrations/consoles']],
+      },
       nintendo:{
         info:'The card opens the official Nintendo Account site and saves an optional nickname in this browser. Add games from the eShop catalogue.',
         items:[
@@ -114,7 +134,7 @@ const connectionInstructions = {
 function renderConnectionGuide() {
   const guide=connectionInstructions[appLanguage()];
   const sections=providers.map(provider=>{
-    const manual=guide.steps[provider.id];
+    const manual=guide.steps[provider.id==='ps'&&!psnImportAvailable?'psBridge':provider.id];
     const links=manual.links.map(([label,url])=>'<a class="text-link" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(label)+'</a>').join('');
     return '<details class="connection-guide-section"><summary>'+esc(provider.name)+'</summary>'+
       '<p class="muted">'+esc(manual.info)+'</p><ol>'+manual.items.map(step=>'<li>'+esc(step)+'</li>').join('')+'</ol>'+

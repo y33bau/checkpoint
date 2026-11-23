@@ -111,25 +111,31 @@ function connectionPrimary(provider,saved) {
   switch(provider.id){
     case 'steam': return steamConnectButton(saved);
     case 'xbox': return xboxConnectButton(saved);
-    case 'ps': return btn(t(saved?.lastImport?.mode==='psn-profile'?'Odśwież z PlayStation':'Importuj z PlayStation'),
-      'psn-import','primary provider-action');
+    case 'ps':
+      if(psnImportAvailable)return btn(t(saved?.lastImport?.mode==='psn-profile'?'Odśwież z PlayStation':'Importuj z PlayStation'),
+        'psn-import','primary provider-action');
+      return saved?.libraryUrl
+        ? btn(t('Odśwież bibliotekę PS'),'source-sync:ps','primary provider-action')
+        : btn(t('Podłącz przez Bridge'),'source-connect:ps','primary provider-action');
     case 'nintendo': return '<a class="button provider-action" href="'+provider.url+'" target="_blank" rel="noopener noreferrer">'+t('Otwórz konto Nintendo')+'</a>';
     case 'wand': return btn(t('Wklej listę gier'),'source-file:wand','primary provider-action');
   }
 }
 
 function renderConnections() {
+  checkPsnImport();
   return pageHeading(t('Połączenia')) + renderConnectionGuide() + '<div class="platform-grid">' + providers.map(provider => {
     const saved = connections[provider.id];
     const isSteam = provider.id === 'steam';
     const hasLibrary=Object.hasOwn(librarySources,provider.id);
+    const description=provider.id==='ps'&&!psnImportAvailable?'Wczytaj bibliotekę i historię grania przez Checkpoint Bridge.':provider.description;
     const steamStatus = isSteam && saved?.syncedAt && !saved?.lastImport
       ? '<small>'+t('Ostatnia synchronizacja')+': ' + esc(new Date(saved.syncedAt).toLocaleString(appLocale())) + '</small>'
       : '';
     const mark=provider.id==='nintendo'?'<span class="provider-mark" aria-hidden="true">N</span>':
       '<span class="provider-mark"><img src="assets/'+provider.id+(provider.id==='wand'?'.ico':'.svg')+'" alt="" width="24" height="24"></span>';
     return '<article class="panel platform-card '+provider.id+'"><div class="provider-heading">'+mark+'<div><h2>'+provider.name+'</h2><span class="connection-state'+(saved?' is-saved':'')+'">'+t((saved?.librarySyncedAt||saved?.syncedAt)?'Biblioteka zsynchronizowana':saved?.libraryUrl?'Adres połączenia zapisany':saved?.lastImport?'Biblioteka wczytana':saved?'Profil zapisany':'Do skonfigurowania')+'</span></div></div>' +
-      '<p class="muted">' + t(provider.description) + '</p>' +
+      '<p class="muted">' + t(description) + '</p>' +
       (saved?.profile ? '<p class="profile-id">' + esc(saved.profile) + '</p>' : '') +
       '<div class="actions">' + connectionPrimary(provider,saved) +
       '</div><details class="extra-options"><summary>'+t('Opcje połączenia')+'</summary><div class="actions">' +

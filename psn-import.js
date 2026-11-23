@@ -1,4 +1,22 @@
 const psnOnlineIdPattern=/^[A-Za-z][A-Za-z0-9_-]{2,15}$/;
+let psnImportAvailable=false;
+let psnLastCheck;
+
+async function checkPsnImport() {
+  const server=steamServerAddress();
+  if(!server||(psnLastCheck!==undefined&&Date.now()-psnLastCheck<60000))return;
+  psnLastCheck=Date.now();
+  let available=false;
+  try {
+    const response=await fetch(new URL('/api/psn/status',server),{
+      cache:'no-store',redirect:'error',signal:AbortSignal.timeout(5000),
+    });
+    available=response.ok&&(await response.json()).ready===true;
+  }catch{}
+  if(available===psnImportAvailable)return;
+  psnImportAvailable=available;
+  if(location.hash==='#connections')render();
+}
 const psnImportErrors={
   invalid_id:'Sprawdź nick PSN. Wpisz nazwę widoczną na profilu PlayStation.',
   profile_unavailable:'Nie udało się odczytać profilu. Sprawdź nick i widoczność historii gier w PlayStation.',

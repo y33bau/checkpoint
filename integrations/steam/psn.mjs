@@ -8,6 +8,10 @@ export const psnLimits = {
   psnShared: { max: 40, window: 60 },
 };
 
+export function psnReady(env) {
+  return Boolean(env.PSN_NPSSO) && onlineIdPattern.test(env.PSN_SERVICE_ONLINE_ID ?? '');
+}
+
 export function createPsnLibrary(overLimit, loadApi = () => import('psn-api')) {
   let authorization;
   let pending;
@@ -43,7 +47,7 @@ export function createPsnLibrary(overLimit, loadApi = () => import('psn-api')) {
 
   return async function psnLibrary(request, env, reply, origin) {
     if (!origin) return reply({ error: 'origin_not_allowed' }, 403);
-    if (!env.PSN_NPSSO || !onlineIdPattern.test(env.PSN_SERVICE_ONLINE_ID ?? '')) {
+    if (!psnReady(env)) {
       return reply({ error: 'psn_not_configured' }, 503);
     }
     // Cloudflare sets Content-Length for the small JSON body sent by the client.

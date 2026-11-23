@@ -7,7 +7,7 @@
 import { nonceWindow, steamAuthorizeUrl, verifySteamAssertion } from './openid.mjs';
 import { createXbox, xboxLimits, xboxReady, xboxTables } from './xbox.mjs';
 import { achievementLimits, parseAppIds, steamAchievements } from './achievements.mjs';
-import { createPsnLibrary, psnLimits } from './psn.mjs';
+import { createPsnLibrary, psnLimits, psnReady } from './psn.mjs';
 
 const libraryEndpoint = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/';
 const stateCookie = '__Host-checkpoint-steam';
@@ -303,6 +303,7 @@ export default {
     if (url.pathname === '/api/xbox/library') {
       return request.method === 'GET' ? xbox.library(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);
     }
+    if (url.pathname === '/api/psn/status' && request.method === 'GET') return reply({ ready: psnReady(env) });
     if (url.pathname === '/api/psn/library') {
       if (request.method !== 'POST') return reply({ error: 'method_not_allowed' }, 405);
       return psnLibrary(request, env, reply, origin);
