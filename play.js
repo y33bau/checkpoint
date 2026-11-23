@@ -390,7 +390,7 @@ async function prepareChronicle(game) {
     const [cover,screenshot,brandMark]=await Promise.all([
       art?fetch(art,{signal:AbortSignal.timeout(6000)}).then(response=>response.blob()).then(cardBitmap).catch(()=>null):null,
       cardBitmap(shot?.blob),
-      fetch('assets/checkpoint-icon-192.png',{signal:AbortSignal.timeout(3500)}).then(response=>response.ok?response.blob():null).then(cardBitmap).catch(()=>null),
+      fetch('assets/checkpoint-neon-192.png',{signal:AbortSignal.timeout(3500)}).then(response=>response.ok?response.blob():null).then(cardBitmap).catch(()=>null),
     ]);
     const canvas=document.createElement('canvas');
     canvas.width=1080;canvas.height=720;

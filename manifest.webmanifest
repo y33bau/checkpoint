@@ -7,7 +7,7 @@
   "background_color": "#0e0d18",
   "theme_color": "#0e0d18",
   "icons": [
-    {"src": "assets/checkpoint-icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "assets/checkpoint-icon-512.png", "sizes": "512x512", "type": "image/png"}
+    {"src": "assets/checkpoint-neon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "assets/checkpoint-neon-512.png", "sizes": "512x512", "type": "image/png"}
   ]
 }
