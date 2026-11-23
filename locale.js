@@ -1,4 +1,10 @@
 const english = {
+  "Profile gracza": "Player profiles",
+  "Gry w bibliotece": "Library games",
+  "Czas gry": "Play time",
+  "Pokaż gry": "Show games",
+  "Otwórz profil": "Open profile",
+  "Podłącz profil": "Connect profile",
   "Zakres wyboru": "Selection scope",
   "Kontynuuj": "Continue playing",
   "Z mojej kolejki": "From my queue",
