@@ -1,4 +1,5 @@
 const english = {
+  "Orientacyjna sesja wg gatunku": "Estimated session by genre",
   "Katalog globalny": "Global catalogue",
   "Odkryj w katalogu": "Discover in the catalogue",
   "Wybierz czas. Znajdź grę.": "Pick a duration. Find a game.",

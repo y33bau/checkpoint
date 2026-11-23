@@ -996,11 +996,12 @@ body[data-view="now"] .featured-carousel{
   position:relative;min-height:49px;background:#151627dd;border-color:#76619a;
   color:#f9f0ff;font-weight:750;transition:background .16s,border-color .16s,box-shadow .16s;
 }
-.evening-panel .evening-durations :is(button:first-child,button:nth-child(2)):not([aria-pressed="true"]){
-  background:linear-gradient(125deg,#ff9cdb,#f56abf);color:#280d28;border-color:#ff9cd4;
+.evening-panel .evening-durations button:hover{
+  background:#27334a;color:#f3fdff;border-color:#6ff6f4;
 }
-.evening-panel .evening-durations button:is(:hover,[aria-pressed="true"]){
-  background:#113748;color:#d9ffff;border-color:#6ff6f4;box-shadow:0 0 14px #3bdeea50;
+.evening-panel .evening-durations button[aria-pressed="true"]{
+  background:linear-gradient(125deg,#ff9cdb,#f56abf);color:#280d28;border-color:#ff9cd4;
+  box-shadow:0 0 14px #f56abf50;
 }
 .evening-panel .evening-durations button:focus-visible{outline-offset:-4px}
 .evening-loading{
@@ -1031,7 +1032,8 @@ body[data-view="now"] .featured-carousel{
 .evening-results-heading{
   display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;
 }
-.evening-results-heading small{color:#a5edf6}
+.evening-results-heading small{color:#a5edf6;margin-inline-start:auto}
+.evening-result-time{padding:2px 8px;border:1px solid #a76bc3;border-radius:6px;background:#342043;color:#f8eaff;font-size:.8rem}
 .evening-picks{display:grid;gap:12px;margin:10px 0;padding:0;list-style:none}
 .evening-pick{
   position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) auto;

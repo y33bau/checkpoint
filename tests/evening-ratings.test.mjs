@@ -101,3 +101,21 @@ test('global ranking includes owned titles and preserves platform and genre filt
   assert.deepEqual(titles(rankedCatalogueGames({critics},'PlayStation','','default')),['Console Hit']);
   assert.deepEqual(titles(rankedCatalogueGames({steam},'','','steam')),['Already owned','Known Hit','Popular Indie']);
 });
+
+test('global recommendations rerank every time preset and keep the unrestricted quality order',()=>{
+  const {rankedCatalogueGames}=loadApp({cdn:id=>'cover/'+id});
+  const entries=[
+    ['Racing pick','Wyścigi',92], ['Action pick','Akcja',91], ['Role-playing pick','RPG',90],
+    ['Strategy pick','Strategie',89], ['No session estimate','',98],
+  ];
+  const critics=new Map(entries.map(([title,,critics])=>[
+    title.toLowerCase().replace(/-/g,' '),new Map([['PC',{title,critics}]]),
+  ]));
+  const genres=new Map(entries.map(([title,genre])=>[
+    title.toLowerCase().replace(/-/g,' '),new Map([['PC',genre]]),
+  ]));
+  const picks=[30,60,120,180,null].map(minutes=>
+    rankedCatalogueGames({critics,genres},'','','default',{minutes})[0].title);
+  assert.deepEqual(picks,['Racing pick','Action pick','Role-playing pick','Strategy pick','No session estimate']);
+  assert.equal(rankedCatalogueGames({critics,genres},'','Strategie','default',{minutes:30})[0].title,'Strategy pick');
+});

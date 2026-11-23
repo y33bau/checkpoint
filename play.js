@@ -157,16 +157,17 @@ function eveningPicks(minutes,mood,platform,rate,{scope='library',genre='',rated
 let drawnCatalogue=[];
 let drawRequest=0;
 let eveningPage;
+const eveningPageSize=3;
 
-function renderEveningPage(result,page) {
-  const rows=page.choices.slice(page.offset,page.offset+3);
+function renderEveningPage(result,page,appendFrom=0) {
+  const rows=page.choices.slice(appendFrom,page.visible);
   const html=rows.map((item,index)=>{
     const catalogue=!item.game;
     const owned=catalogue?libraryMatch(item):item.game;
     const platform=catalogue?item.store:(page.platform||owned.system);
     const game=owned&&!owned.archived&&owned.runs[platform]?owned:undefined;
     const title=esc(game?.title||item.title||owned.title);
-    const slot=page.offset+index;
+    const slot=appendFrom+index;
     const art=game?featureArtwork(game,{loading:'lazy',artId:item.artId}):
       featureArtwork(item,{loading:'lazy',artId:item.artId});
     const titleAction=game?'data-game="'+esc(game.id)+'"':'data-act="draw-add:'+slot+'"';
@@ -178,29 +179,41 @@ function renderEveningPage(result,page) {
     if(typicalMinutes)reasons.push(t('Typowa sesja')+' · '+typicalMinutes+' min');
     if(run?.goal||game?.tasks?.some(task=>task.pinned&&!task.done))reasons.push(t('Masz zapisany następny cel'));
     if(queued)reasons.push(t('Z Twojej kolejki'));
+    if(page.minutes&&item.sessionMinutes){
+      reasons.push(t('Orientacyjna sesja wg gatunku')+' · '+t(eveningDurations[item.sessionMinutes]));
+    }
     if(!reasons.length)reasons.push(t(catalogue&&!game?'Odkryj w katalogu':'Czas sesji nieustalony'));
     const status=[game?.status==='Gram'?t('Gram teraz'):'',game?.demo?t('Demo'):''];
     const details=item.score?'<small>'+esc(t(item.score.verdict))+' · '+
       item.score.value.toLocaleString(appLocale(),{maximumFractionDigits:2})+' / 5</small>':'';
     return '<li class="evening-pick">'+
       '<div class="evening-cover" aria-hidden="true">'+art+'</div><div class="evening-pick-text">'+
-      '<small class="evening-platform">'+[platform,...status].filter(Boolean).map(esc).join(' · ')+'</small>'+
+      '<small class="evening-platform">'+[platform,item.genre?t(item.genre):'',...status].filter(Boolean).map(esc).join(' · ')+'</small>'+
       '<button type="button" class="evening-game-link" '+titleAction+'>'+title+'</button>'+
       '<small class="evening-reason">'+esc(reasons[0])+'</small>'+eveningRatingMarkup(page.order,item.rating)+details+'</div>'+
       '<button type="button" class="evening-queue-button" data-act="evening-queue:'+queueAction+'"'+
       (queued?' disabled':'')+'>'+t(queued?'W kolejce':'Do kolejki')+'</button></li>';
   }).join('');
-  result.innerHTML=(page.notice?'<p class="muted">'+t(page.notice)+'</p>':'')+
+  const visible=Math.min(page.visible,page.choices.length);
+  const hasMore=visible<page.choices.length;
+  const moreLabel=t('Pokaż kolejne')+' · '+visible+' / '+page.choices.length;
+  if(appendFrom){
+    result.querySelector('.evening-picks').insertAdjacentHTML('beforeend',html);
+    const more=result.querySelector('[data-act="evening-more"]');
+    if(hasMore)more.textContent=moreLabel;
+    else more.parentElement.remove();
+  }else result.innerHTML=(page.notice?'<p class="muted">'+t(page.notice)+'</p>':'')+
     (rows.length?'<div class="evening-results-heading"><h3>'+t('Propozycje na teraz')+'</h3>'+
+      '<span class="evening-result-time">'+t(eveningDurations[page.minutes??'unlimited'])+'</span>'+
       (page.scope==='catalogue'?'<small>'+t('Katalog globalny')+'</small>':
         btn(t('Katalog globalny'),'evening-catalogue'))+'</div><ul class="evening-picks">'+html+'</ul>':
       '<p class="muted">'+t(page.empty)+'</p>')+eveningRatingSource(page.order)+
-    (page.offset+3<page.choices.length?'<div class="library-more">'+btn(t('Pokaż kolejne'),'evening-more')+'</div>':'')+
+    (hasMore?'<div class="library-more">'+btn(moreLabel,'evening-more')+'</div>':'')+
     (!rows.length?'<div class="actions">'+btn(t('Zmień filtry'),'evening-filters')+
       (page.scope==='catalogue'?'':btn(t('Zobacz gry z katalogu'),'evening-catalogue'))+
       (games.some(game=>!game.archived&&game.pinnedAt)?btn(t('Zobacz całą kolejkę'),'evening-shelf'):'')+'</div>':'');
 
-  for(const [index,cover] of [...result.querySelectorAll('.evening-cover')].entries()){
+  for(const [index,cover] of [...result.querySelectorAll('.evening-cover')].slice(appendFrom).entries()){
     const item=rows[index];
     const store=item.store||page.platform||item.game?.system;
     if(cover.firstElementChild||!Object.hasOwn(storeCatalogs,store))continue;
@@ -218,10 +231,13 @@ function currentEveningDraw(result,ticket) {
 
 function nextEveningPage() {
   const result=document.querySelector('#evening-results');
-  if(!result||!eveningPage||eveningPage.offset+3>=eveningPage.choices.length)return;
-  eveningPage.offset+=3;
-  renderEveningPage(result,eveningPage);
-  result.querySelector('.evening-game-link')?.focus({preventScroll:true});
+  if(!result||!eveningPage||eveningPage.visible>=eveningPage.choices.length)return;
+  const firstNew=eveningPage.visible;
+  eveningPage.visible+=eveningPageSize;
+  renderEveningPage(result,eveningPage,firstNew);
+  const firstLink=result.querySelectorAll('.evening-game-link')[firstNew];
+  firstLink?.focus({preventScroll:true});
+  firstLink?.closest('.evening-pick')?.scrollIntoView({block:'nearest'});
 }
 
 function queueEveningPick(kind,id) {
@@ -245,15 +261,15 @@ async function showEveningPicks(result,minutes,settings,ticket) {
   drawnCatalogue=[];
   eveningPage=null;
   result.innerHTML='<div class="evening-loading" role="status"><span aria-hidden="true"></span>'+
-    t('Szukam najlepszych gier…')+'</div>';
+    t('Szukam najlepszych gier…')+' · '+t(eveningDurations[minutes??'unlimited'])+'</div>';
   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   if(!currentEveningDraw(result,ticket))return;
 
-  const data=await eveningRatingData(order,Boolean(genre));
+  const data=await eveningRatingData(order,Boolean(genre||minutes&&scope==='catalogue'));
   if(!currentEveningDraw(result,ticket))return;
   const rate=eveningRatingLookup(data,order);
   const catalogue=scope==='catalogue';
-  const choices=catalogue?rankedCatalogueGames(data,platform,genre,order):
+  const choices=catalogue?rankedCatalogueGames(data,platform,genre,order,{minutes}):
     eveningPicks(minutes,mood,platform,rate,{scope,genre,ratedOnly,limit:Infinity});
   const unavailable=order==='steam'?!data.steam:order==='metacritic'?!data.critics:
     !data.steam&&!data.critics;
@@ -261,7 +277,7 @@ async function showEveningPicks(result,minutes,settings,ticket) {
     catalogue||ratedOnly?'Brak wysoko ocenionych gier dla tych filtrów.':'Brak pasujących gier w bibliotece. Zmień kryteria.';
   const notice=data.partial&&!unavailable?'Jedno lub więcej źródeł ocen jest niedostępnych.':'';
   if(catalogue)drawnCatalogue=choices;
-  eveningPage={scope,platform,order,choices,notice,empty,offset:0};
+  eveningPage={scope,platform,order,choices,notice,empty,minutes,visible:eveningPageSize};
   renderEveningPage(result,eveningPage);
 }
 
@@ -284,16 +300,15 @@ function openEvening(duration=eveningDuration||'30') {
     '<label class="compact-check"><input type="checkbox" name="rated-only"'+(saved.ratedOnly?' checked':'')+'>'+
     t('Tylko gry z oceną')+'</label></details>',()=>{});
   document.querySelector('#save').textContent=t('Pokaż propozycje');
-  const {duration:durationField,mood}=form.elements;
+  const {mood}=form.elements;
   const genre=form.elements['evening-genre'];
   const rated=form.elements['rated-only'];
   const sorting=form.elements['evening-order'];
   const modes=form.elements['draw-mode'];
   function syncScope() {
     const catalogue=modes.value==='catalogue';
-    fields.querySelector('#evening-duration').hidden=catalogue;
     fields.querySelector('#evening-mood').hidden=catalogue;
-    durationField.disabled=mood.disabled=rated.disabled=catalogue;
+    mood.disabled=rated.disabled=catalogue;
     rated.closest('label').hidden=catalogue;
   }
   for(const radio of modes)radio.onchange=syncScope;

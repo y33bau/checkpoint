@@ -41,7 +41,23 @@ function catalogEntry(entry,store) {
   };
 }
 
-function rankedCatalogueGames({steam,critics,genres},platform,genre,order,limit=15) {
+// Genre gives a rough session length when the catalogue has no individual play-time profile.
+const catalogueSessionMinutes = {
+  'Logiczne':30,'Wyścigi':30,'Zręcznościowe':30,'Platformówki':30,'Muzyczne':30,
+  'Bijatyki':30,'Karcianki i planszowe':30,'Imprezowe':30,'Sportowe':30,
+  'Akcja':60,'Strzelanki':60,'Roguelike':60,'Przygodowe':60,
+  'RPG':120,'Survival':120,'Sandbox':120,
+  'Strategie':180,'Symulacje':180,
+};
+
+function catalogueSessionBonus(minutes,typicalMinutes) {
+  if(!minutes)return 0;
+  if(!typicalMinutes)return -3;
+  const ratio=minutes/typicalMinutes;
+  return ratio===1?16:ratio>=1?Math.max(0,8/ratio):ratio>=.5?-7:-16;
+}
+
+function rankedCatalogueGames({steam,critics,genres},platform,genre,order,{limit=60,minutes=null}={}) {
   const stores={
     Steam:['PC'],Xbox:['Xbox Series X','Xbox One'],
     PlayStation:['PlayStation 5','PlayStation 4'],Nintendo:['Nintendo Switch 2','Nintendo Switch'],
@@ -52,13 +68,17 @@ function rankedCatalogueGames({steam,critics,genres},platform,genre,order,limit=
   function add(title,store,version,critic,review) {
     const key=catalogText(title);
     if(!key)return;
-    const indexedGenre=genres?.get(key)?.get(version)||'';
+    const byPlatform=genres?.get(key);
+    const indexedGenre=byPlatform?.get(version)||
+      (byPlatform?.size===1?byPlatform.values().next().value:'');
     if(genre&&indexedGenre!==genre)return;
     const rating=rankEveningHit(order,critic,review);
     if(!rating)return;
+    const sessionMinutes=Object.hasOwn(catalogueSessionMinutes,indexedGenre)?catalogueSessionMinutes[indexedGenre]:null;
+    const rank=rating.value+catalogueSessionBonus(minutes,sessionMinutes);
     const current=choices.get(key);
-    if(current&&compareEveningRatings(rating,current.rating)>=0)return;
-    choices.set(key,{title,store,versions:version?[version]:[],genre:indexedGenre,rating,
+    if(current&&(current.rank>rank||(current.rank===rank&&compareEveningRatings(rating,current.rating)>=0)))return;
+    choices.set(key,{title,store,versions:version?[version]:[],genre:indexedGenre,rating,rank,sessionMinutes,
       steamId:store==='Steam'?review?.id:undefined,artId:review?.id,cover:review?.id?cdn(review.id):''});
   }
 
@@ -81,7 +101,7 @@ function rankedCatalogueGames({steam,critics,genres},platform,genre,order,limit=
       add(review.title,'Steam','PC',critic,review);
     }
   }
-  return [...choices.values()].sort((a,b)=>compareEveningRatings(a.rating,b.rating)||
+  return [...choices.values()].sort((a,b)=>b.rank-a.rank||compareEveningRatings(a.rating,b.rating)||
     a.title.localeCompare(b.title)).slice(0,limit);
 }
 
