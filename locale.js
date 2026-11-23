@@ -1,4 +1,5 @@
 const english = {
+  "ocen": "ratings",
   "Wylosuj grę": "Find a game",
   "Obecna gra": "Current game",
   "Dodaj grę +": "Add game +",

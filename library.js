@@ -225,6 +225,7 @@ function renderLibraryResults() {
     (sections|| (shown.length?'<div class="'+(covers?'grid library-covers':'library-list')+'">'+shown.map((game,index)=>rated?ratedLibraryTile(game,covers,index<4):covers?gameTile(game,{eagerCover:index<4}):libraryRow(game)).join('')+'</div>':
       '<p class="panel">'+t(emptyMessage)+'</p>'))+
     (results.length>visibleCount?'<div class="library-more">'+btn(t('Pokaż kolejne'),'library-more')+'</div>':'');
+  observeIgdbMetadata(app);
 }
 
 function toggleQueue(id) {

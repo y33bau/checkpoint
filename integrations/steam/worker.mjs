@@ -7,6 +7,7 @@
 import { nonceWindow, steamAuthorizeUrl, verifySteamAssertion } from './openid.mjs';
 import { createXbox, xboxLimits, xboxReady, xboxTables } from './xbox.mjs';
 import { achievementLimits, parseAppIds, steamAchievements } from './achievements.mjs';
+import { createIgdbLookup, igdbLimits, igdbReady } from './igdb.mjs';
 import { createPsnLibrary, psnLimits, psnReady } from './psn.mjs';
 
 const libraryEndpoint = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/';
@@ -23,6 +24,7 @@ export const limits = {
   ...xboxLimits,
   ...achievementLimits,
   ...psnLimits,
+  ...igdbLimits,
 };
 
 const encoder = new TextEncoder();
@@ -262,6 +264,7 @@ async function library(request, env, reply, origin) {
 const xbox = createXbox({ appUrls, overLimit, sha256, randomSecret, nowSeconds, baseHeaders, redirect, lifetimes });
 
 const psnLibrary = createPsnLibrary(overLimit);
+const igdbLookup = createIgdbLookup(overLimit);
 
 export default {
   async fetch(request, env, ctx) {
@@ -307,6 +310,10 @@ export default {
     if (url.pathname === '/api/psn/library') {
       if (request.method !== 'POST') return reply({ error: 'method_not_allowed' }, 405);
       return psnLibrary(request, env, reply, origin);
+    }
+    if (url.pathname === '/api/igdb/status' && request.method === 'GET') return reply({ ready: igdbReady(env) });
+    if (url.pathname === '/api/igdb/game') {
+      return request.method === 'GET' ? igdbLookup(request, env, reply, origin, ctx) : reply({ error: 'method_not_allowed' }, 405);
     }
     if (url.pathname === '/api/steam/token') {
       return request.method === 'POST' ? exchange(request, env, reply, origin) : reply({ error: 'method_not_allowed' }, 405);

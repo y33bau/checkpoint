@@ -215,13 +215,17 @@ function renderEveningPage(result,page,appendFrom=0) {
   for(const [index,cover] of [...result.querySelectorAll('.evening-cover')].slice(appendFrom).entries()){
     const item=rows[index];
     const store=item.store||page.platform||item.game?.system;
-    if(cover.firstElementChild||!Object.hasOwn(storeCatalogs,store))continue;
+    if(cover.querySelector('img')||!Object.hasOwn(storeCatalogs,store))continue;
     findCatalogGames(item.title||item.game.title,store,true).then(matches=>{
-      if(!cover.isConnected)return;
+      if(!cover.isConnected||cover.querySelector('img'))return;
       const match=matches.find(entry=>entry.cover);
-      if(match)cover.innerHTML=featureArtwork(match,{loading:'lazy'});
+      if(match){
+        cover.innerHTML=featureArtwork(match,{loading:'lazy'});
+        observeIgdbMetadata(cover);
+      }
     }).catch(()=>{});
   }
+  observeIgdbMetadata(result);
 }
 
 function currentEveningDraw(result,ticket) {

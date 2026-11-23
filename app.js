@@ -16,8 +16,8 @@ const bar=p=>'<div class="bar"><i style="width:'+Number(p)+'%"></i></div>';
 function coverImage(game, eagerCover=false) {
   const main = gameCoverSource(game);
   const fallback = web(game.coverFallback || (game.steamAppId ? steamHeader(game.steamAppId) : ''));
-  if (!main && !fallback) return '';
-  return '<img loading="'+(eagerCover?'eager':'lazy')+'" alt="" src="'+esc(main || fallback)+'" data-cover-fallback="'+esc(main!==fallback ? fallback : '')+'">';
+  const image=main||fallback?'<img loading="'+(eagerCover?'eager':'lazy')+'" alt="" src="'+esc(main || fallback)+'" data-cover-fallback="'+esc(main!==fallback ? fallback : '')+'">':'';
+  return image+(validCustomCover(game.customCover)?'':igdbTarget(game,'cover'));
 }
 const pageHeading=(title,action='')=>'<div class="top"><h1>'+esc(title)+'</h1>'+action+'</div>';
 function youtubeGuide(game,compact=false) {
@@ -84,13 +84,14 @@ function featureArtwork(game,{loading="eager",artId}={}) {
     ...(!validCustomCover(game.customCover)&&/^\d+$/.test(steamId)?['https://cdn.cloudflare.steamstatic.com/steam/apps/'+steamId+'/library_hero.jpg']:[]),
     cover,fallback,...(/^\d+$/.test(steamId)?[cdn(steamId),steamHeader(steamId)]:[]),
   ].filter((url,index,list)=>url&&list.indexOf(url)===index);
-  if(!sources.length)return '';
   const [first,...rest]=sources;
-  return '<div class="feature-art" aria-hidden="true"><img class="feature-image" alt="" loading="'+loading+'" src="'+esc(first)+'" data-art-next="'+
-    esc(JSON.stringify(rest))+'"></div>';
+  const image=first?'<img class="feature-image" alt="" loading="'+loading+'" src="'+esc(first)+'" data-art-next="'+
+    esc(JSON.stringify(rest))+'">':'';
+  const igdb=validCustomCover(game.customCover)?'':igdbTarget(game,'hero');
+  return '<div class="feature-art" aria-hidden="true">'+image+igdb+'</div>';
 }
 
-const banner=(g,inner)=>'<article class="hero">'+((gameCoverSource(g)||g.coverFallback)?'<div class="game-art">'+coverImage(g)+'</div>':'')+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
+const banner=(g,inner)=>'<article class="hero"><div class="game-art">'+coverImage(g)+'</div>'+'<div class="hero-content"><span class="eyebrow">'+esc(g.system)+'　/　'+esc(t(g.status))+'</span><h2>'+esc(g.title)+'</h2>'+inner+'</div></article>';
 
 const connectionKey = 'checkpoint-connections-v1';
 const providers = [
@@ -324,6 +325,7 @@ function render(){
  }
  paintMedia(g||(view==='now'?featuredGame():null));
  syncSessionVoice();
+ observeIgdbMetadata();
  if(g && currentGameTab==='ratings')attachCriticScores([g]);
  if(g && currentGameTab==='goals')wireWandQuickImport(g);
  for(const link of document.querySelectorAll('nav a')) {
@@ -565,10 +567,17 @@ app.addEventListener('error',event=>{
   const image=event.target;
   if(image.matches?.('.feature-art .feature-image')){
     const [next,...rest]=JSON.parse(image.dataset.artNext || '[]');
-    if(!next){image.parentElement.remove();return}
+    if(!next){
+      const marker=image.parentElement.querySelector('[data-igdb-kind="hero"]');
+      image.remove();
+      if(marker)fillIgdbMetadata(marker);
+      return;
+    }
     image.dataset.artReady='';
     image.dataset.artNext=JSON.stringify(rest);
     image.src=next;
+    const marker=image.parentElement.querySelector('[data-igdb-kind="hero"]');
+    if(marker)fillIgdbMetadata(marker);
     return;
   }
   if(image.matches?.('.achievement img')){
@@ -585,7 +594,9 @@ app.addEventListener('error',event=>{
     image.dataset.coverFallback='';
     image.src=fallback;
   } else {
+    const marker=image.parentElement.querySelector('[data-igdb-kind="cover"]');
     image.remove();
+    if(marker)fillIgdbMetadata(marker);
   }
 },true);
 app.addEventListener('load',event=>{
