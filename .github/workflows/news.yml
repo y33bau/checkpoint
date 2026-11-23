@@ -22,7 +22,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          if git fetch --depth=1 origin news-data; then
+          if git fetch --depth=8 origin news-data; then
             mkdir -p "$RUNNER_TEMP/news"
             git show FETCH_HEAD:news.json > "$RUNNER_TEMP/news/news.json"
             git worktree add --detach "$RUNNER_TEMP/news-tree" FETCH_HEAD
@@ -37,6 +37,17 @@ jobs:
             git -C "$RUNNER_TEMP/news-tree" add gamepass.json
           fi
           cd "$RUNNER_TEMP/news-tree"
+          steam_updated=$(git log -1 --format=%ct -- steam-reviews.csv)
+          if [ "$(( $(date +%s) - ${steam_updated:-0} ))" -ge 86400 ]; then
+            # The Game Census publishes aggregate Steam review counts under CC BY 4.0.
+            steam_snapshot="$RUNNER_TEMP/news/steam-reviews.csv"
+            if curl -fsSL --max-time 30 --retry 2 https://thegamecensus.com/data/games-index.csv -o "$steam_snapshot" &&
+              [ "$(wc -l < "$steam_snapshot")" -gt 1000 ] &&
+              head -n 1 "$steam_snapshot" | grep -q '^app_id,name,slug,release_date,is_free,total_positive,total_negative,'; then
+              cp "$steam_snapshot" steam-reviews.csv
+              git add steam-reviews.csv
+            fi
+          fi
           cp "$RUNNER_TEMP/news/news.json" news.json
           git add news.json
           if git diff --cached --quiet; then exit 0; fi
