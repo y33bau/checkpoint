@@ -13,11 +13,11 @@ const score=g=>{const a=g.scores.filter(Number.isFinite);return a.length?(a.redu
 const btn=(label,act,cls='')=>'<button class="'+cls+'" data-act="'+act+'">'+label+'</button>';
 const options=(arr,v,label=s=>s)=>arr.map(s=>'<option value="'+esc(s)+'" '+(s===v?'selected':'')+'>'+esc(label(s))+'</option>').join('');
 const bar=p=>'<div class="bar"><i style="width:'+Number(p)+'%"></i></div>';
-function coverImage(game) {
+function coverImage(game, eagerCover=false) {
   const main = gameCoverSource(game);
   const fallback = web(game.coverFallback || (game.steamAppId ? steamHeader(game.steamAppId) : ''));
   if (!main && !fallback) return '';
-  return '<img loading="lazy" alt="" src="'+esc(main || fallback)+'" data-cover-fallback="'+esc(main!==fallback ? fallback : '')+'">';
+  return '<img loading="'+(eagerCover?'eager':'lazy')+'" alt="" src="'+esc(main || fallback)+'" data-cover-fallback="'+esc(main!==fallback ? fallback : '')+'">';
 }
 const pageHeading=(title,action='')=>'<div class="top"><h1>'+esc(title)+'</h1>'+action+'</div>';
 function youtubeGuide(game,compact=false) {
@@ -34,7 +34,8 @@ function gameShelf(list) {
   const header = '<div class="now-section-heading"><h2 id="shelf-title">'+label+'</h2>'+
     btn(t('＋ Dodaj do kolejki'),'pick:queue')+'</div>';
   return '<section class="panel now-queue" aria-labelledby="shelf-title">'+header+
-    (list.length?'<div class="grid library-covers">'+list.map(game=>gameTile(game)).join('')+'</div>':'')+'</section>';
+    (list.length?'<div class="grid library-covers">'+list.map((game,index)=>gameTile(game,{eagerCover:index<4})).join('')+'</div>':
+      '<p class="muted queue-empty">'+t('Kolejka jest pusta. Dodaj grę, żeby pojawiła się na półce.')+'</p>')+'</section>';
 }
 const active=()=>games.find(g=>'#game-'+g.id===location.hash);
 function featuredGame() {
@@ -255,7 +256,7 @@ function render(){
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
- else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+homePlayerProfiles()+eveningPanel()}
+ else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+homePlayerProfiles()+eveningPanel()+gameShelf([])}
  else{
    const current=featuredGame();
    const addPlaying=btn(t('＋ Dodaj grę'),'pick:playing','now-add-playing');
@@ -586,7 +587,6 @@ window.onhashchange=event=>{
     }
   } else {
     window.scrollTo(0,0);
-    if(location.hash==='#now')app.scrollTop=0;
   }
 };
 

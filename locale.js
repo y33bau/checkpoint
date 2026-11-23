@@ -1,4 +1,5 @@
 const english = {
+  "Kolejka jest pusta. Dodaj grę, żeby pojawiła się na półce.": "Your queue is empty. Add a game to show it on the shelf.",
   "Muzyka ambient 432 Hz": "432 Hz ambient music",
   "Profile gracza": "Player profiles",
   "Gry w bibliotece": "Library games",

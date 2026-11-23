@@ -142,14 +142,14 @@ function playingToggle(game, compact=false) {
     (compact?'<span class="play-glyph" aria-hidden="true"></span>':label)+'</button>';
 }
 
-function gameTile(game,{actions=true,details='',badge='',description=''}={}) {
+function gameTile(game,{actions=true,details='',badge='',description='',eagerCover=false}={}) {
   const title=esc(game.title);
   const initials=game.title.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('');
   const genre=gameGenre(game);
   const metadata=[...Object.keys(game.runs),genre?t(genre):'',t(game.status)].filter(Boolean).map(esc).join(' · ');
   return '<div class="library-item"><div class="library-tile-face">'+
     '<div class="tile-poster"><button type="button" class="tile" data-game="'+esc(game.id)+'" aria-label="'+title+(description?' · '+esc(description):'')+'">'+
-    '<span class="cover" aria-hidden="true"><b>'+esc(initials)+'</b>'+coverImage(game)+'</span>'+
+    '<span class="cover" aria-hidden="true"><b>'+esc(initials)+'</b>'+coverImage(game,eagerCover)+'</span>'+
     '<strong class="tile-caption" aria-hidden="true">'+title+'</strong></button>'+badge+
     '<button type="button" class="tile-disclosure" aria-label="'+esc(t('Pokaż szczegóły')+' · '+game.title)+'" aria-expanded="false" data-act="tile-details">＋</button></div>'+
     '<div class="tile-expansion"><div class="tile-detail"><strong>'+title+'</strong><small>'+metadata+'</small>'+
@@ -182,11 +182,11 @@ function toggleTileDetails(button) {
   }
 }
 
-function ratedLibraryTile(game, covers) {
+function ratedLibraryTile(game, covers, eagerCover=false) {
   const formatted=score(game).toLocaleString(appLocale(),{minimumFractionDigits:1,maximumFractionDigits:1})+' / 10';
   const categories=game.scores.filter(Number.isFinite).length+' / '+criteria.length+' '+t('ocenionych kategorii');
   return covers
-    ? gameTile(game,{badge:'<span class="tile-rank">'+esc(formatted)+'</span>',details:'<small>'+esc(categories)+'</small>',description:formatted+' · '+categories})
+    ? gameTile(game,{eagerCover,badge:'<span class="tile-rank">'+esc(formatted)+'</span>',details:'<small>'+esc(categories)+'</small>',description:formatted+' · '+categories})
     : libraryRow(game,formatted+' · '+categories);
 }
 
@@ -206,7 +206,7 @@ function renderLibraryResults() {
     if(!list.length)return '';
     const open=expanded.get(status)??(Boolean(filter)||status===(results.some(g=>g.status===statuses[0])?statuses[0]:results[0]?.status));
     return '<details class="collection-section" data-section="'+esc(status)+'" '+(open?'open':'')+'><summary>'+t(status)+' <small>'+number.format(list.length)+'</small></summary><div class="grid library-covers">'+
-      list.slice(0,libraryLimit).map(game=>gameTile(game)).join('')+'</div></details>';
+      list.slice(0,libraryLimit).map((game,index)=>gameTile(game,{eagerCover:open&&index<4})).join('')+'</div></details>';
   }).join(''):'';
   const visibleCount=groups?statuses.reduce((sum,status)=>sum+Math.min(libraryLimit,results.filter(g=>g.status===status).length),0):shown.length;
   const canReset=libraryFiltersActive();
@@ -219,7 +219,7 @@ function renderLibraryResults() {
     '<div class="library-modes library-chips" role="group" aria-label="'+t('Szybkie filtry')+'">'+
     libraryPressed('Moje oceny','library-mode:rated',rated)+archive+
     (canReset?btn(t('Wyczyść filtry'),'library-reset'):'')+'</div></div>'+
-    (sections|| (shown.length?'<div class="'+(covers?'grid library-covers':'library-list')+'">'+shown.map(game=>rated?ratedLibraryTile(game,covers):covers?gameTile(game):libraryRow(game)).join('')+'</div>':
+    (sections|| (shown.length?'<div class="'+(covers?'grid library-covers':'library-list')+'">'+shown.map((game,index)=>rated?ratedLibraryTile(game,covers,index<4):covers?gameTile(game,{eagerCover:index<4}):libraryRow(game)).join('')+'</div>':
       '<p class="panel">'+t(emptyMessage)+'</p>'))+
     (results.length>visibleCount?'<div class="library-more">'+btn(t('Pokaż kolejne'),'library-more')+'</div>':'');
 }
