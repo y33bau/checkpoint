@@ -30,8 +30,8 @@ function mapsAndGoals(game) {
   return '<div class="game-section-grid"><section class="panel feature-panel"><div class="row"><h2>'+t('Cele')+'</h2>'+
     btn(t('＋ Dodaj cel'),'task','primary')+'</div>'+
     (goals||'<p class="muted">'+t('Dodaj pierwszy cel dla tej gry.')+'</p>')+'</section>'+
-    '<section class="panel feature-panel"><h2>'+t('Mapy i poradniki')+'</h2><div class="actions">'+
-    btn(t('Mapy z Wand'),'wand-maps')+btn(t('Utknąłem'),'stuck')+btn(t('Wklej link'),'resource-paste')+'</div>'+
+    '<section class="panel feature-panel">'+matchMapsCard(game)+'<h2>'+t('Mapy i poradniki')+'</h2><div class="actions">'+
+    btn(t('Mapy z Wand'),'wand-maps')+btn(t('Utknąłem'),'stuck')+btn(t('Wklej linki'),'resource-paste')+'</div><div id="wand-quick-import" class="actions"></div>'+
     '<h3>'+t('Mapy')+'</h3>'+(maps||'<p class="muted">'+t('Przypnij link do mapy gry.')+'</p>')+
     '<h3>'+t('Poradniki')+'</h3>'+(guides||'<p class="muted">'+t('Nie ma zapisanych poradników.')+'</p>')+'</section></div>';
 }

@@ -94,7 +94,7 @@ function renderLibrary() {
     '<option value="'+id+'" '+(sort===id?'selected':'')+'>'+t(label)+'</option>').join('');
   const refresh=games.some(game=>!game.archived)?btn(t('Odśwież okładki'),'refresh-all-covers'):'';
   const groupView=view==='groups' && libraryMode!=='rated';
-  return pageHeading(t('Biblioteka'),'<div class="actions">'+refresh+btn(t('＋ Dodaj grę'),'add','primary')+'</div>') +
+  return pageHeading(t('Biblioteka'),'<div class="actions">'+refresh+btn(t('＋ Dodaj grę'),'pick:playing','primary')+'</div>') +
     '<div class="library-controls">'+
       '<input id="search" type="search" aria-label="'+t('Szukaj gry')+'" placeholder="'+t('Szukaj gry…')+'" value="'+esc(filter)+'">'+
       '<div class="library-view" role="group" aria-label="'+t('Widok biblioteki')+'">'+

@@ -1,15 +1,5 @@
-// Picker used to add games to "Moja kolejka" or to the games being played now.
-// Library games are chosen from a filterable list; games outside the library are
-// found in the public store catalogue and added to the library automatically.
-const pickerTargets = {
-  queue: {title:'Dodaj do kolejki', done:'Dodano do kolejki.'},
-  playing: {title:'Dodaj do ogrywanych', done:'Dodano do ogrywanych.'},
-};
-const pickerListLimit = 80;
-
-function pickerEligible(target, game) {
-  return !game.archived && (target==='queue' ? !game.pinnedAt && game!==featuredGame() : game.status!=='Gram');
-}
+const pickerListLimit = 40;
+const pickerTargets = { playing:'Gram', queue:'Do kolejki' };
 
 function pickerThumb(cover, fallback='') {
   const main=validCustomCover(cover)?cover:web(cover||''), backup=web(fallback||'');
@@ -19,7 +9,7 @@ function pickerThumb(cover, fallback='') {
 
 function placeGame(target, item) {
   delete item.archived;
-  if(target==='queue') item.pinnedAt=Date.now();
+  if(target==='queue') item.pinnedAt??=Date.now();
   else {
     item.status='Gram';
     preferences.featuredGameId=item.id;
@@ -27,178 +17,160 @@ function placeGame(target, item) {
   }
 }
 
-function finishPick(target, item) {
-  persist();
-  dialog.close();
-  if(location.hash!=='#now' && location.hash!=='') location.hash='now';
-  else render();
-  const focus=target==='queue' ? [...app.querySelectorAll('.shelf-game')].find(button=>button.dataset.game===item.id) : app.querySelector('.hero, .feature-panel');
-  focus?.scrollIntoView?.({block:'nearest'});
+function libraryMatch(choice) {
+  const title=catalogText(choice.title);
+  const sameId=choice.steamId&&games.find(entry=>entry.steamAppId===choice.steamId);
+  return sameId||games.find(entry=>catalogText(entry.title)===title&&
+    (!choice.steamId||!entry.steamAppId||choice.steamId===entry.steamAppId));
 }
 
-function pickLibraryGame(target, id) {
-  const item=games.find(entry=>entry.id===id);
-  if(!item || deviceBusy || !pickerEligible(target,item))return;
-  placeGame(target,item);
-  finishPick(target,item);
-}
-
-function libraryMatch(title) {
-  const key=catalogText(title);
-  return games.find(entry=>catalogText(entry.title)===key);
-}
-
-function pickCatalogGame(target, choice, store) {
-  if(deviceBusy)return;
-  const existing=libraryMatch(choice.title);
-  if(existing){
-    placeGame(target,existing);
-    finishPick(target,existing);
-    return;
+function placeCatalogueGame(target, choice, platform) {
+  const system=choice.store||platform;
+  const existing=libraryMatch(choice);
+  const item=existing||game(choice.title,system);
+  const newPlatform=!Object.hasOwn(item.runs,system);
+  if(newPlatform)item.runs[system]=run();
+  if(target==='playing')item.system=system;
+  if(choice.store){
+    if(!existing||!item.cover)useCatalogCover(item,choice);
+    else item.catalogVersions={...item.catalogVersions,[choice.store]:choice.versions||[]};
   }
-  const system=choice.store || store;
-  const item=game(choice.title,system);
-  if(choice.store) useCatalogCover(item,choice);
-  games.push(item);
+  if(choice.steamId&&!item.steamAppId)item.steamAppId=choice.steamId;
+  if(!existing)games.push(item);
   placeGame(target,item);
-  finishPick(target,item);
-  if(!choice.store) fillExactCover(item,item.title,system).finally(()=>attachCriticScores([item]));
-  else attachCriticScores([item]);
+  if(!existing||newPlatform){
+    if(!choice.store&&!item.cover)fillExactCover(item,item.title,system).finally(()=>attachCriticScores([item]));
+    else attachCriticScores([item]);
+  }
+  return item;
 }
 
-function openGamePicker(target) {
+function pickerLibraryResults(query) {
+  const words=catalogText(query).split(' ').filter(Boolean);
+  const rank=entry=>{
+    const title=catalogText(entry.title);
+    if(!words.length)return Number(entry.status!=='Gram');
+    if(title===words.join(' '))return 0;
+    if(title.startsWith(words.join(' ')))return 1;
+    return words.every(word=>title.includes(word))?2:3;
+  };
+  return games.map(entry=>({entry,rank:rank(entry)})).filter(row=>row.rank<3)
+    .sort((a,b)=>a.rank-b.rank||Number(Boolean(a.entry.archived))-Number(Boolean(b.entry.archived))||
+      a.entry.title.localeCompare(b.entry.title,appLocale()))
+    .map(row=>row.entry).slice(0,pickerListLimit);
+}
+
+function pickerActions(entry,target) {
+  const buttons=[target,target==='queue'?'playing':'queue'];
+  return '<div class="picker-row-actions">'+buttons.map(action=>{
+    const saved=entry&&!entry.archived&&(action==='queue'?entry.pinnedAt:entry.status==='Gram');
+    const label=saved&&action==='queue'?'W kolejce':pickerTargets[action];
+    return '<button type="button" data-pick-target="'+action+'"'+(saved&&action==='queue'?' disabled':'')+'>'+t(label)+'</button>';
+  }).join('')+'</div>';
+}
+
+function openGamePicker(target='playing') {
   if(!Object.hasOwn(pickerTargets,target))return;
-  const eligible=games.filter(entry=>pickerEligible(target,entry))
-    .sort((a,b)=>Number(b.status==='Gram')-Number(a.status==='Gram') || a.title.localeCompare(b.title,appLocale()));
-  const startExternal=!eligible.length;
-  const platform=preferences.profile?.platform && systems.includes(preferences.profile.platform) ? preferences.profile.platform : systems[0];
-  openForm(t(pickerTargets[target].title),
-    '<div class="picker-tabs" role="group" aria-label="'+t('Źródło gry')+'">'+
-      '<button type="button" data-picker-tab="library" aria-pressed="'+!startExternal+'">'+t('Z biblioteki')+'</button>'+
-      '<button type="button" data-picker-tab="external" aria-pressed="'+startExternal+'">'+t('Szukaj poza biblioteką')+'</button>'+
-    '</div>'+
-    '<div id="picker-library"'+(startExternal?' hidden':'')+'>'+
-      '<label>'+t('Gra z biblioteki')+'<input type="search" id="picker-library-filter" autocomplete="off" enterkeyhint="go" placeholder="'+t('Filtruj po tytule…')+'"></label>'+
-      '<div class="picker-list" id="picker-library-list" role="list"></div>'+
-      '<p class="muted picker-status" id="picker-library-status" role="status"></p>'+
-    '</div>'+
-    '<div id="picker-external"'+(startExternal?'':' hidden')+'>'+
-      '<p class="muted picker-note">'+t('Wybrana gra zostanie automatycznie dodana do biblioteki.')+'</p>'+
-      select(t('Platforma'),'picker-system',systems,platform)+
-      '<label>'+t('Tytuł')+'<input type="search" id="picker-catalog-query" autocomplete="off" enterkeyhint="search" maxlength="120" placeholder="'+t('Zacznij wpisywać tytuł…')+'"></label>'+
-      '<div class="picker-list" id="picker-catalog-list" role="list"></div>'+
-      '<p class="muted picker-status" id="picker-catalog-status" role="status"></p>'+
-    '</div>',()=>{});
+  const saved=preferences.profile?.platform;
+  const platform=systems.includes(saved)?saved:systems[0];
+  openForm(t('Dodaj grę'),
+    '<div class="quick-picker-controls">'+
+    input(t('Szukaj gry'),'quick-game-query','','type="search" autocomplete="off" maxlength="120"')+
+    select(t('Platforma katalogu'),'picker-system',systems,platform)+'</div>'+
+    '<div id="picker-library" class="quick-picker-group"></div>'+
+    '<div id="picker-catalog" class="quick-picker-group"></div>'+
+    '<p class="muted picker-status" id="picker-status" role="status"></p>'+
+    '<button type="button" id="picker-detailed-add">'+t('Dodaj z formularza')+'</button>',()=>{});
   document.querySelector('#save').hidden=true;
-  wireGamePicker(target,eligible,startExternal);
-}
-
-function wireGamePicker(target, eligible, startExternal) {
-  const tabs=[...fields.querySelectorAll('[data-picker-tab]')];
-  const panes={library:fields.querySelector('#picker-library'),external:fields.querySelector('#picker-external')};
-  const filterInput=fields.querySelector('#picker-library-filter');
-  const libraryList=fields.querySelector('#picker-library-list');
-  const libraryStatus=fields.querySelector('#picker-library-status');
-  const query=fields.querySelector('#picker-catalog-query');
+  const query=form.elements['quick-game-query'];
   const store=form.elements['picker-system'];
-  const catalogList=fields.querySelector('#picker-catalog-list');
-  const catalogStatus=fields.querySelector('#picker-catalog-status');
-  let found=[], timer, revision=0;
+  const local=fields.querySelector('#picker-library');
+  const external=fields.querySelector('#picker-catalog');
+  const status=fields.querySelector('#picker-status');
+  let choices=[], timer, revision=0;
 
-  function showTab(name) {
-    for(const tab of tabs) tab.setAttribute('aria-pressed',String(tab.dataset.pickerTab===name));
-    panes.library.hidden=name!=='library';
-    panes.external.hidden=name!=='external';
-    (name==='library'?filterInput:query).focus({preventScroll:true});
-  }
+  const row=(kind,id,entry,details,thumb,existing)=>'<div class="picker-option" data-pick-kind="'+kind+'" data-pick-id="'+esc(id)+'">'+
+    thumb+'<div class="picker-row-info"><strong title="'+esc(entry.title)+'">'+esc(entry.title)+'</strong>'+
+    '<small>'+esc(details)+'</small></div>'+pickerActions(existing,target)+'</div>';
 
-  function renderLibrary() {
-    const text=catalogText(filterInput.value);
-    const matches=text ? eligible.filter(entry=>catalogText(entry.title).includes(text)) : eligible;
-    const shown=matches.slice(0,pickerListLimit);
-    libraryList.innerHTML=shown.map(entry=>
-      '<button type="button" class="picker-option" data-pick-library="'+esc(entry.id)+'">'+
-        pickerThumb(gameCoverSource(entry),entry.coverFallback||(entry.steamAppId?steamHeader(entry.steamAppId):''))+
-        '<span><strong>'+esc(entry.title)+'</strong><small>'+esc(Object.keys(entry.runs).join(' · '))+' · '+esc(t(entry.status))+'</small></span>'+
-      '</button>').join('');
-    if(!eligible.length) libraryStatus.textContent=t(target==='queue'?'Wszystkie gry z biblioteki są już w kolejce.':'Wszystkie gry z biblioteki są już ogrywane.');
-    else if(!matches.length) libraryStatus.textContent=t('Brak takiej gry w bibliotece. Wyszukaj ją poza biblioteką.');
-    else if(matches.length>shown.length) libraryStatus.textContent=t('Wpisz tytuł, aby zawęzić listę.')+' ('+shown.length+' / '+matches.length+')';
-    else libraryStatus.textContent='';
-    libraryList.hidden=!shown.length;
-  }
-
-  function manualOption() {
+  function renderResults(showManual=false) {
+    const matches=pickerLibraryResults(query.value);
+    local.innerHTML=matches.length?'<h3>'+t('Z biblioteki')+'</h3><div class="picker-list">'+matches.map(entry=>
+      row('library',entry.id,entry,Object.keys(entry.runs).join(' · ')+' · '+t(entry.archived?'Archiwum':entry.status),
+        pickerThumb(gameCoverSource(entry),entry.coverFallback),entry)).join('')+'</div>':'';
+    const rows=choices.flatMap((choice,index)=>{
+      const existing=libraryMatch(choice);
+      if(existing?.runs[choice.store])return [];
+      return row('catalogue',index,choice,choice.store,pickerThumb(choice.cover),null);
+    });
     const title=query.value.trim();
-    if(catalogText(title).length<2 || found.some(item=>catalogText(item.title)===catalogText(title)))return '';
-    return '<button type="button" class="picker-option picker-manual" data-pick-catalog="manual">'+
-      '<span class="picker-thumb" aria-hidden="true">＋</span><span><strong>'+esc(title)+'</strong><small>'+t('Dodaj jako nową grę')+' · '+esc(store.value)+'</small></span></button>';
-  }
-
-  function renderCatalog() {
-    catalogList.innerHTML=found.map((item,index)=>{
-      const owned=libraryMatch(item.title);
-      return '<button type="button" class="picker-option" data-pick-catalog="'+index+'">'+
-        pickerThumb(item.cover)+
-        '<span><strong>'+esc(item.title)+'</strong><small>'+esc(item.store)+(owned?' · '+t('Już w bibliotece'):'')+'</small></span></button>';
-    }).join('')+manualOption();
-    catalogList.hidden=!catalogList.children.length;
+    const exact=catalogText(title);
+    if(showManual&&exact.length>=2&&!choices.some(choice=>catalogText(choice.title)===exact)&&
+        !matches.some(entry=>catalogText(entry.title)===exact)){
+      rows.push(row('manual','',{title},t('Dodaj ręcznie')+' · '+store.value,pickerThumb(''),null));
+    }
+    external.innerHTML=rows.length?'<h3>'+t('Z katalogu')+'</h3><div class="picker-list">'+rows.join('')+'</div>':'';
   }
 
   async function search(ticket) {
-    catalogStatus.textContent=t('Szukam w katalogu…');
     try {
-      const next=await catalogSuggestions(query.value,store.value);
-      if(ticket!==revision || !dialog.open)return;
-      found=next;
-      catalogStatus.textContent=found.length?'':t('Brak podpowiedzi. Możesz dodać grę ręcznie.');
-    } catch {
-      if(ticket!==revision || !dialog.open)return;
-      found=[];
-      catalogStatus.textContent=t('Katalog chwilowo niedostępny. Możesz dodać grę ręcznie.');
+      const results=await catalogSuggestions(query.value,store.value);
+      if(ticket!==revision||!query.isConnected||!dialog.open)return;
+      choices=results;
+      status.textContent='';
+    }catch{
+      if(ticket!==revision||!query.isConnected||!dialog.open)return;
+      status.textContent=t('Katalog chwilowo niedostępny. Możesz dodać grę ręcznie.');
     }
-    renderCatalog();
+    renderResults(true);
   }
 
   function scheduleSearch() {
     clearTimeout(timer);
     const ticket=++revision;
-    found=[];
-    catalogStatus.textContent='';
-    renderCatalog();
-    if(catalogText(query.value).length>=2) timer=setTimeout(()=>search(ticket),260);
+    choices=[];
+    const searching=catalogText(query.value).length>=2;
+    status.textContent=searching?t('Szukam w katalogu…'):'';
+    renderResults(searching);
+    if(searching)timer=setTimeout(()=>search(ticket),260);
   }
 
-  for(const tab of tabs) tab.onclick=()=>showTab(tab.dataset.pickerTab);
-  filterInput.oninput=renderLibrary;
+  function choose(event) {
+    const action=event.target.closest('button[data-pick-target]')?.dataset.pickTarget;
+    const result=event.target.closest('[data-pick-kind]');
+    if(!action||!result||deviceBusy)return;
+    const {pickKind:kind,pickId:id}=result.dataset;
+    if(kind==='library'){
+      const item=games.find(entry=>entry.id===id);
+      if(!item)return;
+      placeGame(action,item);
+    }else{
+      const choice=kind==='manual'?{title:query.value.trim()}:choices[Number(id)];
+      if(!choice)return;
+      placeCatalogueGame(action,choice,store.value);
+    }
+    persist();
+    dialog.close();
+    render();
+  }
+
+  fields.querySelector('#picker-detailed-add').onclick=()=>openGameForm(null,null,query.value.trim());
   query.oninput=scheduleSearch;
   store.onchange=scheduleSearch;
-  fields.onclick=event=>{
-    const button=event.target.closest('button');
-    if(button?.dataset.pickLibrary) pickLibraryGame(target,button.dataset.pickLibrary);
-    else if(button?.dataset.pickCatalog==='manual') pickCatalogGame(target,{title:query.value.trim()},store.value);
-    else if(button?.dataset.pickCatalog) {
-      const choice=found[Number(button.dataset.pickCatalog)];
-      if(choice) pickCatalogGame(target,choice,store.value);
-    }
-  };
-  for(const list of [libraryList,catalogList]) list.addEventListener('error',event=>{
-    const image=event.target;
-    if(image.tagName!=='IMG')return;
-    if(image.dataset.coverFallback){image.src=image.dataset.coverFallback;image.dataset.coverFallback=''}
-    else image.remove();
-  },true);
+  for(const group of [local,external]){
+    group.onclick=choose;
+    group.addEventListener('error',event=>{
+      const image=event.target;
+      if(image.tagName!=='IMG')return;
+      if(image.dataset.coverFallback){image.src=image.dataset.coverFallback;image.dataset.coverFallback=''}
+      else image.remove();
+    },true);
+  }
   form.onsubmit=event=>{
     event.preventDefault();
-    const pane=panes.library.hidden?catalogList:libraryList;
-    if(!pane.hidden) pane.querySelector('.picker-option')?.click();
+    fields.querySelector('button[data-pick-target="'+target+'"]:not(:disabled)')?.click();
   };
-  dialog.addEventListener('close',()=>{
-    clearTimeout(timer);
-    revision++;
-    fields.onclick=null;
-  },{once:true});
-  renderLibrary();
-  renderCatalog();
-  if(!matchMedia('(pointer:coarse)').matches) (startExternal?query:filterInput).focus();
+  dialog.addEventListener('close',()=>{clearTimeout(timer);revision++},{once:true});
+  renderResults();
+  query.focus({preventScroll:true});
 }

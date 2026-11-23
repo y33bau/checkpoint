@@ -40,7 +40,7 @@ const eveningOrders = {
   steam:'Steam (opinie graczy)',
   metacritic:'Metacritic (oceny krytyków)',
 };
-let eveningOrder='default';
+const eveningScopes={playing:'Kontynuuj',queue:'Z mojej kolejki',library:'Cała biblioteka',catalogue:'Katalog'};
 
 function compareEveningRatings(a,b) {
   return (b?.value??-1)-(a?.value??-1)||(b?.reviews??0)-(a?.reviews??0);
@@ -85,66 +85,85 @@ function eveningPanel() {
     '</div><div id="evening-results" aria-live="polite"></div></section>';
 }
 
-function eveningPicks(minutes,mood,platform,rate) {
-  const candidates=games.filter(game=>!game.archived&&(!platform||game.runs[platform])).flatMap(game=>{
+function eveningPicks(minutes,mood,platform,rate,{scope='library',genre='',ratedOnly=false,limit=3}={}) {
+  const candidates=games.filter(game=>!game.archived&&(!platform||game.runs[platform])&&
+    (scope!=='playing'||game.status==='Gram')&&(scope!=='queue'||game.pinnedAt)&&
+    (!genre||gameGenre(game)===genre)).flatMap(game=>{
     const saved=game.sessionHint || {};
     const hint={minutes:Number.isFinite(saved.minutes)?saved.minutes:0,mood:Object.hasOwn(moods,saved.mood)?saved.mood:''};
     const timing=estimateTimeFit(minutes,hint.minutes);
     if(timing===1 || (mood && hint.mood && hint.mood!==mood))return [];
     const selectedPlatform=platform||game.system;
     const score=scoreForSession(game,selectedPlatform,timing);
-    return [{game,hint,timing,score,rating:rate?.(game,selectedPlatform),random:Math.random()}];
+    const rating=rate?.(game,selectedPlatform);
+    if(ratedOnly&&!rating)return [];
+    return [{game,hint,timing,score,rating,random:Math.random()}];
   });
   return candidates.sort((a,b)=>compareEveningRatings(a.rating,b.rating)||
     (b.score?.value??-1)-(a.score?.value??-1)||(b.timing??0)-(a.timing??0)||
-    Number(Boolean(b.game.pinnedAt))-Number(Boolean(a.game.pinnedAt))||a.random-b.random).slice(0,3);
+    Number(Boolean(b.game.pinnedAt))-Number(Boolean(a.game.pinnedAt))||a.random-b.random).slice(0,limit);
 }
 
 let drawnCatalogue=[];
 let drawRequest=0;
+let eveningPage;
 
-function renderLibraryPicks(result,minutes,mood,platform,order,rate) {
-  const picks=eveningPicks(minutes,mood,platform,rate);
-  const missing=rate&&picks.length&&!picks.some(pick=>pick.rating);
-  const notice=missing?'<p class="muted">'+t('Brak ocen z tego źródła dla pasujących gier.')+'</p>':'';
-  const tiles=picks.length?'<div class="grid library-covers">'+picks.map(({game,hint,timing,score,rating})=>{
-    const duration=hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony');
-    const mood=Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony');
-    const details='<small>'+duration+' · '+mood+'</small>'+
-      (timing?'<small>'+t('Dopasowanie do sesji')+' · '+timing+' / 10</small>':'')+
-      eveningRatingMarkup(order,rating)+(score?startBadge(score):'');
-    const label=eveningRatingLabel(order,rating);
-    const badge=label?'<span class="tile-rank" aria-hidden="true">'+esc(label)+'</span>':'';
-    return gameTile(game,{actions:false,details,badge,description:label});
-  }).join('')+'</div>':'<p class="muted">'+t('Brak pasujących gier w bibliotece. Zmień kryteria.')+'</p>';
-  result.innerHTML=notice+tiles+eveningRatingSource(order);
+function renderEveningPage(result,page) {
+  const rows=page.choices.slice(page.offset,page.offset+3);
+  const html=page.scope==='catalogue'
+    ? rows.map((item,index)=>'<div class="entry discovery-row">'+(item.cover?'<img loading="lazy" alt="" src="'+esc(item.cover)+'">':'')+
+      '<div><strong>'+esc(item.title)+'</strong><p class="muted">'+esc(item.store)+'</p>'+
+      eveningRatingMarkup(page.order,item.rating)+'</div><div class="evening-card-actions">'+
+      btn(t('Do kolejki'),'evening-queue:catalogue:'+(page.offset+index))+
+      btn(t('Dodaj grę'),'draw-add:'+(page.offset+index))+'</div></div>').join('')
+    : '<div class="grid library-covers">'+rows.map(({game,hint,timing,score,rating})=>{
+      const duration=hint.minutes?hint.minutes+' min':t('Czas sesji nieustalony');
+      const mood=Object.hasOwn(moods,hint.mood)?t(moods[hint.mood]):t('Nastrój nieustalony');
+      const details='<small>'+duration+' · '+mood+'</small>'+
+        (timing?'<small>'+t('Dopasowanie do sesji')+' · '+timing+' / 10</small>':'')+
+        eveningRatingMarkup(page.order,rating)+(score?startBadge(score):'');
+      const label=eveningRatingLabel(page.order,rating);
+      const badge=label?'<span class="tile-rank" aria-hidden="true">'+esc(label)+'</span>':'';
+      return '<div class="evening-choice">'+gameTile(game,{actions:false,details,badge,description:label})+
+        '<button type="button" data-act="evening-queue:library:'+esc(game.id)+'"'+(game.pinnedAt?' disabled':'')+'>'+
+        t(game.pinnedAt?'W kolejce':'Do kolejki')+'</button></div>';
+    }).join('')+'</div>';
+  result.innerHTML=(page.notice?'<p class="muted">'+t(page.notice)+'</p>':'')+
+    (rows.length?html:'<p class="muted">'+t(page.empty)+'</p>')+eveningRatingSource(page.order)+
+    (page.offset+3<page.choices.length?'<div class="library-more">'+btn(t('Pokaż kolejne'),'evening-more')+'</div>':'');
 }
 
 function currentEveningDraw(result,ticket) {
   return ticket===drawRequest&&document.querySelector('#evening-results')===result;
 }
 
-async function renderCataloguePicks(result,platform,order,rate,ticket) {
-  result.innerHTML='<p>'+t(rate?'Szukam ocenionych gier w katalogu…':'Losuję z katalogu…')+'</p>';
-  let choices;
-  try {
-    choices=await drawCatalogueGames(platform,rate);
-  }catch{
-    if(currentEveningDraw(result,ticket))result.innerHTML='<p class="muted">'+t('Katalog chwilowo niedostępny. Spróbuj ponownie.')+'</p>';
-    return;
-  }
-  if(!currentEveningDraw(result,ticket))return;
-  drawnCatalogue=choices;
-  const rows=choices.length?choices.map((item,index)=>
-    '<div class="entry discovery-row">'+(item.cover?'<img loading="lazy" alt="" src="'+esc(item.cover)+'">':'')+
-    '<div><strong>'+esc(item.title)+'</strong><p class="muted">'+esc(item.store)+'</p>'+
-    eveningRatingMarkup(order,item.rating)+'</div>'+btn(t('Dodaj grę'),'draw-add:'+index)+'</div>').join(''):
-    '<p class="muted">'+t(rate?'Brak ocenionych gier w tym losowaniu. Spróbuj ponownie.':'Katalog chwilowo niedostępny. Spróbuj ponownie.')+'</p>';
-  result.innerHTML=rows+eveningRatingSource(order);
+function nextEveningPage() {
+  const result=document.querySelector('#evening-results');
+  if(!result||!eveningPage||eveningPage.offset+3>=eveningPage.choices.length)return;
+  eveningPage.offset+=3;
+  renderEveningPage(result,eveningPage);
+  result.querySelector('[data-game], [data-act^="evening-queue:"]')?.focus({preventScroll:true});
 }
 
-async function showEveningPicks(result,data,order,ticket) {
+function queueEveningPick(kind,id) {
+  const choice=kind==='catalogue'?drawnCatalogue[Number(id)]:null;
+  if(choice)placeCatalogueGame('queue',choice,choice.store);
+  else {
+    const item=games.find(game=>game.id===id&&!game.archived);
+    if(!item)return;
+    placeGame('queue',item);
+  }
+  persist();
+  const button=[...app.querySelectorAll('#evening-results [data-act^="evening-queue:"]')]
+    .find(button=>button.dataset.act==='evening-queue:'+kind+':'+id);
+  if(button){button.disabled=true;button.textContent=t('W kolejce')}
+  render();
+}
+
+async function showEveningPicks(result,minutes,settings,ticket) {
+  const {scope,platform,order,mood,genre,ratedOnly}=settings;
   drawnCatalogue=[];
+  eveningPage=null;
   let rate;
   if(order!=='default'){
     result.innerHTML='<p>'+t('Pobieram oceny…')+'</p>';
@@ -156,39 +175,74 @@ async function showEveningPicks(result,data,order,ticket) {
     }
     if(!currentEveningDraw(result,ticket))return;
   }
-  const platform=data.get('platform');
-  if(data.get('draw-mode')==='catalogue')return renderCataloguePicks(result,platform,order,rate,ticket);
-  const minutes=data.get('duration')==='unlimited'?null:Number(data.get('duration'));
-  renderLibraryPicks(result,minutes,data.get('mood'),platform,order,rate);
+  let choices,notice='',empty='Brak pasujących gier w bibliotece. Zmień kryteria.';
+  if(scope==='catalogue'){
+    result.innerHTML='<p>'+t(rate?'Szukam ocenionych gier w katalogu…':'Losuję z katalogu…')+'</p>';
+    empty=rate?'Brak ocenionych gier w tym losowaniu. Spróbuj ponownie.':'Katalog chwilowo niedostępny. Spróbuj ponownie.';
+    try {
+      choices=await drawCatalogueGames(platform,rate,15);
+    }catch{
+      if(currentEveningDraw(result,ticket))result.innerHTML='<p class="muted">'+t('Katalog chwilowo niedostępny. Spróbuj ponownie.')+'</p>';
+      return;
+    }
+    if(!currentEveningDraw(result,ticket))return;
+    drawnCatalogue=choices;
+  }else{
+    choices=eveningPicks(minutes,mood,platform,rate,{scope,genre,ratedOnly,limit:Infinity});
+    if(ratedOnly)empty='Brak ocenionych gier dla tych filtrów.';
+    if(rate&&choices.length&&!choices.some(pick=>pick.rating))notice='Brak ocen z tego źródła dla pasujących gier.';
+  }
+  eveningPage={scope,order,choices,notice,empty,offset:0};
+  renderEveningPage(result,eveningPage);
 }
 
 function openEvening(duration) {
+  const saved=preferences.evening||{};
+  const order=Object.hasOwn(eveningOrders,saved.order)?saved.order:'default';
+  const scope=Object.hasOwn(eveningScopes,saved.scope)?saved.scope:'library';
+  const platform=saved.platform??preferences.profile?.platform;
+  const scopes=Object.entries(eveningScopes).map(([id,label])=>
+    '<label><input type="radio" name="draw-mode" value="'+id+'"'+(scope===id?' checked':'')+'><span>'+t(label)+'</span></label>').join('');
   openForm(t('Wybierz grę na wieczór'),
-    '<label>'+t('Źródło losowania')+'<select name="draw-mode"><option value="library">'+t('Z mojej biblioteki')+
-    '</option><option value="catalogue">'+t('Dowolna gra z katalogu')+'</option></select></label>'+
-    '<label>'+t('Platforma')+'<select name="platform"><option value="">'+t('Dowolna')+'</option>'+
-    options(systems,preferences.profile?.platform)+'</select></label>'+
-    '<label>'+t('Sortowanie')+'<select name="evening-order">'+
-    options(Object.keys(eveningOrders),eveningOrder,order=>t(eveningOrders[order]))+'</select></label>'+
-    '<div id="evening-constraints"><label>'+t('Czas na grę')+'<select name="duration">'+
+    '<fieldset class="evening-scopes"><legend>'+t('Zakres wyboru')+'</legend><div>'+scopes+'</div></fieldset>'+
+    select(t('Platforma'),'platform',['',...systems],platform,value=>value||t('Dowolna'))+
+    select(t('Sortowanie'),'evening-order',Object.keys(eveningOrders),order,id=>t(eveningOrders[id]))+
+    '<label id="evening-duration">'+t('Czas na grę')+'<select name="duration">'+
     options(Object.keys(eveningDurations),duration,id=>eveningDurations[id])+'</select></label>'+
-    '<label>'+t('Nastrój')+'<select name="mood"><option value="">'+t('Dowolny')+'</option>'+
-    Object.entries(moods).map(([id,label])=>'<option value="'+id+'">'+t(label)+'</option>').join('')+'</select></label></div>',()=>{});
-  const mode=form.elements['draw-mode'];
-  mode.onchange=()=>{
-    const catalogue=mode.value==='catalogue';
-    document.querySelector('#evening-constraints').hidden=catalogue;
-    form.elements.duration.disabled=catalogue;
-  };
+    '<details class="extra-options"'+(saved.mood||saved.genre||saved.ratedOnly?' open':'')+'><summary>'+t('Więcej filtrów')+'</summary>'+
+    '<div id="evening-constraints">'+
+    select(t('Nastrój'),'mood',['',...Object.keys(moods)],saved.mood,id=>t(moods[id]||'Dowolny'))+
+    select(t('Gatunek'),'evening-genre',['',...gameGenres],saved.genre,id=>t(id||'Wszystkie gatunki'))+'</div>'+
+    '<label class="compact-check"><input type="checkbox" name="rated-only"'+(saved.ratedOnly?' checked':'')+'>'+
+    t('Tylko gry z oceną')+'</label></details>',()=>{});
+  const {duration:durationField,mood}=form.elements;
+  const genre=form.elements['evening-genre'];
+  const rated=form.elements['rated-only'];
+  const sorting=form.elements['evening-order'];
+  const modes=form.elements['draw-mode'];
+  function syncScope() {
+    const catalogue=modes.value==='catalogue';
+    fields.querySelector('#evening-duration').hidden=catalogue;
+    fields.querySelector('#evening-constraints').hidden=catalogue;
+    durationField.disabled=mood.disabled=genre.disabled=catalogue;
+  }
+  for(const radio of modes)radio.onchange=syncScope;
+  rated.onchange=()=>{if(rated.checked&&sorting.value==='default')sorting.value='metacritic'};
+  sorting.onchange=()=>{if(sorting.value==='default')rated.checked=false};
+  syncScope();
   form.onsubmit=event=>{
     event.preventDefault();
     const data=new FormData(form);
+    const settings={
+      scope:data.get('draw-mode'),platform:data.get('platform'),order:sorting.value,
+      mood:mood.value,genre:genre.value,ratedOnly:rated.checked,
+    };
+    preferences.evening=settings;
+    savePreferences();
     dialog.close();
     const result=document.querySelector('#evening-results');
-    if(!result)return;
-    const order=data.get('evening-order');
-    eveningOrder=Object.hasOwn(eveningOrders,order)?order:'default';
-    showEveningPicks(result,data,eveningOrder,++drawRequest);
+    const minutes=data.get('duration')==='unlimited'?null:Number(data.get('duration'));
+    if(result)showEveningPicks(result,minutes,settings,++drawRequest);
   };
 }
 
