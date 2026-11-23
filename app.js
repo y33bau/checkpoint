@@ -256,13 +256,13 @@ function render(){
  else if(view==='connections'){app.innerHTML=renderConnections()}
  else if(g){app.innerHTML=renderGameCard(g)}
  else if(view==='library'){app.innerHTML=renderLibrary();renderLibraryResults()}
- else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+homePlayerProfiles()+eveningPanel()+gameShelf([])}
+ else if(!games.length){app.innerHTML=pageHeading(t('Gram teraz'))+'<div class="panel empty-library"><h2>'+t('Twoja biblioteka jest pusta')+'</h2><p class="muted">'+t('Dodaj pierwszą grę albo zaimportuj bibliotekę Steam.')+'</p><div class="actions">'+btn(t('＋ Dodaj grę'),'pick:playing','primary')+btn(t('Import Steam JSON'),'import')+'</div></div>'+eveningPanel()+gameShelf([])+homePlayerProfiles()}
  else{
    const current=featuredGame();
    const addPlaying=btn(t('＋ Dodaj grę'),'pick:playing','now-add-playing');
    app.innerHTML=pageHeading(t('Gram teraz'),addPlaying)+
      (current?featuredPanel(current):'<p class="panel">'+t('Nie ogrywasz teraz żadnej gry.')+'</p>')+
-     homePlayerProfiles()+eveningPanel()+gameShelf(queuedGames(current));
+     eveningPanel()+gameShelf(queuedGames(current))+homePlayerProfiles();
  }
  if(eveningResults)app.querySelector('#evening-results')?.replaceWith(eveningResults);
  paintMedia(g||(view==='now'?featuredGame():null));
