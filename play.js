@@ -194,6 +194,34 @@ let drawRequest=0;
 let eveningPage;
 const eveningPageSize=3;
 
+function eveningPickReason(item,game,platform,available,queued) {
+  const run=game?.runs[platform];
+  const typical=game?.sessionHint?.minutes;
+  const recent=run?.sessions?.filter(session=>Number.isFinite(session.minutes)&&session.minutes>0)
+    .slice(-5).map(session=>session.minutes).sort((a,b)=>a-b)??[];
+  const middle=Math.floor(recent.length/2);
+  const recorded=recent.length?Math.round((recent[middle]+recent[Math.floor((recent.length-1)/2)])/2):0;
+  const genre=item.genre||(game?gameGenre(game):'');
+  const estimated=item.sessionMinutes||(Object.hasOwn(catalogueSessionMinutes,genre)?catalogueSessionMinutes[genre]:0);
+  const goal=run?.goal?.trim()||game?.tasks?.some(task=>task.pinned&&!task.done);
+  const context=goal?t('Masz zapisany następny cel'):queued?t('Z Twojej kolejki'):'';
+  const join=reason=>[reason,context].filter(Boolean).join(' · ');
+  const format=(label,minutes)=>t(label).replace('{minutes}',new Intl.NumberFormat(appLocale()).format(minutes));
+
+  if(Number.isFinite(typical)&&typical>0){
+    return join(format(available&&typical>available?'Twoja typowa sesja to {minutes} min. Dziś masz mniej czasu.':
+      available?'Twoja typowa sesja mieści się w tym czasie ({minutes} min).':'Twoja typowa sesja to {minutes} min.',typical));
+  }
+  if(recorded){
+    return join(format(recent.length===1?'Ostatnia zapisana sesja: {minutes} min.':'Twoje ostatnie sesje: zwykle {minutes} min.',recorded));
+  }
+  if(available&&estimated){
+    return join(format(estimated>available?'Szacunek wg gatunku: ok. {minutes} min. Dziś masz mniej czasu.':
+      'Szacunek wg gatunku: ok. {minutes} min na sesję.',estimated));
+  }
+  return context||(item.rating?t('Polecana ze względu na oceny graczy lub krytyków.'):t('Czas sesji nieustalony'));
+}
+
 function renderEveningPage(result,page,appendFrom=0) {
   const rows=page.choices.slice(appendFrom,page.visible);
   const html=rows.map((item,index)=>{
@@ -208,16 +236,7 @@ function renderEveningPage(result,page,appendFrom=0) {
     const titleAction=game?'data-game="'+esc(game.id)+'"':'data-act="draw-add:'+slot+'"';
     const queueAction=catalogue?'catalogue:'+slot:'library:'+esc(owned.id);
     const queued=owned&&!owned.archived&&owned.pinnedAt;
-    const run=game?.runs[platform];
-    const reasons=[];
-    const typicalMinutes=(item.hint||game?.sessionHint)?.minutes;
-    if(typicalMinutes)reasons.push(t('Typowa sesja')+' · '+typicalMinutes+' min');
-    if(run?.goal||game?.tasks?.some(task=>task.pinned&&!task.done))reasons.push(t('Masz zapisany następny cel'));
-    if(queued)reasons.push(t('Z Twojej kolejki'));
-    if(page.minutes&&item.sessionMinutes){
-      reasons.push(t('Orientacyjna sesja wg gatunku')+' · '+t(eveningDurations[item.sessionMinutes]));
-    }
-    if(!reasons.length)reasons.push(t(catalogue&&!game?'Odkryj w katalogu':'Czas sesji nieustalony'));
+    const reason=eveningPickReason(item,game,platform,page.minutes,queued);
     const status=[game?.status==='Gram'?t('Gram teraz'):'',game?.demo?t('Demo'):''];
     const details=item.score?'<small>'+esc(t(item.score.verdict))+' · '+
       item.score.value.toLocaleString(appLocale(),{maximumFractionDigits:2})+' / 5</small>':'';
@@ -225,7 +244,7 @@ function renderEveningPage(result,page,appendFrom=0) {
       '<div class="evening-cover" aria-hidden="true">'+art+'</div><div class="evening-pick-text">'+
       '<small class="evening-platform">'+[platform,item.genre?t(item.genre):'',...status].filter(Boolean).map(esc).join(' · ')+'</small>'+
       '<button type="button" class="evening-game-link" '+titleAction+'>'+title+'</button>'+
-      '<small class="evening-reason">'+esc(reasons[0])+'</small>'+eveningRatingMarkup(page.order,item.rating)+details+'</div>'+
+      '<small class="evening-reason">'+esc(reason)+'</small>'+eveningRatingMarkup(page.order,item.rating)+details+'</div>'+
       '<button type="button" class="evening-queue-button" data-act="evening-queue:'+queueAction+'"'+
       (queued?' disabled':'')+'>'+t(queued?'W kolejce':'Do kolejki')+'</button></li>';
   }).join('');

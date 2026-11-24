@@ -1,4 +1,12 @@
 const english = {
+  "Twoja typowa sesja to {minutes} min. Dziś masz mniej czasu.": "Your usual session is {minutes} min. You have less time today.",
+  "Twoja typowa sesja mieści się w tym czasie ({minutes} min).": "Your usual session fits ({minutes} min).",
+  "Twoja typowa sesja to {minutes} min.": "Your usual session is {minutes} min.",
+  "Ostatnia zapisana sesja: {minutes} min.": "Last logged session: {minutes} min.",
+  "Twoje ostatnie sesje: zwykle {minutes} min.": "Your recent sessions: typically {minutes} min.",
+  "Szacunek wg gatunku: ok. {minutes} min. Dziś masz mniej czasu.": "Genre estimate: about {minutes} min. You have less time today.",
+  "Szacunek wg gatunku: ok. {minutes} min na sesję.": "Genre estimate: about {minutes} min per session.",
+  "Polecana ze względu na oceny graczy lub krytyków.": "Recommended based on player or critic ratings.",
   "ocen": "ratings",
   "Wylosuj grę": "Find a game",
   "Odkryj nową grę": "Discover a new game",
