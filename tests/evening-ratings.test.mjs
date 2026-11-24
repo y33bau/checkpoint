@@ -53,7 +53,7 @@ test('the evening draw ranks matching library games and keeps missing ratings la
   const {eveningPicks}=loadApp({games});
   const rate=game=>ratings[game.id];
   assert.deepEqual(Array.from(eveningPicks(30,'action','Steam',rate),pick=>pick.game.id),
-    ['tie-with-more-reviews','best','rated']);
+    ['rated','tie-with-more-reviews','unrated']);
   assert.equal(eveningPicks(30,'action','Steam',game=>game.id==='rated'?rate(game):null)[0].game.id,'rated');
   assert.equal(eveningPicks(30,'action','Steam').length,3);
 });
@@ -119,5 +119,30 @@ test('global recommendations rerank every time preset and keep the unrestricted 
   const picks=[30,60,120,180,null].map(minutes=>
     rankedCatalogueGames({critics,genres},'','','default',{minutes})[0].title);
   assert.deepEqual(picks,['Racing pick','Action pick','Role-playing pick','Strategy pick','No session estimate']);
-  assert.equal(rankedCatalogueGames({critics,genres},'','Strategie','default',{minutes:30})[0].title,'Strategy pick');
+  assert.equal(rankedCatalogueGames({critics,genres},'','Strategie','default',{minutes:30}).length,0);
+});
+
+
+test('recorded sessions and notes adjust a library estimate before applying a strict time limit',()=>{
+  const now=Date.UTC(2026,10,24);
+  const game=(title,genre,status,run,extra={})=>({
+    title,genre,status,system:'Xbox',runs:{Xbox:run},...extra,
+  });
+  const old=now-30*86400000;
+  const games=[
+    game('Cold race','Wyścigi','Gram',{sessions:[{minutes:30,playedAt:old}]},{sessionHint:{minutes:29}}),
+    game('Warm race','Wyścigi','Gram',{sessions:[{minutes:30,playedAt:old,note:'Next race'}]},{sessionHint:{minutes:29}}),
+    game('Personal RPG','RPG','W kolejce',{sessions:[18,25,24].map(minutes=>({minutes,playedAt:now}))},{pinnedAt:1}),
+    game('Arcade pick','Zręcznościowe','W kolejce',{sessions:[]}),
+    game('Long RPG','RPG','W kolejce',{sessions:[]},{pinnedAt:1}),
+  ];
+  const {eveningPicks,eveningLibraryRoles}=loadApp({games,historicalSessionTime:s=>s.playedAt||0});
+  const ranked=eveningPicks(30,'','Xbox',()=>({value:100}),{now,limit:Infinity});
+  const shown=eveningLibraryRoles(ranked);
+  assert.deepEqual(Array.from(shown.choices,item=>[item.game.title,item.role,item.profile.minutes]),[
+    ['Warm race','Kontynuuj',29],['Arcade pick','Zmień klimat',25],['Personal RPG','Z kolejki',24],
+  ]);
+  assert.equal(shown.visible,3);
+  const short=eveningLibraryRoles(ranked.filter(item=>item.game.title!=='Personal RPG'));
+  assert.equal(short.visible,2);
 });

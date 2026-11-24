@@ -170,23 +170,65 @@ function pickEveningDuration(duration,settings=eveningSettings||savedEveningSett
   if(result)showEveningPicks(result,duration==='unlimited'?null:Number(duration),settings,++drawRequest);
 }
 
-function eveningPicks(minutes,mood,platform,rate,{scope='library',genre='',ratedOnly=false,limit=3}={}) {
+function eveningLibraryProfile(game,platform,genre,now) {
+  const run=game.runs[platform];
+  const sessions=run.sessions||[];
+  const logged=sessions.filter(session=>Number.isFinite(session.minutes)&&session.minutes>0)
+    .slice(-5).map(session=>session.minutes).sort((a,b)=>a-b);
+  const typical=game.sessionHint?.minutes;
+  const goal=Boolean(run.goal?.trim()||game.tasks?.some(task=>task.pinned&&!task.done));
+  const note=Boolean(run.resumeNote?.trim()||sessions.at(-1)?.note?.trim());
+  const lastPlayed=sessions.reduce((last,session)=>Math.max(last,historicalSessionTime(session)),run.importedPlayedAt||0);
+  const profile=eveningSessionProfile(game.title||'',genre,!game.genreOverride);
+  const entry=profile?.[1]??5;
+  const dormant=lastPlayed>0&&now-lastPlayed>=21*86400000;
+  const reentry=dormant&&!goal&&!note?Math.min(12,entry):0;
+  const declared=Number.isFinite(typical)&&typical>0;
+  const learned=!declared&&logged.length>=3;
+  const recent=Math.floor(logged.length/2);
+  const baseline=declared?typical:learned?Math.round((logged[recent]+logged[Math.floor((logged.length-1)/2)])/2):
+    profile&&profile[0]+Math.max(2,entry-(goal||note?Math.ceil(entry/2):0))+profile[2];
+  const finish=run.progress>=75&&run.progress<100&&
+    /\b(?:ostatni[ae]? (?:misj[aę]|rozdzia[łl]|boss)|fina[łl]|last (?:mission|chapter|boss)|final (?:mission|chapter|boss))\b/iu.test(run.goal||'');
+  return {minutes:baseline?baseline+reentry:null,source:declared?'declared':learned?'history':profile?'estimate':'',
+    goal,note,dormant,reentry,finish};
+}
+
+function eveningPicks(minutes,mood,platform,rate,{scope='library',genre='',ratedOnly=false,limit=3,genres,now=Date.now()}={}) {
   const candidates=games.filter(game=>!game.archived&&(!platform||game.runs[platform])&&
-    (scope!=='playing'||game.status==='Gram')&&(scope!=='queue'||game.pinnedAt)&&
-    (!genre||gameGenre(game)===genre)).flatMap(game=>{
-    const saved=game.sessionHint || {};
-    const hint={minutes:Number.isFinite(saved.minutes)?saved.minutes:0,mood:Object.hasOwn(moods,saved.mood)?saved.mood:''};
-    const timing=estimateTimeFit(minutes,hint.minutes);
-    if(timing===1 || (mood && hint.mood!==mood))return [];
+    (scope!=='playing'||game.status==='Gram')&&(scope!=='queue'||game.pinnedAt)).flatMap(game=>{
     const selectedPlatform=platform||game.system;
-    const score=scoreForSession(game,selectedPlatform,timing);
+    const versions=genres?.get(catalogText(game.title||''));
+    const indexed=(criticPlatforms[selectedPlatform]||[]).map(version=>versions?.get(version)).find(Boolean);
+    const gameType=gameGenre(game)||indexed||'';
+    const gameMood=game.sessionHint?.mood||'';
+    if((genre&&gameType!==genre)||(mood&&gameMood!==mood))return [];
     const rating=rate?.(game,selectedPlatform);
     if(ratedOnly&&!rating)return [];
-    return [{game,hint,timing,score,rating}];
+    const profile=eveningLibraryProfile(game,selectedPlatform,gameType,now);
+    const fit=eveningFitTier(minutes,profile.minutes);
+    if(fit<0)return [];
+    const timing=estimateTimeFit(minutes,profile.minutes);
+    const score=scoreForSession(game,selectedPlatform,timing);
+    const momentum=Number(profile.goal||profile.note)*2+Number(profile.finish&&(minutes===60||minutes===120))*3+
+      Number(game.status==='Gram'&&!profile.dormant)-Number(profile.dormant&&minutes&&minutes<=60&&!profile.goal&&!profile.note);
+    return [{game,genre:gameType,mood:gameMood,fit,profile,rating,score,momentum}];
   });
-  return candidates.sort((a,b)=>compareEveningRatings(a.rating,b.rating)||
-    (b.score?.value??-1)-(a.score?.value??-1)||(b.timing??0)-(a.timing??0)||
-    Number(Boolean(b.game.pinnedAt))-Number(Boolean(a.game.pinnedAt))||(a.game.title||a.game.id).localeCompare(b.game.title||b.game.id)).slice(0,limit);
+  return candidates.sort((a,b)=>b.fit-a.fit||b.momentum-a.momentum||compareEveningRatings(a.rating,b.rating)||
+    (b.score?.value??-1)-(a.score?.value??-1)||(a.game.title||a.game.id).localeCompare(b.game.title||b.game.id)).slice(0,limit);
+}
+
+function eveningLibraryRoles(choices) {
+  const continuation=choices.find(({game})=>game.status==='Gram');
+  const queued=choices.find(item=>item!==continuation&&item.game.pinnedAt&&item.game.status!=='Ukończona');
+  const reference=continuation||queued;
+  const alternative=choices.find(item=>item!==continuation&&item!==queued&&(!reference||
+    (item.genre&&reference.genre&&item.genre!==reference.genre)||(item.mood&&reference.mood&&item.mood!==reference.mood)));
+  const featured=[[continuation,'Kontynuuj'],[alternative,'Zmień klimat'],[queued,'Z kolejki']].filter(([item])=>item);
+  return {
+    choices:[...featured.map(([item,role])=>({...item,role})),...choices.filter(item=>item!==continuation&&item!==alternative&&item!==queued)],
+    visible:featured.length||eveningPageSize,
+  };
 }
 
 let drawnCatalogue=[];
@@ -194,32 +236,21 @@ let drawRequest=0;
 let eveningPage;
 const eveningPageSize=3;
 
-function eveningPickReason(item,game,platform,available,queued) {
-  const run=game?.runs[platform];
-  const typical=game?.sessionHint?.minutes;
-  const recent=run?.sessions?.filter(session=>Number.isFinite(session.minutes)&&session.minutes>0)
-    .slice(-5).map(session=>session.minutes).sort((a,b)=>a-b)??[];
-  const middle=Math.floor(recent.length/2);
-  const recorded=recent.length?Math.round((recent[middle]+recent[Math.floor((recent.length-1)/2)])/2):0;
-  const genre=item.genre||(game?gameGenre(game):'');
-  const estimated=item.sessionMinutes||(Object.hasOwn(catalogueSessionMinutes,genre)?catalogueSessionMinutes[genre]:0);
-  const goal=run?.goal?.trim()||game?.tasks?.some(task=>task.pinned&&!task.done);
-  const context=goal?t('Masz zapisany następny cel'):queued?t('Z Twojej kolejki'):'';
-  const join=reason=>[reason,context].filter(Boolean).join(' · ');
-  const format=(label,minutes)=>t(label).replace('{minutes}',new Intl.NumberFormat(appLocale()).format(minutes));
-
-  if(Number.isFinite(typical)&&typical>0){
-    return join(format(available&&typical>available?'Twoja typowa sesja to {minutes} min. Dziś masz mniej czasu.':
-      available?'Twoja typowa sesja mieści się w tym czasie ({minutes} min).':'Twoja typowa sesja to {minutes} min.',typical));
-  }
-  if(recorded){
-    return join(format(recent.length===1?'Ostatnia zapisana sesja: {minutes} min.':'Twoje ostatnie sesje: zwykle {minutes} min.',recorded));
-  }
-  if(available&&estimated){
-    return join(format(estimated>available?'Szacunek wg gatunku: ok. {minutes} min. Dziś masz mniej czasu.':
-      'Szacunek wg gatunku: ok. {minutes} min na sesję.',estimated));
-  }
-  return context||(item.rating?t('Polecana ze względu na oceny graczy lub krytyków.'):t('Czas sesji nieustalony'));
+function eveningPickReason(item,available,queued) {
+  const {profile}=item;
+  const detail=profile?.finish&&(available===60||available===120)?t('Masz zapisany cel na finał.'):profile?.reentry?t('Powrót po przerwie uwzględniony w czasie.'):
+    profile?.goal?t('Masz zapisany następny cel'):profile?.note?t('Masz notatkę z ostatniej sesji.'):
+    queued?t('Z Twojej kolejki'):'';
+  const messages={
+    declared:'Twój plan sesji: około {minutes} min z wejściem i wyjściem.',
+    history:'Z Twoich ostatnich sesji: około {minutes} min z wejściem i wyjściem.',
+    estimate:'Szacunek sesji: około {minutes} min z wejściem i wyjściem.',
+  };
+  const minutes=profile?.minutes||(available?item.sessionMinutes:0);
+  const label=messages[profile?.source]||messages.estimate;
+  const reason=minutes?t(label).replace('{minutes}',new Intl.NumberFormat(appLocale()).format(minutes)):'';
+  return [reason,detail].filter(Boolean).join(' · ')||
+    (item.rating?t('Polecana ze względu na oceny graczy lub krytyków.'):t('Czas sesji nieustalony'));
 }
 
 function renderEveningPage(result,page,appendFrom=0) {
@@ -236,13 +267,13 @@ function renderEveningPage(result,page,appendFrom=0) {
     const titleAction=game?'data-game="'+esc(game.id)+'"':'data-act="draw-add:'+slot+'"';
     const queueAction=catalogue?'catalogue:'+slot:'library:'+esc(owned.id);
     const queued=owned&&!owned.archived&&owned.pinnedAt;
-    const reason=eveningPickReason(item,game,platform,page.minutes,queued);
+    const reason=eveningPickReason(item,page.minutes,queued);
     const status=[game?.status==='Gram'?t('Gram teraz'):'',game?.demo?t('Demo'):''];
     const details=item.score?'<small>'+esc(t(item.score.verdict))+' · '+
       item.score.value.toLocaleString(appLocale(),{maximumFractionDigits:2})+' / 5</small>':'';
     return '<li class="evening-pick">'+
       '<div class="evening-cover" aria-hidden="true">'+art+'</div><div class="evening-pick-text">'+
-      '<small class="evening-platform">'+[platform,item.genre?t(item.genre):'',...status].filter(Boolean).map(esc).join(' · ')+'</small>'+
+      '<small class="evening-platform">'+[item.role?t(item.role):'',platform,item.genre?t(item.genre):'',...status].filter(Boolean).map(esc).join(' · ')+'</small>'+
       '<button type="button" class="evening-game-link" '+titleAction+'>'+title+'</button>'+
       '<small class="evening-reason">'+esc(reason)+'</small>'+eveningRatingMarkup(page.order,item.rating)+details+'</div>'+
       '<button type="button" class="evening-queue-button" data-act="evening-queue:'+queueAction+'"'+
@@ -323,19 +354,21 @@ async function showEveningPicks(result,minutes,settings,ticket) {
   if(!currentEveningDraw(result,ticket))return;
 
   const catalogue=eveningCatalogueScope(scope);
-  const data=await eveningRatingData(order,Boolean(genre||minutes&&catalogue));
+  const data=await eveningRatingData(order,Boolean(genre||minutes));
   if(!currentEveningDraw(result,ticket))return;
   const rate=eveningRatingLookup(data,order);
   const exclude=scope==='discover'?excludeEveningLibrary():undefined;
-  const choices=catalogue?rankedCatalogueGames(data,platform,genre,order,{minutes,exclude}):
-    eveningPicks(minutes,mood,platform,rate,{scope,genre,ratedOnly,limit:Infinity});
+  const ranked=catalogue?rankedCatalogueGames(data,platform,genre,order,{minutes,exclude}):
+    eveningPicks(minutes,mood,platform,rate,{scope,genre,ratedOnly,genres:data.genres,limit:Infinity});
+  const {choices,visible}=scope==='library'?eveningLibraryRoles(ranked):{choices:ranked,visible:eveningPageSize};
   const unavailable=order==='steam'?!data.steam:order==='metacritic'?!data.critics:
     !data.steam&&!data.critics;
   const empty=unavailable&&(catalogue||ratedOnly)?'Oceny chwilowo niedostępne. Spróbuj ponownie lub zmień sortowanie.':
+    minutes?'Brak gier pasujących do tego czasu i filtrów. Wybierz dłuższą sesję lub zmień filtry.':
     catalogue||ratedOnly?'Brak wysoko ocenionych gier dla tych filtrów.':'Brak pasujących gier w bibliotece. Zmień kryteria.';
   const notice=data.partial&&!unavailable?'Jedno lub więcej źródeł ocen jest niedostępnych.':'';
   if(catalogue)drawnCatalogue=choices;
-  eveningPage={scope,platform,order,choices,notice,empty,minutes,visible:eveningPageSize};
+  eveningPage={scope,platform,order,choices,notice,empty,minutes,visible};
   renderEveningPage(result,eveningPage);
 }
 

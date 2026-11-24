@@ -41,20 +41,30 @@ function catalogEntry(entry,store) {
   };
 }
 
-// Genre gives a rough session length when the catalogue has no individual play-time profile.
-const catalogueSessionMinutes = {
-  'Logiczne':30,'Wyścigi':30,'Zręcznościowe':30,'Platformówki':30,'Muzyczne':30,
-  'Bijatyki':30,'Karcianki i planszowe':30,'Imprezowe':30,'Sportowe':30,
-  'Akcja':60,'Strzelanki':60,'Roguelike':60,'Przygodowe':60,
-  'RPG':120,'Survival':120,'Sandbox':120,
-  'Strategie':180,'Symulacje':180,
+// Starting estimates: playable segment, time to get started, time to reach a stopping point.
+const shortSession=[20,3,2], mediumSession=[43,7,5], longSession=[85,15,5], extendedSession=[135,20,10];
+const eveningGenreProfiles={
+  'Logiczne':shortSession,'Wyścigi':shortSession,'Zręcznościowe':shortSession,'Platformówki':shortSession,
+  'Muzyczne':shortSession,'Bijatyki':shortSession,'Karcianki i planszowe':shortSession,
+  'Imprezowe':shortSession,'Sportowe':shortSession,
+  'Akcja':mediumSession,'Strzelanki':mediumSession,'Roguelike':mediumSession,'Przygodowe':mediumSession,
+  'RPG':longSession,'Survival':longSession,'Sandbox':longSession,
+  'Strategie':extendedSession,'Symulacje':extendedSession,
 };
+const eveningGameProfiles=new Map(Object.entries({
+  balatro:shortSession,hades:shortSession,'hades ii':shortSession,'rocket league':[10,3,2],
+  'forza horizon 5':shortSession,'forza horizon 6':shortSession,
+}));
 
-function catalogueSessionBonus(minutes,typicalMinutes) {
-  if(!minutes)return 0;
-  if(!typicalMinutes)return -3;
-  const ratio=minutes/typicalMinutes;
-  return ratio===1?16:ratio>=1?Math.max(0,8/ratio):ratio>=.5?-7:-16;
+function eveningSessionProfile(title,genre,useTitle=true) {
+  return (useTitle&&eveningGameProfiles.get(catalogText(title)))||
+    (Object.hasOwn(eveningGenreProfiles,genre)?eveningGenreProfiles[genre]:null);
+}
+
+function eveningFitTier(available,needed) {
+  if(!available)return 0;
+  if(!needed||needed>available)return -1;
+  return needed>=available*.7?2:1;
 }
 
 function rankedCatalogueGames({steam,critics,genres},platform,genre,order,{limit=60,minutes=null,exclude}={}) {
@@ -74,11 +84,13 @@ function rankedCatalogueGames({steam,critics,genres},platform,genre,order,{limit
     if(genre&&indexedGenre!==genre)return;
     const rating=rankEveningHit(order,critic,review);
     if(!rating)return;
-    const sessionMinutes=Object.hasOwn(catalogueSessionMinutes,indexedGenre)?catalogueSessionMinutes[indexedGenre]:null;
-    const rank=rating.value+catalogueSessionBonus(minutes,sessionMinutes);
+    const profile=minutes?eveningSessionProfile(title,indexedGenre):null;
+    const sessionMinutes=profile?.reduce((sum,part)=>sum+part,0);
+    const fit=eveningFitTier(minutes,sessionMinutes);
+    if(fit<0)return;
     const current=choices.get(key);
-    if(current&&(current.rank>rank||(current.rank===rank&&compareEveningRatings(rating,current.rating)>=0)))return;
-    choices.set(key,{title,store,versions:version?[version]:[],genre:indexedGenre,rating,rank,sessionMinutes,
+    if(current&&(current.fit>fit||(current.fit===fit&&compareEveningRatings(rating,current.rating)>=0)))return;
+    choices.set(key,{title,store,versions:version?[version]:[],genre:indexedGenre,rating,fit,sessionMinutes,
       steamId:store==='Steam'?review?.id:undefined,artId:review?.id,cover:review?.id?cdn(review.id):''});
   }
 
@@ -101,7 +113,7 @@ function rankedCatalogueGames({steam,critics,genres},platform,genre,order,{limit
       add(review.title,'Steam','PC',critic,review);
     }
   }
-  return [...choices.values()].sort((a,b)=>b.rank-a.rank||compareEveningRatings(a.rating,b.rating)||
+  return [...choices.values()].sort((a,b)=>b.fit-a.fit||compareEveningRatings(a.rating,b.rating)||
     a.title.localeCompare(b.title)).slice(0,limit);
 }
 
