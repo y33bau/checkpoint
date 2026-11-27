@@ -1,10 +1,382 @@
 {
   "articles": [
     {
+      "source": "pcgamer",
+      "title": "Microsoft announces it's deprecating the Telnet client in Windows, giving me a sudden flashback to when I used to use Telnet",
+      "url": "https://www.pcgamer.com/software/windows/microsoft-announces-its-deprecating-the-telnet-client-in-windows-giving-me-a-sudden-flashback-to-when-i-used-to-use-telnet/",
+      "publishedAt": "2026-11-27T01:39:07+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Vermintide 2 mod tools get a public release, and the game's 90% off on Steam too",
+      "url": "https://www.pcgamer.com/games/fps/vermintide-2-mod-tools-get-a-public-release-and-the-games-90-percent-off-on-steam-too/",
+      "publishedAt": "2026-11-27T01:28:24+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Ten laptop nie był tańszy. Gigabyte Gaming z i7-13650H, RTX 5060 i 165 Hz IPS za 4444 zł",
+      "url": "https://www.ppe.pl/promocje/tech/laptopy/434741/ten-laptop-nie-byl-tanszy-gigabyte-gaming-z-i7-13650h-rtx-5060-i-165-hz-ips-za-4444-zl.html",
+      "publishedAt": "2026-11-26T23:12:10+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Hit sprzedażowy! Słuchawki HyperX w wersji PlayStation do PS5/PS4/PC za 139 zł",
+      "url": "https://www.ppe.pl/promocje/tech/technologie-1/434740/hit-sprzedazowy-sluchawki-hyperx-w-wersji-playstation-do-ps5-ps4-pc-za-139-zl.html",
+      "publishedAt": "2026-11-26T23:07:52+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Zestaw pad DualSense + ładowarka Sony do PS5 i PC z rabatem 150 zł! Poniżej 270 zł",
+      "url": "https://www.ppe.pl/promocje/tech/pady-kontrolery/434739/zestaw-pad-dualsense-ladowarka-sony-do-ps5-i-pc-z-rabatem-150-zl-ponizej-270-zl.html",
+      "publishedAt": "2026-11-26T23:03:40+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "'Blizzard I'm looking at you': Path of Exile 2 boss criticizes 'truly terrible' game announcements that hold the juiciest details until the end",
+      "url": "https://www.pcgamer.com/games/rpg/blizzard-im-looking-at-you-path-of-exile-2-boss-criticizes-truly-terrible-game-announcements-that-hold-the-juiciest-details-until-the-end/",
+      "publishedAt": "2026-11-26T23:00:00+00:00"
+    },
+    {
+      "source": "rps",
+      "title": "Dark fantasy and sudoku fuse together in unholy matrimony in Dungoku, a dungeon crawling twist on the classic puzzle game",
+      "url": "https://www.rockpapershotgun.com/dark-fantasy-and-sudoku-fuse-together-in-unholy-matrimony-in-dungoku-a-dungeon-crawling-twist-on-the-classic-puzzle-game",
+      "publishedAt": "2026-11-26T22:50:40+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Gra Microsoftu na PS5 za 69 zł zamiast 250 zł + darmowa dostawa. Szkoda nie wziąć",
+      "url": "https://www.ppe.pl/promocje/gry/promocje/434738/gra-microsoftu-na-ps5-za-69-zl-zamiast-250-zl-darmowa-dostawa-szkoda-nie-wziac.html",
+      "publishedAt": "2026-11-26T22:32:57+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Dawn of War 4's campaigns differ based on your choices: 'which character you choose and what decisions you make with them lead down different experiences of an overlapping story'",
+      "url": "https://www.pcgamer.com/games/rts/dawn-of-war-4s-campaigns-differ-based-on-your-choices-which-character-you-choose-and-what-decisions-you-make-with-them-lead-down-different-experiences-of-an-overlapping-story/",
+      "publishedAt": "2026-11-26T22:30:59+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Black Friday! Stellar Blade i STALKER 2 w wersji z dodatkami w rekordowej cenie na PS5",
+      "url": "https://www.ppe.pl/promocje/gry/promocje/434737/black-friday-stellar-blade-i-stalker-2-w-wersji-z-dodatkami-fizycznymi-w-rekordowej-cenie-na-ps5.html",
+      "publishedAt": "2026-11-26T22:30:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Microsoft's Github posts message celebrating efforts to port PlayStation 5 version of Grand Theft Auto 6 to PC, then quickly deletes it",
+      "url": "https://www.pcgamer.com/games/microsofts-github-posts-message-celebrating-efforts-to-port-playstation-5-version-of-grand-theft-auto-6-to-pc-then-quickly-deletes-it/",
+      "publishedAt": "2026-11-26T22:29:06+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Tylko 340 z 1000 egzemplarzy! Nowiutkie słuchawki Apple AirPods 5 z ANC i etui z USB-C poniżej 500 zł!",
+      "url": "https://www.ppe.pl/promocje/tech/technologie-1/434736/tylko-340-z-1000-egzemplarzy-nowiutkie-sluchawki-apple-airpods-5-z-anc-i-etui-z-usb-c-ponizej-500-zl.html",
+      "publishedAt": "2026-11-26T22:24:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "WoW: Forever min-maxers are upset that its 40-player PvP mode now actually requires PvP to win",
+      "url": "https://www.pcgamer.com/games/world-of-warcraft/wow-forever-min-maxers-are-upset-that-its-40-player-pvp-mode-now-actually-requires-pvp-to-win/",
+      "publishedAt": "2026-11-26T22:05:00+00:00"
+    },
+    {
+      "source": "cdaction",
+      "title": "Koniec bezgłowego Wiedźmina w gaciach bez głowy. CD Projekt Red naprawia błędy w najnowszej aktualizacji",
+      "url": "https://cdaction.pl/newsy/koniec-bezglowego-wiedzmina-w-gaciach-bez-glowy-cd-projekt-red-naprawia-bledy-w-najnowszej-aktualizacji/",
+      "publishedAt": "2026-11-26T21:32:39+00:00"
+    },
+    {
+      "source": "rps",
+      "title": "Your mothership is a giant pinball machine and your ball is its defence system in Appulse, a top-down roguelite shooter that's out now",
+      "url": "https://www.rockpapershotgun.com/your-mothership-is-a-giant-pinball-machine-and-your-ball-is-its-defence-system-in-appulse-a-top-down-roguelite-shooter-thats-out-now",
+      "publishedAt": "2026-11-26T21:31:10+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "Pudełkowa wersja GTA 6 bije rekordy sprzedaży w Europie, mimo że w środku nie ma płyty z grą",
+      "url": "https://www.gry-online.pl/newsroom/pudelkowa-wersja-gta-6-bije-rekordy-sprzedazy-w-europie-mimo-ze-w/z3324a9",
+      "publishedAt": "2026-11-26T21:08:40+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Lenovo Legion Pro 7i - test laptopa. Tak powinien wyglądać laptop gamingowy z najwyższej półki",
+      "url": "https://www.ppe.pl/recenzje/434674/lenovo-legion-pro-7i-test-laptopa-tak-powinien-wygladac-laptop-gamingowy-z-najwyzszej-polki.html",
+      "publishedAt": "2026-11-26T21:00:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Avengers: Doomsday rozbije bank i osiągnie rekordowe otwarcie? Film ma zanotować gigantyczny sukces",
+      "url": "https://www.ppe.pl/news/434723/avengers-doomsday-rozbije-bank-i-osiagnie-rekordowe-otwarcie-film-ma-zanotowac-gigantyczny-sukces.html",
+      "publishedAt": "2026-11-26T20:49:44+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "EA removes some live service fluff from Skate and ends seasonal structure \"in favour of regular, agile content updates\"",
+      "url": "https://www.eurogamer.net/ea-removes-live-service-skate-seasons",
+      "publishedAt": "2026-11-26T20:35:20+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Co oglądać w weekend - Netflix, Amazon Prime, Apple TV+, SkyShowtime, kina",
+      "url": "https://www.ppe.pl/publicystyka/434243/co-ogladac-w-weekend-netflix-amazon-prime-apple-tv-skyshowtime-kina-1.html",
+      "publishedAt": "2026-11-26T20:30:00+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "Nowe RPG Fable zawstydzi Wiedźmina 3, Cyberpunka 2077, Baldur’s Gate 3 i Skyrima pod jednym ważnym względem",
+      "url": "https://www.gry-online.pl/newsroom/nowe-rpg-fable-zawstydzi-wiedzmina-3-cyberpunka-2077-baldurs-gate/z2324a8",
+      "publishedAt": "2026-11-26T20:30:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Steam isn't doing 'an official Black Friday fest,' but it does have a page with hundreds of discounts and 'Black Friday' splashed across the top so you might want to check it out anyway",
+      "url": "https://www.pcgamer.com/games/steam-isnt-doing-an-official-black-friday-fest-but-it-does-have-a-page-with-hundreds-of-discounts-and-black-friday-splashed-across-the-top-so-you-might-want-to-check-it-out-anyway/",
+      "publishedAt": "2026-11-26T20:20:02+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Warhammer 40,000: Dawn of War IV - Painter Demo już za darmo na Steamie. Po raz pierwszy w historii serii pomalujemy każdy detal pancerza",
+      "url": "https://pl.ign.com/warhammer-40000-dawn-of-war-iv/78249/warhammer-40000-dawn-of-war-iv-painter-demo-juz-za-darmo-na-steamie-po-raz-pierwszy-w-historii-serii",
+      "publishedAt": "2026-11-26T20:12:02+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "GTA 6 przegrzewa także Xboksy Series X|S. Specjalista pokazuje problem",
+      "url": "https://www.ppe.pl/news/434724/gta-6-przegrzewa-takze-xboksy-series-x-s-specjalista-pokazuje-problem.html",
+      "publishedAt": "2026-11-26T20:07:34+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Papierowy tygrys (2026) - recenzja filmu [Monolith]. Adam Driver w formie",
+      "url": "https://www.ppe.pl/recenzje/434593/papierowy-tygrys-2026-recenzja-filmu-monolith-adam-driver-w-formie.html",
+      "publishedAt": "2026-11-26T20:00:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Battlefield 6 otrzymuje nową aktualizację. DICE eliminuje kolejne błędy",
+      "url": "https://www.gram.pl/news/battlefield-6-otrzymuje-nowa-aktualizacje-dice-eliminuje-kolejne-bledy",
+      "publishedAt": "2026-11-26T20:00:00+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "Nowa aktualizacja GTA 6 zawiodła część graczy. Sami znaleźli więc rozwiązanie, które w 2 minuty naprawia pogodę",
+      "url": "https://www.gry-online.pl/newsroom/nowa-aktualizacja-gta-6-zawiodla-czesc-graczy-sami-znalezli-wiec/z1324a7",
+      "publishedAt": "2026-11-26T19:59:02+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "GTA 6 – poradnik: kody, porady na start i pomoc w grze",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/77939/gta-6-poradnik-kody-porady-na-start-i-pomoc-w-grze",
+      "publishedAt": "2026-11-26T19:45:07+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Wiedźmin 3 z MNÓSTWEM NOWOŚCI! CD Projekt RED pokazał zwiastun",
+      "url": "https://www.ppe.pl/news/434717/wiedzmin-3-z-mnostwem-nowosci-cd-projekt-red-pokazal-zwiastun.html",
+      "publishedAt": "2026-11-26T19:43:24+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "Porsche 911 Cup w polskich wyścigach od 2027 roku. W Assetto Corsa EVO nie musisz czekać",
+      "url": "https://www.gry-online.pl/newsroom/porsche-911-cup-w-polskich-wyscigach-od-2027-roku-w-assetto-corsa/z0324a6",
+      "publishedAt": "2026-11-26T19:39:14+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Nagły zwrot na planie aktorskiego Solo Leveling od Netflixa. Główny reżyser rezygnuje po dwóch odcinkach, ale produkcja nie zwalnia",
+      "url": "https://pl.ign.com/solo-leveling/78248/nagly-zwrot-na-planie-aktorskiego-solo-leveling-od-netflixa-glowny-rezyser-rezygnuje-po-dwoch-odcink",
+      "publishedAt": "2026-11-26T19:36:50+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Alkohol, frustracja i utracone dzieciństwo. Tak miały wyglądać dorosłe Atomówki",
+      "url": "https://www.gram.pl/news/alkohol-frustracja-i-utracone-dziecinstwo-tak-mialy-wygladac-dorosle-atomowki",
+      "publishedAt": "2026-11-26T19:30:00+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Serial „Stamtąd” znów straszy na polskim Netfliksie i podbija Top 10. Sprawdzamy, gdzie obejrzeć 4. sezon oraz kiedy zadebiutuje finałowa seria",
+      "url": "https://pl.ign.com/seriale/78247/serial-stamtad-znow-straszy-na-polskim-netfliksie-i-podbija-top-10-sprawdzamy-gdzie-obejrzec-4-sezon",
+      "publishedAt": "2026-11-26T19:28:58+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "The Witcher 3's new patch adds 40 cross-platform mods, fixes plenty of game-breaking bugs and \"various lighting issues\"",
+      "url": "https://www.eurogamer.net/the-witcher-3-patch-40-mods-bugs",
+      "publishedAt": "2026-11-26T19:20:50+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Nowe zdjęcia z serialu „Harry Potter” wywołały burzę w sieci. Fani krytykują zbyt ludzki wygląd goblinów z banku Gringotta",
+      "url": "https://pl.ign.com/seriale/78246/nowe-zdjecia-z-serialu-harry-potter-wywolaly-burze-w-sieci-fani-krytykuja-zbyt-ludzki-wyglad-goblino",
+      "publishedAt": "2026-11-26T19:20:07+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Serial, który miał być konkurencją dla Teda Lasso, anulowany po 1. sezonie. Gwiazdor nie pomógł!",
+      "url": "https://www.ppe.pl/news/434726/serial-ktory-mial-byc-konkurencja-dla-teda-lasso-anulowany-po-1-sezonie-gwiazdor-nie-pomogl.html",
+      "publishedAt": "2026-11-26T19:09:00+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Gracze GTA 6 odkryli sprytny sposób na błyskawiczne okradanie bankomatów",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78237/gracze-gta-6-odkryli-sprytny-sposob-na-blyskawiczne-okradanie-bankomatow",
+      "publishedAt": "2026-11-26T19:06:09+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Nowe Fable imponuje rozmachem. Gra zaoferuje ponad 150 tysięcy kwestii dialogowych",
+      "url": "https://www.gram.pl/news/nowe-fable-imponuje-rozmachem-gra-zaoferuje-ponad-150-tysiecy-kwestii-dialogowych",
+      "publishedAt": "2026-11-26T19:00:00+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Należący do Microsoftu GitHub zszokował obserwujących, świętując sukces repozytorium AnyPS5 w usuniętym już poście",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78244/nalezacy-do-microsoftu-github-zszokowal-obserwujacych-swietujac-sukces-repozytorium-anyps5-w-usuniet",
+      "publishedAt": "2026-11-26T18:56:47+00:00"
+    },
+    {
+      "source": "gryonline",
+      "title": "Na Steam trwa otwarta walka przeciwko grom AI. Specjalne wydarzenie promuje „ludzką kreatywność” nielicznych deweloperów",
+      "url": "https://www.gry-online.pl/newsroom/na-steam-trwa-otwarta-walka-przeciwko-grom-ai-specjalne-wydarzeni/zf324a5",
+      "publishedAt": "2026-11-26T18:54:55+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Spider-Man: Całkiem nowy dzień wraca do kin ze sceną wyciętą z Avengers: Doomsday",
+      "url": "https://pl.ign.com/spider-man-4-tom-holland-sequel/78242/spider-man-brand-new-day-wraca-do-kin-ze-scena-wycieta-z-avengers-doomsday",
+      "publishedAt": "2026-11-26T18:54:13+00:00"
+    },
+    {
+      "source": "rps",
+      "title": "HARK THE GHOUL is a Victorian gothic dungeon crawler RPG that features a trench-coat-wearing rat man who wants to sell you rats a la counterfeit watches",
+      "url": "https://www.rockpapershotgun.com/hark-the-ghoul-is-a-victorian-gothic-dungeon-crawler-rpg-that-features-a-trench-coat-wearing-rat-man-who-wants-to-sell-you-rats-a-la-counterfeit-watches",
+      "publishedAt": "2026-11-26T18:53:30+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Piły łańcuchowe „byłyby przesadą” nawet jak na GTA 6 - Rockstar wyjaśnia, dlaczego zabrakło wyjątkowo brutalnych broni",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78243/pily-lancuchowe-bylyby-przesada-nawet-jak-na-gta-6-rockstar-wyjasnia-dlaczego-zabraklo-wyjatkowo-bru",
+      "publishedAt": "2026-11-26T18:52:50+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Rockstar Games zabiera głos po nieudanym głosowaniu w sprawie związku zawodowego",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78241/rockstar-games-zabiera-glos-po-nieudanym-glosowaniu-w-sprawie-zwiazku-zawodowego",
+      "publishedAt": "2026-11-26T18:49:57+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "GTA 6 Fashion Gallery",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78239/gta-6-fashion-gallery",
+      "publishedAt": "2026-11-26T18:46:42+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Nowe stylówki w GTA 6 są ważniejsze niż w jakiejkolwiek grze wcześniej",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78238/nowe-stylowki-w-gta-6-sa-wazniejsze-niz-w-jakiejkolwiek-grze-wczesniej",
+      "publishedAt": "2026-11-26T18:46:42+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Oglądanie telewizji w GTA 6 bardziej przygnębia niż bawi - z jednym wyjątkiem",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78236/ogladanie-telewizji-w-gta-6-bardziej-przygnebia-niz-bawi-z-jednym-wyjatkiem",
+      "publishedAt": "2026-11-26T18:42:00+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Czujesz mocną potrzebę prędkości? Sprawdź nowy wyścigowy hit ze świata Star Wars na PS5 i Xbox Series X|S",
+      "url": "https://www.ppe.pl/news/434722/czujesz-mocna-potrzebe-predkosci-sprawdz-nowy-wyscigowy-hit-ze-swiata-star-wars-na-ps5-i-xbox-series-x-s.html",
+      "publishedAt": "2026-11-26T18:40:26+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Napad w 3. rozdziale GTA 6 może być najlepszą misją w historii Rockstara - ale tylko jeśli go zepsujesz",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78235/napad-w-3-rozdziale-gta-6-moze-byc-najlepsza-misja-w-historii-rockstara-ale-tylko-jesli-go-zepsujesz",
+      "publishedAt": "2026-11-26T18:37:18+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "Reżyser animacji GTA 6 zdradza, że Rockstar stworzył 3 animacje dla każdej interakcji z przedmiotem",
+      "url": "https://pl.ign.com/grand-theft-auto-vi/78214/rezyser-animacji-gta-6-zdradza-ze-rockstar-stworzyl-3-animacje-dla-kazdej-interakcji-z-przedmiotem",
+      "publishedAt": "2026-11-26T18:32:34+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Dev team who delayed their game a year to avoid Silksong says they won't do it again for whatever Team Cherry announces tomorrow: 'This time we're staying put'",
+      "url": "https://www.pcgamer.com/games/action/dev-team-who-delayed-their-game-a-year-to-avoid-silksong-says-they-wont-do-it-again-for-whatever-team-cherry-announces-tomorrow-this-time-were-staying-put/",
+      "publishedAt": "2026-11-26T18:31:22+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Amanda Seyfried przyznała, że bała się o swoje zawodowe życie: To mogło mnie zrujnować",
+      "url": "https://www.ppe.pl/news/434720/amanda-seyfried-przyznala-ze-bala-sie-o-swoje-zawodowe-zycie-to-moglo-mnie-zrujnowac.html",
+      "publishedAt": "2026-11-26T18:30:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Polska odpowiedź na Dead Space powraca. Bloober zapowiada kompletne wydanie",
+      "url": "https://www.gram.pl/news/polska-odpowiedz-na-dead-space-powraca-bloober-zapowiada-kompletne-wydanie",
+      "publishedAt": "2026-11-26T18:30:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Twórcy GTA 6 zdecydowali. Nie chcą związku zawodowego",
+      "url": "https://www.gram.pl/news/tworcy-gta-6-zdecydowali-nie-chca-zwiazku-zawodowego",
+      "publishedAt": "2026-11-26T18:15:00+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "Nioh and Ninja Gaiden studio is using AI for QA, but argues \"that a game becomes fun when crafted by human hands\"",
+      "url": "https://www.eurogamer.net/nioh-ai-qa-game-human-hands",
+      "publishedAt": "2026-11-26T18:14:30+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "BioWare odmówiło stworzenia KOTOR-a 2. Wszystko przez żądanie LucasArts",
+      "url": "https://www.gram.pl/news/bioware-odmowilo-stworzenia-kotor-a-2-wszystko-przez-zadanie-lucasarts",
+      "publishedAt": "2026-11-26T18:00:00+00:00"
+    },
+    {
+      "source": "rps",
+      "title": "Warhammer 40,000: Space Marine 2's latest updates introduces a Weekly Clash mode that shakes up PvP with some constricting modifiers",
+      "url": "https://www.rockpapershotgun.com/warhammer-40000-space-marine-2s-latest-updates-introduces-a-weekly-clash-mode-that-shakes-up-pvp-with-some-constricting-modifiers",
+      "publishedAt": "2026-11-26T17:58:30+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Demo Star Wars: Galactic Racer dostępne. Na Xbox Series za darmo, a na PS5 już nie",
+      "url": "https://www.gram.pl/news/demo-star-wars-galactic-racer-dostepne-na-xbox-series-za-darmo-a-na-ps5-juz-nie",
+      "publishedAt": "2026-11-26T17:45:00+00:00"
+    },
+    {
       "source": "gryonline",
       "title": "Tydzień po premierze GTA 6 pracownicy Rockstar Games podjęli zaskakującą decyzję dotyczącą przyszłości",
       "url": "https://www.gry-online.pl/newsroom/tydzien-po-premierze-gta-6-pracownicy-rockstar-games-podjeli-zask/zd324a3",
       "publishedAt": "2026-11-26T17:37:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Black Friday SSD deals 2026",
+      "url": "https://www.pcgamer.com/black-friday-ssd-deals/",
+      "publishedAt": "2026-11-26T17:33:16+00:00"
+    },
+    {
+      "source": "eurogamer",
+      "title": "GTA 6 causes surge in UK physical game sales, despite there being no disc in the box",
+      "url": "https://www.eurogamer.net/gta-6-boxed-physical-sales-uk",
+      "publishedAt": "2026-11-26T17:30:30+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Mouse: P.I. For Hire otrzyma pierwsze DLC. Polskie studio szykuje prezentację",
+      "url": "https://www.gram.pl/news/mouse-p-i-for-hire-otrzyma-pierwsze-dlc-polskie-studio-szykuje-prezentacje",
+      "publishedAt": "2026-11-26T17:30:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Nie pękaj. Razer i Durex stworzyły... prezerwatywy dla graczy",
+      "url": "https://www.gram.pl/news/nie-pekaj-razer-i-durex-stworzyly-prezerwatywy-dla-graczy",
+      "publishedAt": "2026-11-26T17:15:00+00:00"
     },
     {
       "source": "gryonline",
@@ -13,16 +385,34 @@
       "publishedAt": "2026-11-26T17:08:00+00:00"
     },
     {
+      "source": "eurogamer",
+      "title": "\"Where's the ding?!!\" - I asked the PowerWash Simulator 2 team what they thought of Jason's nozzle work in GTA 6",
+      "url": "https://www.eurogamer.net/gta-6-powerwashing-powerwash-simultor-futurlab",
+      "publishedAt": "2026-11-26T17:07:50+00:00"
+    },
+    {
       "source": "gryonline",
       "title": "Co przygotował GIGABYTE na Black Friday? Laptop z RTX-em 300 zł taniej, monitor OLED 240 Hz i podzespoły PC",
       "url": "https://www.gry-online.pl/newsroom/co-przygotowal-gigabyte-na-black-friday-laptop-z-rtx-em-300-zl-ta/zc324a2",
       "publishedAt": "2026-11-26T17:01:26+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Legenda doczeka się filmu aktorskiego! Kultowa seria trafi na wielki ekran",
-      "url": "https://www.ppe.pl/news/434695/legenda-doczeka-sie-filmu-aktorskiego-kultowa-seria-trafi-na-wielki-ekran.html",
-      "publishedAt": "2026-11-26T16:46:00+00:00"
+      "source": "gram",
+      "title": "GTA 6 realizuje pomysł sprzed ponad 20 lat. Rockstar planował tę funkcję już w Vice City",
+      "url": "https://www.gram.pl/news/gta-6-realizuje-pomysl-sprzed-ponad-20-lat-rockstar-planowal-te-funkcje-juz-w-vice-city",
+      "publishedAt": "2026-11-26T17:00:00+00:00"
+    },
+    {
+      "source": "rps",
+      "title": "The Witcher 3 Remastered's latest patch takes aim at mods nicking all of Geralt's possessions, disappearing buildings and an outbreak of \"overly bright red\" NPC leg areas",
+      "url": "https://www.rockpapershotgun.com/the-witcher-3-remastereds-latest-patch-takes-aim-at-mods-nicking-all-of-geralts-possessions-disappearing-buildings-and-an-outbreak-of-overly-bright-red-npc-leg-areas",
+      "publishedAt": "2026-11-26T17:00:00+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "I would die for this Razer Hello Kitty & Friends wired gaming keyboard, but now I don't have to thanks to this Black Friday deal",
+      "url": "https://www.pcgamer.com/hardware/gaming-keyboards/i-would-die-for-this-razer-hello-kitty-and-friends-wired-gaming-keyboard-but-now-i-dont-have-to-thanks-to-this-black-friday-deal/",
+      "publishedAt": "2026-11-26T16:58:45+00:00"
     },
     {
       "source": "rps",
@@ -37,10 +427,10 @@
       "publishedAt": "2026-11-26T16:38:10+00:00"
     },
     {
-      "source": "ppe",
-      "title": "GTA 6 miało zabić edycje fizyczne, a tymczasem je wskrzesza. Europa oszalała na punkcie pudełka z kodem",
-      "url": "https://www.ppe.pl/news/434712/gta-6-mialo-zabic-edycje-fizyczne-a-tymczasem-je-wskrzesza-europa-oszalala-na-punkcie-pudelka-z-kodem.html",
-      "publishedAt": "2026-11-26T16:30:55+00:00"
+      "source": "gram",
+      "title": "Wielki hit wraca na HBO Max! Znamy datę premiery 3. sezonu popularnego serialu",
+      "url": "https://www.gram.pl/news/wielki-hit-wraca-na-hbo-max-znamy-date-premiery-3-sezonu-popularnego-serialu",
+      "publishedAt": "2026-11-26T16:30:00+00:00"
     },
     {
       "source": "gryonline",
@@ -61,10 +451,10 @@
       "publishedAt": "2026-11-26T16:28:36+00:00"
     },
     {
-      "source": "ppe",
-      "title": "GTA 6 bez ważnej funkcji! Rockstar wyjaśnia kontrowersyjną decyzję",
-      "url": "https://www.ppe.pl/news/434692/gta-6-bez-waznej-funkcji-rockstar-wyjasnia-kontrowersyjna-decyzje.html",
-      "publishedAt": "2026-11-26T16:17:00+00:00"
+      "source": "gram",
+      "title": "Kolejna gra za darmo w Epic Games Store. Sklep rozdaje dodatkowy bonus (Aktualizacja)",
+      "url": "https://www.gram.pl/news/kolejna-gra-za-darmo-w-epic-games-store-sklep-rozdaje-dodatkowy-bonus",
+      "publishedAt": "2026-11-26T16:18:00+00:00"
     },
     {
       "source": "pcgamer",
@@ -77,6 +467,12 @@
       "title": "Jazda po otwartym świecie GTA 6 jest tak realistyczna, bo Rockstar zatrudnił prawdziwego eksperta, by znaleźć złoty środek",
       "url": "https://www.gry-online.pl/newsroom/jazda-po-otwartym-swiecie-gta-6-jest-tak-realistyczna-bo-rockstar/za324a0",
       "publishedAt": "2026-11-26T16:13:00+00:00"
+    },
+    {
+      "source": "gram",
+      "title": "Jeden z portów GTA 6 na PC jest już gotowy w 90%. Nowe gameplaye prezentujące do 30 FPS-ów",
+      "url": "https://www.gram.pl/news/jeden-z-portow-gta-6-na-pc-jest-juz-gotowy-w-90-nowe-gameplaye-prezentujace-do-30-fps-ow",
+      "publishedAt": "2026-11-26T16:10:00+00:00"
     },
     {
       "source": "pcgamer",
@@ -103,34 +499,10 @@
       "publishedAt": "2026-11-26T16:00:00+00:00"
     },
     {
-      "source": "gram",
-      "title": "Najciekawsze gry na PlayStation 5 w 2027 roku – na jakie premiery warto czekać?",
-      "url": "https://www.gram.pl/news/najciekawsze-gry-na-playstation-5-w-2027-roku-na-jakie-premiery-warto-czekac",
-      "publishedAt": "2026-11-26T15:58:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "The Legend of Zelda: Ocarina of Time Remake z PILNĄ aktualizacją! Naprawiono błąd blokujący postęp gry",
-      "url": "https://www.ppe.pl/news/434691/the-legend-of-zelda-ocarina-of-time-remake-z-pilna-aktualizacja-naprawiono-blad-blokujacy-postep-gry.html",
-      "publishedAt": "2026-11-26T15:45:00+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Warhammer 40,000: Space Marine 2 - Zwiastun aktualizacji Decimation",
-      "url": "https://pl.ign.com/warhammer-40000-space-marine-ii/78226/warhammer-40000-space-marine-2-zwiastun-aktualizacji-decimation",
-      "publishedAt": "2026-11-26T15:32:57+00:00"
-    },
-    {
       "source": "eurogamer",
       "title": "GTA 6 reportedly sets massive livestreaming record, watched more in its first week than Elden Ring, Diablo 4, Valorant, and Lost Ark combined",
       "url": "https://www.eurogamer.net/grand-theft-auto-6-first-week-hours-watched-record",
       "publishedAt": "2026-11-26T15:32:20+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Nie chcesz korzystać z AI? Musisz się wytłumaczyć. Niepokojące doniesienia z Ubisoftu",
-      "url": "https://www.gram.pl/news/nie-chcesz-korzystac-z-ai-musisz-sie-wytlumaczyc-niepokojace-doniesienia-z-ubisoftu",
-      "publishedAt": "2026-11-26T15:30:00+00:00"
     },
     {
       "source": "cdaction",
@@ -143,30 +515,6 @@
       "title": "Rockstar Games employees vote against union recognition",
       "url": "https://www.eurogamer.net/rockstar-games-employees-vote-against-union-recognition",
       "publishedAt": "2026-11-26T15:29:00+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Hitman World of Assassination - Nieuchwytne cele Bawmy (z Lennym Kravitzem)",
-      "url": "https://pl.ign.com/hitman-world-of-assassination/78228/hitman-world-of-assassination-nieuchwytne-cele-bawmy-z-lennym-kravitzem",
-      "publishedAt": "2026-11-26T15:23:58+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "GTA 6 na PC zbliża się do 30 FPS! Grywalny projekt podobno wyciekł do sieci",
-      "url": "https://www.ppe.pl/news/434696/gta-6-na-pc-zbliza-sie-do-30-fps-grywalny-projekt-podobno-wyciekl-do-sieci.html",
-      "publishedAt": "2026-11-26T15:15:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "IO Interactive przywraca gwiazdę 007 First Light. Gracze mają jednak ograniczony czas na ponowne spotkanie",
-      "url": "https://www.ppe.pl/news/434699/io-interactive-przywraca-gwiazde-007-first-light-gracze-maja-jednak-ograniczony-czas-na-ponowne-spotkanie.html",
-      "publishedAt": "2026-11-26T15:05:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Rayman Legends Retold na nowym zwiastunie. Ubisoft przedstawia tajemniczego złoczyńcę",
-      "url": "https://www.gram.pl/news/rayman-legends-retold-na-nowym-zwiastunie-ubisoft-przedstawia-tajemniczego-zloczynce",
-      "publishedAt": "2026-11-26T15:00:00+00:00"
     },
     {
       "source": "rps",
@@ -187,22 +535,10 @@
       "publishedAt": "2026-11-26T14:51:00+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Silent Hill Remake bez opóźnień! Bloober Team nie wyklucza też kolejnych remake’ów kultowych horrorów",
-      "url": "https://www.ppe.pl/news/434688/silent-hill-remake-bez-opoznien-bloober-team-nie-wyklucza-tez-kolejnych-remake-ow-kultowych-horrorow.html",
-      "publishedAt": "2026-11-26T14:46:00+00:00"
-    },
-    {
       "source": "pcgamer",
       "title": "GTA 6 Truffade Thrax: How to get Andrew Node's supercharged version",
       "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-truffade-thrax-andrew-node-no-flusher/",
       "publishedAt": "2026-11-26T14:37:19+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "The Witcher 3 Wild Hunt Remastered - Zwiastun wsparcia modów międzyplatformowych",
-      "url": "https://pl.ign.com/the-witcher-3-wild-hunt/78227/the-witcher-3-wild-hunt-remastered-zwiastun-wsparcia-modow-miedzyplatformowych",
-      "publishedAt": "2026-11-26T14:32:24+00:00"
     },
     {
       "source": "cdaction",
@@ -211,28 +547,10 @@
       "publishedAt": "2026-11-26T14:30:14+00:00"
     },
     {
-      "source": "gram",
-      "title": "Twórca Devil May Cry chce stworzyć nową Castlevanię. \"Możemy zrobić coś naprawdę szalonego\"",
-      "url": "https://www.gram.pl/news/tworca-devil-may-cry-chce-stworzyc-nowa-castlevanie-mozemy-zrobic-cos-naprawde-szalonego",
-      "publishedAt": "2026-11-26T14:30:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Quantum Break 2 powstanie? Remedy zabrało głos, ale decyzja należy do Microsoftu",
-      "url": "https://www.ppe.pl/news/434687/quantum-break-2-powstanie-remedy-zabralo-glos-ale-decyzja-nalezy-do-microsoftu.html",
-      "publishedAt": "2026-11-26T14:26:00+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Czy GTA 6 to gra rodem z PS6? To najładniejszy tytuł tej generacji, który pokazuje, że z PS5 już więcej nie wyciśniemy [RECENZJA TECHNICZNA]",
       "url": "https://cdaction.pl/technologie/czy-gta-6-to-gra-rodem-z-ps6-to-najladniejszy-tytul-tej-generacji-ktory-pokazuje-ze-z-ps5-juz-wiecej-nie-wycisniemy-recenzja-techniczna/",
       "publishedAt": "2026-11-26T14:23:22+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "These budget-friendly pads are the cheapest, quickest way to instantly upgrade your setup for under $25",
-      "url": "https://www.pcgamer.com/hardware/game-pads/these-budget-friendly-pads-are-the-cheapest-quickest-way-to-instantly-upgrade-your-setup-for-under-usd25/",
-      "publishedAt": "2026-11-26T14:20:36+00:00"
     },
     {
       "source": "eurogamer",
@@ -241,40 +559,16 @@
       "publishedAt": "2026-11-26T14:18:20+00:00"
     },
     {
-      "source": "gram",
-      "title": "Wiedźmin 3 z kolejną aktualizacją. Geralt nie będzie już tracił głowy",
-      "url": "https://www.gram.pl/news/wiedzmin-3-z-kolejna-aktualizacja-geralt-nie-bedzie-juz-tracil-glowy",
-      "publishedAt": "2026-11-26T14:15:00+00:00"
-    },
-    {
       "source": "eurogamer",
       "title": "After playing the game, 30% of polled GTA 6 players want to buy flowers for a loved one, 9% accidentally punched cats",
       "url": "https://www.eurogamer.net/gta-6-30-percent-buy-flowers-punch-cats",
       "publishedAt": "2026-11-26T14:09:10+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Nie żyje od trzech lat, a teraz wraca do EA Sports FC 27. Legenda piłki nożnej otrzyma głos dzięki AI",
-      "url": "https://www.ppe.pl/news/434686/nie-zyje-od-trzech-lat-a-teraz-wraca-do-ea-sports-fc-27-legenda-pilki-noznej-otrzyma-glos-dzieki-ai.html",
-      "publishedAt": "2026-11-26T14:06:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "EA Sports FC 27 otrzymało nową aktualizację. Twórcy robią REWOLUCJĘ w gameplayu!",
-      "url": "https://www.ppe.pl/news/434697/ea-sports-fc-27-otrzymalo-nowa-aktualizacje-tworcy-robia-rewolucje-w-gameplayu.html",
-      "publishedAt": "2026-11-26T14:01:00+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Ubisoft odpowiada na pozew w sprawie kłamliwego marketingu Skull and Bones. Prawnicy bronią terminu „AAAA”",
       "url": "https://cdaction.pl/newsy/ubisoft-odpowiada-na-pozew-w-sprawie-klamliwego-marketingu-skull-and-bones-prawnicy-bronia-terminu-aaaa/",
       "publishedAt": "2026-11-26T14:00:25+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Wielkie kontrowersje wokół serialowego Harry’ego Pottera. Fani nie są zadowoleni z nowego wyglądu tych postaci",
-      "url": "https://www.gram.pl/news/wielkie-kontrowersje-wokol-serialowego-harryego-pottera-fani-nie-sa-zadowoleni-z-nowego-wygladu-tych-postaci",
-      "publishedAt": "2026-11-26T14:00:00+00:00"
     },
     {
       "source": "gryonline",
@@ -289,57 +583,15 @@
       "publishedAt": "2026-11-26T13:55:50+00:00"
     },
     {
-      "source": "ignpl",
-      "title": "Showrunner Pierścieni Władzy wyjaśnia „inną stronę” Balroga Simona Pegga: „To faktycznie jest wierne książkom”",
-      "url": "https://pl.ign.com/the-lord-of-the-rings-the-rings-of-power/78225/showrunner-pierscieni-wladzy-wyjasnia-inna-strone-balroga-simona-pegga-to-faktycznie-jest-wierne-ksi",
-      "publishedAt": "2026-11-26T13:55:17+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "GTA 6 może zaoferować więcej FPS na PS5 Pro. Gracze analizują możliwości graficzne gry",
-      "url": "https://www.ppe.pl/news/434683/gta-6-moze-zaoferowac-wiecej-fps-na-ps5-pro-gracze-analizuja-mozliwosci-graficzne-gry.html",
-      "publishedAt": "2026-11-26T13:43:00+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Spotify ujawnia gigantyczny skok odtworzeń muzyki z GTA 6",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78224/spotify-ujawnia-gigantyczny-skok-odtworzen-muzyki-z-gta-6",
-      "publishedAt": "2026-11-26T13:40:26+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "CD Projekt RED nie zwalnia ani na moment. Wiedźmin 3: Dziki Gon Remaster otrzymał konkretny zestaw poprawek",
-      "url": "https://www.ppe.pl/news/434690/cd-projekt-red-nie-zwalnia-ani-na-moment-wiedzmin-3-dziki-gon-remaster-otrzymal-konkretny-zestaw-poprawek.html",
-      "publishedAt": "2026-11-26T13:31:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Ubisoft tłumaczy się przed sądem. Skull and Bones nie miało być gwarancją jakości AAAA",
-      "url": "https://www.gram.pl/news/ubisoft-tlumaczy-sie-przed-sadem-skull-and-bones-nie-mialo-byc-gwarancja-jakosci-aaaa",
-      "publishedAt": "2026-11-26T13:30:00+00:00"
-    },
-    {
       "source": "gryonline",
       "title": "Twórcy świetnej kosmicznej strzelanki wciąż rozpieszczają fanów. Patch 16.0 do Space Marine 2 odświeża klasę Vanguard i dodaje peleryny",
       "url": "https://www.gry-online.pl/newsroom/tworcy-swietnej-kosmicznej-strzelanki-wciaz-rozpieszczaja-fanow-p/z932497",
       "publishedAt": "2026-11-26T13:30:00+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Najnowszy God of War działa na PC w 4K i 240 FPS. Sony traci kolejny ekskluzywny tytuł",
-      "url": "https://www.ppe.pl/news/434679/najnowszy-god-of-war-dziala-na-pc-w-4k-i-240-fps-sony-traci-kolejny-ekskluzywny-tytul.html",
-      "publishedAt": "2026-11-26T13:21:00+00:00"
-    },
-    {
       "source": "gryonline",
       "title": "„Jaki jest sens gwarancji?”. Gracz kupił Xboksa dla GTA 6, konsola mu padła, a w jego kraju Xbox nie ma usługi napraw gwarancyjnych",
       "url": "https://www.gry-online.pl/newsroom/jaki-jest-sens-gwarancji-gracz-kupil-xboksa-dla-gta-6-konsola-mu/za32498",
-      "publishedAt": "2026-11-26T13:20:00+00:00"
-    },
-    {
-      "source": "gryonline",
-      "title": "Nowy rozdział kultowego uniwersum sci-fi potrzebował tylko 1 dnia, by wlecieć do top 10 Prime Video. Liderem w Polsce pozostaje jednak widowisko fantasy",
-      "url": "https://www.gry-online.pl/newsroom/nowy-rozdzial-kultowego-uniwersum-sci-fi-potrzebowal-tylko-1-dnia/z632494",
       "publishedAt": "2026-11-26T13:20:00+00:00"
     },
     {
@@ -355,82 +607,16 @@
       "publishedAt": "2026-11-26T13:15:00+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Polski kandydat do The Game Awards 2026 zostanie rozbudowany. Twórcy na dniach pokażą pierwszy dodatek",
-      "url": "https://www.ppe.pl/news/434684/polski-kandydat-do-the-game-awards-2026-zostanie-rozbudowany-tworcy-na-dniach-pokaza-pierwszy-dodatek.html",
-      "publishedAt": "2026-11-26T13:14:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Twórca Obcego 3 zaskakuje nowym pomysłem na film, w dodatku z udziałem Brada Pitta",
-      "url": "https://www.gram.pl/news/tworca-obcego-3-zaskakuje-nowym-pomyslem-na-film-w-dodatku-z-udzialem-brada-pitta",
-      "publishedAt": "2026-11-26T13:10:00+00:00"
-    },
-    {
-      "source": "gryonline",
-      "title": "Vibehakerzy o krok od wypuszczenia GTA 6 na PC, a część graczy ostrzega przed pobieraniem byle czego",
-      "url": "https://www.gry-online.pl/newsroom/vibehakerzy-o-krok-od-wypuszczenia-gta-6-na-pc-a-czesc-graczy-ost/z832496",
-      "publishedAt": "2026-11-26T13:09:00+00:00"
-    },
-    {
-      "source": "ppe",
-      "title": "Steam Next Fest wywołał kontrowersje. Teraz powstał festiwal dla gier bez AI",
-      "url": "https://www.ppe.pl/news/434685/steam-next-fest-wywolal-kontrowersje-teraz-powstal-festiwal-dla-gier-bez-ai.html",
-      "publishedAt": "2026-11-26T13:06:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "Should you participate in GTA 6's Safe Word mission?",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-safe-word-participate-or-not/",
-      "publishedAt": "2026-11-26T13:03:16+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "GTA 6 miało mieć jeszcze więcej aktywności, ale Rockstar je wyciął. Gracze dzielą się mało znanymi mechanikami, które znajdują się w grze",
-      "url": "https://www.gram.pl/news/gta-6-mialo-miec-jeszcze-wiecej-aktywnosci-ale-rockstar-je-wycial-gracze-dziela-sie-malo-znanymi-mechanikami-ktore-znajduja-sie-w-grze",
-      "publishedAt": "2026-11-26T13:00:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Black Week z Actina na Sferis.pl – gamingowe PC nawet do 2500 zł taniej!",
-      "url": "https://www.gram.pl/news/black-week-z-actina-na-sferis-pl-gamingowe-pc-nawet-do-2500-zl-taniej",
-      "publishedAt": "2026-11-26T13:00:00+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Grałem w pełną wersję Path of Exile 2. Ta gra może okazać się dla hack’n’slashy tym, czym GTA 6 dla mainstreamu",
       "url": "https://cdaction.pl/juz-gralismy/gralem-w-pelna-wersje-path-of-exile-2-ta-gra-moze-okazac-sie-dla-hacknslashy-tym-czym-gta-6-dla-mainstreamu/",
       "publishedAt": "2026-11-26T12:56:23+00:00"
     },
     {
-      "source": "gryonline",
-      "title": "Diablo 2 jeszcze nigdy nie wyglądało tak absurdalnie. Gracz przywrócił zapomnianą zabawę z gier lat 90",
-      "url": "https://www.gry-online.pl/newsroom/diablo-2-jeszcze-nigdy-nie-wygladalo-tak-absurdalnie-gracz-przywr/z732495",
-      "publishedAt": "2026-11-26T12:42:00+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Nowy Spider-Man wycieka. Cztery minuty z filmu, na który czekamy już od trzech lat",
-      "url": "https://www.gram.pl/news/nowy-spider-man-wycieka-cztery-minuty-z-filmu-na-ktory-czekamy-juz-od-trzech-lat",
-      "publishedAt": "2026-11-26T12:40:00+00:00"
-    },
-    {
-      "source": "gryonline",
-      "title": "Volkswagen Golf R oraz Golf GTI Edition 50 w realu i w Assetto Corsa EVO. Czy gra dobrze oddaje różnice między sportowymi autami?",
-      "url": "https://www.gry-online.pl/opinie/volkswagen-golf-r-oraz-golf-gti-edition-50-w-realu-i-w-assetto-co/z249e0",
-      "publishedAt": "2026-11-26T12:36:00+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "GTA 6 na PC ma już osiągać ponad 30 fps-ów. Piracki wyścig trwa w najlepsze",
       "url": "https://cdaction.pl/newsy/gta-6-na-pc-ma-juz-osiagac-ponad-30-fps-ow-piracki-wyscig-trwa-w-najlepsze/",
       "publishedAt": "2026-11-26T12:30:17+00:00"
-    },
-    {
-      "source": "gram",
-      "title": "Bloober Team ujawnia plany na 2027 rok. Polskie studio szykuje więcej niespodzianek",
-      "url": "https://www.gram.pl/news/bloober-team-ujawnia-plany-na-2027-rok-polskie-studio-szykuje-wiecej-niespodzianek",
-      "publishedAt": "2026-11-26T12:30:00+00:00"
     },
     {
       "source": "eurogamerpl",
@@ -445,18 +631,6 @@
       "publishedAt": "2026-11-26T12:22:30+00:00"
     },
     {
-      "source": "gram",
-      "title": "90-letni twórca kultowego science fiction ma ponad 20 niezrealizowanych scenariuszy. Szykuje się wielki powrót?",
-      "url": "https://www.gram.pl/news/90-letni-tworca-kultowego-science-fiction-ma-ponad-20-niezrealizowanych-scenariuszy-szykuje-sie-wielki-powrot",
-      "publishedAt": "2026-11-26T12:20:00+00:00"
-    },
-    {
-      "source": "gryonline",
-      "title": "30-letni Pentium Pro dzięki nowemu oprogramowaniu mógłby dziś rozgromić Kasparowa i Carlsena",
-      "url": "https://www.gry-online.pl/newsroom/30-letni-pentium-pro-dzieki-nowemu-oprogramowaniu-moglby-dzis-roz/z532493",
-      "publishedAt": "2026-11-26T12:20:00+00:00"
-    },
-    {
       "source": "eurogamer",
       "title": "Ubisoft reportedly goes all in on company-wide generative-AI use, and if developers don't want to use it, they have to explain why in detail",
       "url": "https://www.eurogamer.net/ubisoft-reportedly-goes-all-in-on-company-wide-generative-ai-use-and-if-developers-dont-want-to-use-it-they-have-to-explain-why-in-detail",
@@ -469,34 +643,10 @@
       "publishedAt": "2026-11-26T12:07:00+00:00"
     },
     {
-      "source": "pcgamer",
-      "title": "Forget the turkey, the best thing on your plate this Thanksgiving is this RTX 5070 laptop for just $1,300",
-      "url": "https://www.pcgamer.com/hardware/gaming-laptops/forget-the-turkey-the-best-thing-on-your-plate-this-thanksgiving-is-this-rtx-5070-laptop-for-just-usd1-299/",
-      "publishedAt": "2026-11-26T12:00:26+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Polscy fani tworzą film osadzony w świecie Cyberpunka 2077! Zobaczcie pierwszy zwiastun",
       "url": "https://cdaction.pl/newsy/polscy-fani-tworza-film-osadzony-w-swiecie-cyberpunka-2077-zobaczcie-pierwszy-zwiastun/",
       "publishedAt": "2026-11-26T12:00:00+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Warhammer 40,000: Space Marine 2 Patch 16 - Zrzuty ekranu",
-      "url": "https://pl.ign.com/warhammer-40000-space-marine-ii/78219/warhammer-40000-space-marine-2-patch-16-zrzuty-ekranu",
-      "publishedAt": "2026-11-26T11:55:24+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Warhammer 40,000: Space Marine 2 nie zwalnia tempa dwa lata po premierze. Patch 16.0 przebudowuje klasę Vanguard i wprowadza masę nowości, ale na wydanie Switch 2 poczekamy do 2027 roku",
-      "url": "https://pl.ign.com/warhammer-40000-space-marine-ii/78218/warhammer-40000-space-marine-2-nie-zwalnia-tempa-dwa-lata-po-premierze-patch-160-przebudowuje-klase",
-      "publishedAt": "2026-11-26T11:55:24+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Netflix anulował dwa seriale po pierwszych sezonach. Co trafiło do śmietnika?",
-      "url": "https://pl.ign.com/seriale/78222/netflix-anulowal-dwa-seriale-po-pierwszych-sezonach-co-trafilo-do-smietnika",
-      "publishedAt": "2026-11-26T11:39:02+00:00"
     },
     {
       "source": "eurogamerpl",
@@ -505,28 +655,10 @@
       "publishedAt": "2026-11-26T11:32:20+00:00"
     },
     {
-      "source": "ignpl",
-      "title": "Koniec z bezmyślną rozwałką? Szef Rockstar Games broni kontrowersyjnego systemu profilu kryminalnego w GTA 6 i wyjaśnia, dlaczego gra nie jest już zwykłą fantazją o potędze",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78220/koniec-z-bezmyslna-rozwalka-szef-rockstar-games-broni-kontrowersyjnego-systemu-profilu-kryminalnego",
-      "publishedAt": "2026-11-26T11:30:51+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Twórcy Hollow Knight: Silksong przerywają milczenie. Mają coś ważnego do powiedzenia o darmowym dodatku Sea of Sorrow",
       "url": "https://cdaction.pl/newsy/tworcy-hollow-knight-silksong-przerywaja-milczenie-maja-cos-waznego-do-powiedzenia-o-darmowym-dodatku-sea-of-sorrow/",
       "publishedAt": "2026-11-26T11:15:49+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Infinity Nikki - Zwiastun premierowy aktualizacji 3.0",
-      "url": "https://pl.ign.com/infinity-nikki/78223/infinity-nikki-zwiastun-premierowy-aktualizacji-30",
-      "publishedAt": "2026-11-26T11:12:23+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "WoW: Forever fixes one of its most annoying endgame quests the literal day after I do it",
-      "url": "https://www.pcgamer.com/games/world-of-warcraft/wow-forever-fixes-one-of-its-most-annoying-endgame-quests-the-literal-day-after-i-do-it/",
-      "publishedAt": "2026-11-26T11:11:17+00:00"
     },
     {
       "source": "eurogamer",
@@ -547,24 +679,6 @@
       "publishedAt": "2026-11-26T10:30:00+00:00"
     },
     {
-      "source": "ignpl",
-      "title": "Tony Hawk i Son Goku zapraszają na grudniową ofertę PS Plus",
-      "url": "https://pl.ign.com/playstation/78198/toiny-hawk-i-goku-zapraszaja-na-grudniowa-oferte-ps-plus",
-      "publishedAt": "2026-11-26T10:27:13+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Technologia DLSS w kolejnych grach. Nvidia ma dobre wieści dla graczy Where Winds Meet",
-      "url": "https://pl.ign.com/pc/78217/technologia-dlss-w-kolejnych-grach-nvidia-ma-dobre-wiesci-dla-graczy-where-winds-meet",
-      "publishedAt": "2026-11-26T10:21:29+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "KFC rozpoczyna współpracę z Avengers: Doomsday! Na fanów Marvela czeka limitowane menu",
-      "url": "https://pl.ign.com/marvel/78216/kfc-rozpoczyna-wspolprace-z-avengers-doomsday-na-fanow-marvela-czeka-limitowane-menu",
-      "publishedAt": "2026-11-26T10:14:48+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "Twórca Wardogs ostro o developerach Battlefielda 6. „Wpadli w pułapkę swoich graczy”",
       "url": "https://cdaction.pl/newsy/tworca-wardogs-ostro-o-developerach-battlefielda-6-wpadli-w-pulapke-swoich-graczy/",
@@ -583,60 +697,6 @@
       "publishedAt": "2026-11-26T09:15:00+00:00"
     },
     {
-      "source": "cdaction",
-      "title": "Disney idzie w zaparte. Wytwórnia potwierdziła daty premier „Avatara 4” i „Avatara 5”",
-      "url": "https://cdaction.pl/kultura/disney-idzie-w-zaparte-wytwornia-potwierdzila-daty-premier-avatara-4-i-avatara-5/",
-      "publishedAt": "2026-11-26T08:30:00+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "All Missing Persons locations in GTA 6",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-missing-persons-locations/",
-      "publishedAt": "2026-11-26T05:24:13+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "The latest adult game in the Muv-Luv series has some woeful AI translation and players aren't happy about it",
-      "url": "https://www.pcgamer.com/games/visual-novel/the-latest-adult-game-in-the-muv-luv-series-has-some-woeful-ai-translation-and-players-arent-happy-about-it/",
-      "publishedAt": "2026-11-26T05:03:03+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "GTA 6 has weird purple streetlights because actual Florida screwed up its streetlights",
-      "url": "https://www.pcgamer.com/games/grand-theft-auto/gta-6-has-weird-purple-streetlights-because-actual-florida-screwed-up-its-streetlights/",
-      "publishedAt": "2026-11-25T22:36:12+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "Warhammer Survivors update buffs XP and weapons, nerfs those damn Beasts of Nurgle",
-      "url": "https://www.pcgamer.com/games/roguelike/warhammer-survivors-update-buffs-xp-and-weapons-nerfs-those-damn-beasts-of-nurgle/",
-      "publishedAt": "2026-11-25T22:32:23+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "Capcom's quirky dinosaur-fighting hero shooter is shutting down in 2027",
-      "url": "https://www.pcgamer.com/games/third-person-shooter/capcoms-quirky-dinosaur-fighting-hero-shooter-is-shutting-down-in-2027/",
-      "publishedAt": "2026-11-25T21:37:51+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "Trump admin didn't investigate Jensen Huang before pushing Nvidia to bring him back: 'What does that mean, had Huang been investigated? For what?'",
-      "url": "https://www.pcgamer.com/software/ai/trump-admin-didnt-investigate-jensen-huang-before-pushing-nvidia-to-bring-him-back-what-does-that-mean-had-huang-been-investigated-for-what/",
-      "publishedAt": "2026-11-25T21:31:41+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Wiedźmin 3 i Assassin's Creed „zresetowały oczekiwania graczy” wobec RPG-ów akcji z otwartym światem, więc twórcy rebootu Fable musieli szukać inspiracji poza oryginalną trylogią",
-      "url": "https://pl.ign.com/the-witcher-3-wild-hunt/78188/wiedzmin-3-i-assassins-creed-zresetowaly-oczekiwania-graczy-wobec-rpg-ow-akcji-z-otwartym-swiatem-wi",
-      "publishedAt": "2026-11-25T21:21:32+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "GTA 6 nie pozwala na powtarzanie misji, a Rockstar twierdzi, że ma ku temu dobry powód",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78210/gta-6-nie-pozwala-na-powtarzanie-misji-a-rockstar-twierdzi-ze-ma-ku-temu-dobry-powod",
-      "publishedAt": "2026-11-25T20:50:51+00:00"
-    },
-    {
       "source": "eurogamer",
       "title": "The Fable reboot had to look beyond Lionhead's RPG trilogy because games like The Witcher 3 \"became the gold standard\"",
       "url": "https://www.eurogamer.net/fable-the-witcher-3-gold-standard",
@@ -649,22 +709,10 @@
       "publishedAt": "2026-11-25T19:36:30+00:00"
     },
     {
-      "source": "eurogamer",
-      "title": "Original Devil May Cry and Bayonetta director Hideki Kamiya really wants Konami to let him make a \"truly insane\" Castlevania game",
-      "url": "https://www.eurogamer.net/hideki-kamiya-konami-truly-insane-castlevania",
-      "publishedAt": "2026-11-25T18:55:20+00:00"
-    },
-    {
       "source": "eurogamerpl",
       "title": "Oto oferta PS Plus na koniec roku. W grudniu pojeździmy na deskorolce i uciekniemy z bunkra",
       "url": "https://www.eurogamer.pl/oto-oferta-ps-plus-na-koniec-roku-w-grudniu-pojezdzimy-na-deskorolce-i-uciekniemy-z-bunkra",
       "publishedAt": "2026-11-25T18:10:40+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "title": "EA is resurrecting a dead commentator with AI for EA Sports FC 27, years after his last appearance in a FIFA game",
-      "url": "https://www.eurogamer.net/ea-sports-fc27-dead-commentator-ai",
-      "publishedAt": "2026-11-25T17:59:00+00:00"
     },
     {
       "source": "eurogamerpl",
@@ -679,34 +727,16 @@
       "publishedAt": "2026-11-25T17:24:30+00:00"
     },
     {
-      "source": "eurogamer",
-      "title": "Here are our PS Plus monthly games for December 2026",
-      "url": "https://www.eurogamer.net/playstation-plus-monthly-games-december-2026",
-      "publishedAt": "2026-11-25T17:14:40+00:00"
-    },
-    {
       "source": "eurogamerpl",
       "title": "Hollywood chce ekranizacji GTA, ale Rockstar mówi „nie”. Red Dead Redemption ma większe szanse",
       "url": "https://www.eurogamer.pl/hollywood-chce-ekranizacji-gta-ale-rockstar-mowi-nie-red-dead-redemption-ma-wieksze-szanse",
       "publishedAt": "2026-11-25T16:42:50+00:00"
     },
     {
-      "source": "eurogamer",
-      "title": "Why did Rockstar Games make empathy a key mechanic in GTA 6? \"Because it's fun\" says head of development Rob Nelson",
-      "url": "https://www.eurogamer.net/gta-6-empathy-criminal-profile-why-rockstar-added-it-rob-nelson",
-      "publishedAt": "2026-11-25T16:42:30+00:00"
-    },
-    {
       "source": "rps",
       "title": "Paradox grand strategy Afterworld has a wasteland band mechanic that sounds worryingly like a continent-sized game of The Sims",
       "url": "https://www.rockpapershotgun.com/paradox-grand-strategy-afterworld-has-a-wasteland-band-mechanic-that-sounds-worryingly-like-a-continent-sized-game-of-the-sims",
       "publishedAt": "2026-11-25T16:42:00+00:00"
-    },
-    {
-      "source": "eurogamer",
-      "title": "World of Warcraft: Forever's best new enchantment has been quietly changed, leaving some casters on the back foot",
-      "url": "https://www.eurogamer.net/world-of-warcraft-forever-revelation-enchantment-nerfed",
-      "publishedAt": "2026-11-25T16:13:50+00:00"
     },
     {
       "source": "rps",
@@ -745,22 +775,10 @@
       "publishedAt": "2026-11-25T12:08:50+00:00"
     },
     {
-      "source": "rps",
-      "title": "Delivering \"a more modern Garry's Mod\" is the goal of spiritual successor S&box's revamped sandbox mode, as classic GMod's workshop addon system returns",
-      "url": "https://www.rockpapershotgun.com/delivering-a-more-modern-garrys-mod-is-the-goal-of-spiritual-successor-sboxs-revamped-sandbox-mode-as-classic-gmods-workshop-addon-system-returns",
-      "publishedAt": "2026-11-25T11:10:00+00:00"
-    },
-    {
       "source": "eurogamerpl",
       "title": "Lords of the Fallen 2 z nowym terminem premiery. CI Games podało konkretny miesiąc",
       "url": "https://www.eurogamer.pl/lords-of-the-fallen-2-z-nowym-terminem-premiery-ci-games-podalo-konkretny-miesiac",
       "publishedAt": "2026-11-25T10:53:30+00:00"
-    },
-    {
-      "source": "rps",
-      "title": "AI-generated GTA 6 PC ports get nuked in alleged Rockstar takedown spree, as former Bungie dev hails \"most ridiculous dumpster fire ever\"",
-      "url": "https://www.rockpapershotgun.com/ai-generated-gta-6-pc-ports-get-nuked-in-alleged-rockstar-takedown-spree-as-former-bungie-dev-hails-most-ridiculous-dumpster-fire-ever",
-      "publishedAt": "2026-11-25T10:38:50+00:00"
     },
     {
       "source": "eurogamerpl",
@@ -769,28 +787,10 @@
       "publishedAt": "2026-11-25T09:50:40+00:00"
     },
     {
-      "source": "rps",
-      "title": "I'm not smart enough for the blocky, Factorio-esque spaceship and -station building sim Astario, but now that it's out in early access maybe you could be",
-      "url": "https://www.rockpapershotgun.com/im-not-smart-enough-for-the-blocky-factorio-esque-spaceship-and-station-building-sim-astario-but-now-that-its-out-in-early-access-maybe-you-could-be",
-      "publishedAt": "2026-11-24T22:51:40+00:00"
-    },
-    {
-      "source": "rps",
-      "title": "Bitmap Brothers' iconic, robotic RTS game Z is unofficially back thanks to an open source, 3D remake",
-      "url": "https://www.rockpapershotgun.com/bitmap-brothers-iconic-robotic-rts-game-z-is-unofficially-back-thanks-to-an-open-source-3d-remake",
-      "publishedAt": "2026-11-24T21:34:40+00:00"
-    },
-    {
       "source": "eurogamerpl",
       "title": "Wiedźmin 4 przeskoczy poprzednika podobnie, jak GTA 6 przeskoczyło GTA 5 - zapowiada CD Projekt Red",
       "url": "https://www.eurogamer.pl/wiedzmin-4-ma-przeskoczyc-poprzednika-podobnie-jak-gta-6-przeskoczylo-gta-5-zapowiada-cd-projekt-red",
       "publishedAt": "2026-11-24T19:20:40+00:00"
-    },
-    {
-      "source": "rps",
-      "title": "Bare fist, megastructure climbing roguelike White Knuckle gets its penultimate region in The Core, a sterile, hostile reactor sector that you'll probably die in",
-      "url": "https://www.rockpapershotgun.com/bare-fist-megastructure-climbing-roguelike-white-knuckle-gets-its-penultimate-region-in-the-core-a-sterile-hostile-reactor-sector-that-youll-probably-die-in",
-      "publishedAt": "2026-11-24T19:10:40+00:00"
     },
     {
       "source": "eurogamerpl",
