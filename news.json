@@ -1,6 +1,42 @@
 {
   "articles": [
     {
+      "source": "pcgamer",
+      "title": "The better version of the wireless headset I love is $40 off right now",
+      "url": "https://www.pcgamer.com/hardware/the-better-version-of-the-wireless-headset-i-love-is-usd40-off-right-now/",
+      "publishedAt": "2026-11-28T00:01:20+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "The canonical USB microphone is still great, and now a total steal for $70",
+      "url": "https://www.pcgamer.com/hardware/the-canonical-usb-microphone-is-still-great-and-now-a-total-steal-for-usd70/",
+      "publishedAt": "2026-11-27T23:00:01+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "All I want for Christmas is plastic crap based on Armored Core",
+      "url": "https://www.pcgamer.com/games/action/all-i-want-for-christmas-is-plastic-crap-based-on-armored-core/",
+      "publishedAt": "2026-11-27T22:24:20+00:00"
+    },
+    {
+      "source": "pcgamer",
+      "title": "Skate is dropping seasons and season passes in favor of 'regular, agile content updates'",
+      "url": "https://www.pcgamer.com/games/sports/skate-is-dropping-seasons-and-season-passes-in-favor-of-regular-agile-content-updates/",
+      "publishedAt": "2026-11-27T22:13:12+00:00"
+    },
+    {
+      "source": "ppe",
+      "title": "Jason zdradził Lucię w GTA 6? Gracze odkryli dialog, który może wyjaśniać wielką tajemnicę",
+      "url": "https://www.ppe.pl/news/434834/jason-zdradzil-lucie-w-gta-6-gracze-odkryli-dialog-ktory-moze-wyjasniac-wielka-tajemnice.html",
+      "publishedAt": "2026-11-27T21:26:36+00:00"
+    },
+    {
+      "source": "ignpl",
+      "title": "30 arcydzieł gatunku FPS, w które musisz zagrać",
+      "url": "https://pl.ign.com/call-of-duty-4-modern-warfare-1/78282/30-arcydziel-gatunku-fps-w-ktore-musisz-zagrac",
+      "publishedAt": "2026-11-27T21:21:44+00:00"
+    },
+    {
       "source": "ppe",
       "title": "Where Winds Meet - analiza techniczna implementacji DLSS 5. Jak wypada i co zmienia?",
       "url": "https://www.ppe.pl/publicystyka/434838/where-winds-meet-analiza-techniczna-implementacji-dlss-5-jak-wypada-i-co-zmienia.html",
@@ -164,7 +200,7 @@
     },
     {
       "source": "eurogamer",
-      "title": "Rumored The Simpsons: Hit & Run remake may be in trouble after one developer says their \"mind-blowingly awesome\" project is cancelled",
+      "title": "Rumoured The Simpsons: Hit & Run remake may be in trouble after one developer says their \"mind-blowingly awesome\" project is cancelled",
       "url": "https://www.eurogamer.net/simpsons-hit-and-run-remake-rumored-cancelled",
       "publishedAt": "2026-11-27T18:08:20+00:00"
     },
@@ -391,12 +427,6 @@
       "publishedAt": "2026-11-27T15:16:10+00:00"
     },
     {
-      "source": "ppe",
-      "title": "Szef Path of Exile 2 uderza w Blizzarda. „Naprawdę fatalny” sposób zapowiadania gier",
-      "url": "https://www.ppe.pl/news/434815/szef-path-of-exile-2-uderza-w-blizzarda-naprawde-fatalny-sposob-zapowiadania-gier.html",
-      "publishedAt": "2026-11-27T15:16:00+00:00"
-    },
-    {
       "source": "cdaction",
       "title": "2. sezon „Rycerzy Doliny Rozdupy” Walaszka jest średni, czyli super [RECENZJA]",
       "url": "https://cdaction.pl/kultura/2-sezon-rycerzy-doliny-rozdupy-walaszka-jest-sredni-czyli-super-recenzja/",
@@ -527,12 +557,6 @@
       "title": "Ponad 100 nowości na Netflix w grudniu: polski serial z Borysem Szycem oraz kontynuacja hitu Quentina Tarantino z Bradem Pittem",
       "url": "https://www.gry-online.pl/newsroom/ponad-100-nowosci-na-netflix-w-grudniu-polski-serial-z-borysem-sz/zb324b0",
       "publishedAt": "2026-11-27T13:00:00+00:00"
-    },
-    {
-      "source": "ignpl",
-      "title": "Polska recenzja GTA VI",
-      "url": "https://pl.ign.com/grand-theft-auto-vi/78263/polska-recenzja-gta-vi",
-      "publishedAt": "2026-11-27T12:59:49+00:00"
     },
     {
       "source": "gryonline",
@@ -679,18 +703,6 @@
       "publishedAt": "2026-11-26T22:30:59+00:00"
     },
     {
-      "source": "pcgamer",
-      "title": "Microsoft's Github posts message celebrating efforts to port PlayStation 5 version of Grand Theft Auto 6 to PC, then quickly deletes it",
-      "url": "https://www.pcgamer.com/games/microsofts-github-posts-message-celebrating-efforts-to-port-playstation-5-version-of-grand-theft-auto-6-to-pc-then-quickly-deletes-it/",
-      "publishedAt": "2026-11-26T22:29:06+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "WoW: Forever min-maxers are upset that its 40-player PvP mode now actually requires PvP to win",
-      "url": "https://www.pcgamer.com/games/world-of-warcraft/wow-forever-min-maxers-are-upset-that-its-40-player-pvp-mode-now-actually-requires-pvp-to-win/",
-      "publishedAt": "2026-11-26T22:05:00+00:00"
-    },
-    {
       "source": "rps",
       "title": "Your mothership is a giant pinball machine and your ball is its defence system in Appulse, a top-down roguelite shooter that's out now",
       "url": "https://www.rockpapershotgun.com/your-mothership-is-a-giant-pinball-machine-and-your-ball-is-its-defence-system-in-appulse-a-top-down-roguelite-shooter-thats-out-now",
@@ -703,12 +715,6 @@
       "publishedAt": "2026-11-26T20:35:20+00:00"
     },
     {
-      "source": "pcgamer",
-      "title": "Steam isn't doing 'an official Black Friday fest,' but it does have a page with hundreds of discounts and 'Black Friday' splashed across the top so you might want to check it out anyway",
-      "url": "https://www.pcgamer.com/games/steam-isnt-doing-an-official-black-friday-fest-but-it-does-have-a-page-with-hundreds-of-discounts-and-black-friday-splashed-across-the-top-so-you-might-want-to-check-it-out-anyway/",
-      "publishedAt": "2026-11-26T20:20:02+00:00"
-    },
-    {
       "source": "eurogamer",
       "title": "The Witcher 3's new patch adds 40 cross-platform mods, fixes plenty of game-breaking bugs and \"various lighting issues\"",
       "url": "https://www.eurogamer.net/the-witcher-3-patch-40-mods-bugs",
@@ -719,12 +725,6 @@
       "title": "HARK THE GHOUL is a Victorian gothic dungeon crawler RPG that features a trench-coat-wearing rat man who wants to sell you rats a la counterfeit watches",
       "url": "https://www.rockpapershotgun.com/hark-the-ghoul-is-a-victorian-gothic-dungeon-crawler-rpg-that-features-a-trench-coat-wearing-rat-man-who-wants-to-sell-you-rats-a-la-counterfeit-watches",
       "publishedAt": "2026-11-26T18:53:30+00:00"
-    },
-    {
-      "source": "pcgamer",
-      "title": "Dev team who delayed their game a year to avoid Silksong says they won't do it again for whatever Team Cherry announces tomorrow: 'This time we're staying put'",
-      "url": "https://www.pcgamer.com/games/action/dev-team-who-delayed-their-game-a-year-to-avoid-silksong-says-they-wont-do-it-again-for-whatever-team-cherry-announces-tomorrow-this-time-were-staying-put/",
-      "publishedAt": "2026-11-26T18:31:22+00:00"
     },
     {
       "source": "eurogamer",
